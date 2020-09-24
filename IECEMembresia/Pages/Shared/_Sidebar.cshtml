@@ -1,0 +1,171 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" asp-area="" asp-page="/Index">
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">IECE</div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Sector
+        </div>
+
+        <!-- Nav Item - Sector -->
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-page="/Sector/Index">
+                <i class="fas fa-fw fa-place-of-worship"></i>
+                <span>Datos generales</span>
+            </a>
+        </li>
+
+        <!-- Nav Item - Personal General -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-area="" asp-page="/Personal/Index">
+                <i class="fas fa-fw fa-address-book"></i>
+                <span>Personal general</span>
+            </a>
+        </li>
+
+        <!-- Nav Item - Personal bautizado
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-area="" asp-page="/PersonalBautizado/Index">
+                <i class="fas fa-fw fa-id-card"></i>
+                <span>Personal bautizado</span>
+            </a>
+        </li> -->
+        <!-- Nav Item - Personal no bautizado
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-area="" asp-page="/PersonalNoBautizado/Index">
+                <i class="fas fa-fw fa-users"></i>
+                <span>Personal no bautizado</span>
+            </a>
+        </li> -->
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Movimientos de personal
+        </div>
+
+        <!-- Nav Item - Altas Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapseMPAltas" aria-expanded="true" aria-controls="collapsePages">
+                <i class="fas fa-fw fa-user-check"></i>
+                <span>Alta de personal</span>
+            </a>
+            <div id="collapseMPAltas" class="collapse" aria-labelledby="headingMPAltas" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Personal bautizado:</h6>
+                    <a class="collapse-item" asp-area="" asp-page="#">Bautismo</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Cambio de domicilio</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Restitucion</a>
+                    <h6 class="collapse-header">Personal no bautizado:</h6>
+                    <a class="collapse-item" asp-area="" asp-page="#">Nuevo ingreso</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Cambio de domicilio</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Reactivacion</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Bajas Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapseMPBajas" aria-expanded="true" aria-controls="collapsePages">
+                <i class="fas fa-fw fa-user-times"></i>
+                <span>Baja de personal</span>
+            </a>
+            <div id="collapseMPBajas" class="collapse" aria-labelledby="headingMPBajas" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Personal bautizado:</h6>
+                    <a class="collapse-item" asp-area="" asp-page="#">Cambio de domicilio</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Defuncion</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Excomunion</a>
+                    <h6 class="collapse-header">Personal no bautizado:</h6>
+                    <a class="collapse-item" asp-area="" asp-page="#">Cambio de domicilio</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Alejamiento</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Defuncion</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Hogares -->
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-page="#">
+                <i class="fas fa-fw fa-home"></i>
+                <span>Hogares</span>
+            </a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Movimientos estadisticos
+        </div>
+
+        <!-- Nav Item - Matrimonios -->
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-page="#">
+                <i class="fas fa-fw fa-user-friends"></i>
+                <span>Matrimonios</span>
+            </a>
+        </li>
+
+        <!-- Nav Item - Presentaciones -->
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-page="#">
+                <i class="fas fa-fw fa-baby"></i>
+                <span>Presentaciones</span>
+            </a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Seccion de reportes
+        </div>
+
+        <!-- Nav Item - Reportes Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapseReportes" aria-expanded="true" aria-controls="collapsePages">
+                <i class="fas fa-fw fa-clipboard-list"></i>
+                <span>Reportes</span>
+            </a>
+            <div id="collapseReportes" class="collapse" aria-labelledby="headingReportes" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Seleccione un reporte:</h6>
+                    <a class="collapse-item" asp-area="" asp-page="#">Membresia general</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Membresia bautizada</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Lista de hogares</a>
+                    <a class="collapse-item" asp-area="" asp-page="#">Informe pastoral</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+    </ul>
+    <!-- End of Sidebar -->

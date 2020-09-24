@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace IECEMembresia.Pages.Shared
+namespace IECEMembresia.Pages
 {
-    public class _NavTopbarModel : PageModel
+    public class SigninModel : PageModel
     {
         public void OnGet()
         {

@@ -33,5 +33,7 @@ C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Sector\Index.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\PersonalBautizado\Index.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\PersonalNoBautizado\Index.g.cshtml.cs
-C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Shared\_NavSidebar.g.cshtml.cs
-C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Shared\_NavTopbar.g.cshtml.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Shared\_Footer.g.cshtml.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Signin.g.cshtml.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Shared\_Sidebar.g.cshtml.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Debug\netcoreapp2.2\Razor\Pages\Shared\_Topbar.g.cshtml.cs
