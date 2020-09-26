@@ -64,11 +64,12 @@
 
         <!-- Nav Item - Altas Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapseMPAltas" aria-expanded="true" aria-controls="collapsePages">
+            @*<a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapseMPAltas" aria-expanded="true" aria-controls="collapsePages">*@
+            <a class="nav-link collapsed" asp-area="" asp-page="/Personas/Create">
                 <i class="fas fa-fw fa-user-check"></i>
                 <span>Alta de personal</span>
             </a>
-            <div id="collapseMPAltas" class="collapse" aria-labelledby="headingMPAltas" data-parent="#accordionSidebar">
+            @*<div id="collapseMPAltas" class="collapse" aria-labelledby="headingMPAltas" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">Personal bautizado:</h6>
                     <a class="collapse-item" asp-area="" asp-page="#">Bautismo</a>
@@ -79,16 +80,17 @@
                     <a class="collapse-item" asp-area="" asp-page="#">Cambio de domicilio</a>
                     <a class="collapse-item" asp-area="" asp-page="#">Reactivacion</a>
                 </div>
-            </div>
+            </div>*@
         </li>
 
         <!-- Nav Item - Bajas Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapseMPBajas" aria-expanded="true" aria-controls="collapsePages">
+            <a class="nav-link collapsed" asp-area="" asp-page="#">
+            @*<a class="nav-link collapsed" asp-area="" asp-page="#" data-toggle="collapse" data-target="#collapsempbajas" aria-expanded="true" aria-controls="collapsepages">*@
                 <i class="fas fa-fw fa-user-times"></i>
                 <span>Baja de personal</span>
             </a>
-            <div id="collapseMPBajas" class="collapse" aria-labelledby="headingMPBajas" data-parent="#accordionSidebar">
+            @*<div id="collapseMPBajas" class="collapse" aria-labelledby="headingMPBajas" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">Personal bautizado:</h6>
                     <a class="collapse-item" asp-area="" asp-page="#">Cambio de domicilio</a>
@@ -99,7 +101,7 @@
                     <a class="collapse-item" asp-area="" asp-page="#">Alejamiento</a>
                     <a class="collapse-item" asp-area="" asp-page="#">Defuncion</a>
                 </div>
-            </div>
+            </div>*@
         </li>
 
         <!-- Nav Item - Hogares -->

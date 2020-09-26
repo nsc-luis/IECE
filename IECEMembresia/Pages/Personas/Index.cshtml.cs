@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace IECEMembresia.Pages.Personal
+namespace IECEMembresia.Pages.Personas
 {
     public class IndexModel : PageModel
     {

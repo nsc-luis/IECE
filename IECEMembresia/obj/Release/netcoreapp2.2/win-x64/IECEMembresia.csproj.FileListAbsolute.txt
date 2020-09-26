@@ -17,7 +17,6 @@ C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\IECEMembresia.RazorCoreGenerate.cache
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Error.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Index.g.cshtml.cs
-C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Personal\Index.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Privacy.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Sector\Index.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Shared\_CookieConsentPartial.g.cshtml.cs
@@ -38,3 +37,5 @@ C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Shared\_Sidebar.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Shared\_Topbar.g.cshtml.cs
 C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Signin.g.cshtml.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Personas\Create.g.cshtml.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECEMembresia\obj\Release\netcoreapp2.2\win-x64\Razor\Pages\Personas\Index.g.cshtml.cs

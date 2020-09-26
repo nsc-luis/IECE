@@ -1,0 +1,392 @@
+﻿@page
+@model IECEMembresia.Pages.Personas.CreateModel
+@{
+    ViewData["Title"] = "Create";
+}
+
+<partial name="_Sidebar" />
+<partial name="_Topbar" />
+
+<h2 class="text-info">Agregar nuevo miembro</h2>
+
+<div class="border">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="container" style="padding: 30px;">
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-2 offset-sm-2">
+                        <input type="submit" value="Crear" class="btn btn-primary form-control" />
+                    </div>
+                    <div class="col-sm-2 offset-sm-2">
+                        <a asp-area="" asp-page="/" class="btn btn-success form-control">Volver</a>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link" id="generales-tab" data-toggle="tab" href="#generales" role="tab" aria-controls="generales" aria-selected="true">Generales</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="estado-civil-tab" data-toggle="tab" href="#estado-civil" role="tab" aria-controls="estado-civil" aria-selected="true">Estado civil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="eclesiasticos-tab" data-toggle="tab" href="#eclesiasticos" role="tab" aria-controls="eclesiasticos" aria-selected="true">Eclesiasticos</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="generales" role="tabpanel" aria-labelledby="generales-tab">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.sec_Id_Sector"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <select asp-for="Personal.sec_Id_Sector" class="form-control">
+                                    <option vale="0">Selecciona un sector</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Personal.sec_Id_Sector" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Categoria"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <select asp-for="Personal.per_Categoria" class="form-control">
+                                    <option vale="hombre_bautizado">Hombre bautizado</option>
+                                    <option vale="mujer_bautizada">Mujer bautizado</option>
+                                    <option vale="joven_hombre_bautizado">Joven hombre bautizado</option>
+                                    <option vale="joven_mujer_bautizado">Joven mujer bautizado</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Personal.per_Categoria" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Nombre" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Apellido_Paterno"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Apellido_Paterno" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Apellido_Paterno" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Apellido_Materno"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Apellido_Materno" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Apellido_Materno" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Fecha_Nacimiento"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Fecha_Nacimiento" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Fecha_Nacimiento" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Vivo"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_Vivo" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Vivo" class="text-danger"></span>
+
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Activo"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_Activo" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Activo" class="text-danger"></span>
+
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_En_Comunion"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_En_Comunion" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre_Padre"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre_Padre" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre_Madre"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre_Madre" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre_Abuelo_Paterno"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre_Abuelo_Paterno" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre_Abuela_Paterna"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre_Abuela_Paterna" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre_Abuelo_Materno"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre_Abuelo_Materno" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Nombre_Abuela_Materna"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Nombre_Abuela_Materna" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.pro_Id_Profesion_Oficio1"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <select asp-for="Personal.pro_Id_Profesion_Oficio1" class="form-control">
+                                    <option vale="0">Selecciona un sector</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.pro_Id_Profesion_Oficio2"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <select asp-for="Personal.pro_Id_Profesion_Oficio2" class="form-control">
+                                    <option vale="0">Selecciona un sector</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Telefono_Fijo"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Telefono_Fijo" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Telefono_Movil"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Telefono_Movil" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Email_Personal"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Email_Personal" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_foto"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_foto" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Visibilidad_Abierta"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_Visibilidad_Abierta" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Visibilidad_Abierta" class="text-danger"></span>
+
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Solicitud_De_Traslado"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_Solicitud_De_Traslado" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Solicitud_De_Traslado" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="estado-civil" role="tabpanel" aria-labelledby="estado-civil-tab">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Estado_Civil"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <select asp-for="Personal.per_Estado_Civil" class="form-control">
+                                    <option vale="casado">Casado/a</option>
+                                    <option vale="divorciado">Divorciado/a</option>
+                                    <option vale="viudo">Viudo/a</option>
+                                    <option vale="concubinato">Union libre/concubinato</option>
+                                    <option vale="soltero">Soltero SIN hijos</option>
+                                    <option vale="solteroconhijos">Soltero CON hijos</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Personal.per_Estado_Civil" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="eclesiasticos" role="tabpanel" aria-labelledby="eclesiasticos-tab">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Bautizado"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_Bautizado" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Bautizado" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Bautizado"></label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" asp-for="Personal.per_Bautizado" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Personal.per_Bautizado" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Fecha_Recibio_Espiritu_Santo"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Fecha_Recibio_Espiritu_Santo" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Bajo_Imposicion_De_Manos"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Bajo_Imposicion_De_Manos" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label asp-for="Personal.per_Cambios_De_Domicilio"></label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input asp-for="Personal.per_Cambios_De_Domicilio" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<partial name="_Footer" />
