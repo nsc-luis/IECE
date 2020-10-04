@@ -13,6 +13,12 @@ namespace IECEMembresia.Pages.Personas
         [BindProperty]
         public Personal Personal { get; set; }
 
+        [BindProperty]
+        public Hogar Hogar { get; set; }
+
+        [BindProperty]
+        public Domicilio Domicilio { get; set; }
+
         public void OnGet()
         {
 
