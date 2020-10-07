@@ -82,7 +82,7 @@ namespace IECE_WebApi.Controllers
         [HttpPut("{id}")]
         public ActionResult Put(int id, [FromBody] Domicilio domicilio)
         {
-            if (domicilio.dom_Id_Domicilio != id)
+            if (domicilio.dom_Id_Domicilio == id)
             {
                 context.Entry(domicilio).State = EntityState.Modified;
                 context.SaveChanges();

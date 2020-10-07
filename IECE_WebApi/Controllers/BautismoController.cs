@@ -12,68 +12,68 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class BautismoController : ControllerBase
     {
         private readonly AppDbContext context;
 
-        public UsuarioController(AppDbContext context)
+        public BautismoController(AppDbContext context)
         {
             this.context = context;
         }
 
-        // GET: api/Usuario
+        // GET: api/Bautismo
         [HttpGet]
-        public ActionResult<IEnumerable<Usuario>> Get()
+        public ActionResult<IEnumerable<Bautismo>> Get()
         {
             try
             {
-                return Ok(context.Usuario.ToList());
+                return Ok(context.Bautismo.ToList());
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
-        // GET: api/Usuario/5
+        // GET: api/Bautismo/5
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public ActionResult Get(int id)
         {
-            Usuario usuario = new Usuario(); 
+            Bautismo bautismo = new Bautismo();
             try
             {
-                usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
-                return Ok(usuario);
+                bautismo = context.Bautismo.FirstOrDefault(bau => bau.bau_Id_Bautismo == id);
+                return Ok(bautismo);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
-        // POST: api/Usuario
+        // POST: api/Bautismo
         [HttpPost]
-        public IActionResult Post([FromBody] Usuario usuario)
+        public ActionResult Post([FromBody] Bautismo bautismo)
         {
             try
             {
-                context.Usuario.Add(usuario);
+                context.Bautismo.Add(bautismo);
                 context.SaveChanges();
                 return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
-        // PUT: api/Usuario/5
+        // PUT: api/Bautismo/5
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] Usuario usuario)
+        public ActionResult Put(int id, [FromBody] Bautismo bautismo)
         {
-            if(usuario.usu_Id_Usuario == id)
+            if(bautismo.bau_Id_Bautismo == id)
             {
-                context.Entry(usuario).State = EntityState.Modified;
+                context.Entry(bautismo).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok();
             }
@@ -81,21 +81,21 @@ namespace IECE_WebApi.Controllers
             {
                 return BadRequest();
             }
+
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public ActionResult Delete(int id)
         {
-            Usuario usuario = new Usuario();
-            usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
-            if (usuario != null)
+            Bautismo bautismo = new Bautismo();
+            bautismo = context.Bautismo.FirstOrDefault(bau => bau.bau_Id_Bautismo == id);
+            if (bautismo != null)
             {
-                context.Usuario.Remove(usuario);
+                context.Bautismo.Remove(bautismo);
                 context.SaveChanges();
                 return Ok();
-            }
-            else
+            } else
             {
                 return BadRequest();
             }

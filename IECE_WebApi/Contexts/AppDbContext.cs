@@ -19,5 +19,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Hogar> Hogar { get; set; }
         public DbSet<Persona> Persona { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<Estado_Civil> Estado_Civil { get; set; }
+        public DbSet<Bautismo> Bautismo { get; set; }
     }
 }
