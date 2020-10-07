@@ -10,7 +10,6 @@ namespace IECE_WebApi.Models
     {
         [Key]
         public int hog_Id_Hogar { get; set; }
-        public int dom_Id_Domicilio { get; set; }
         public int per_Id_Persona { get; set; }
         [Required]
         [Display(Name = "Jerarquia")]

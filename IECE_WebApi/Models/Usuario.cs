@@ -12,10 +12,15 @@ namespace IECE_WebApi.Models
         public int usu_Id_Usuario { get; set; }
         [Required]
         [Display(Name = "Nombre de usuario")]
-        public string usu_Id_Nombre_Usuario { get; set; }
+        public string usu_Nombre { get; set; }
+        [Required]
+        [Display(Name = "Usuario")]
+        public string usu_Usuario { get; set; }
         [Required]
         [Display(Name = "Contraseña")]
-        public string usu_Id_Password { get; set; }
+        public string usu_Password { get; set; }
+        [Required]
+        [Display(Name = "Perfil")]
         public int pef_Id_Perfil { get; set; }
         public bool sw_Registro { get; set; }
         public DateTime Fecha_Registro{ get; set; }

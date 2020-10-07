@@ -6,6 +6,7 @@ using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace IECE_WebApi.Controllers
 {
@@ -15,37 +16,95 @@ namespace IECE_WebApi.Controllers
     {
         private readonly AppDbContext context;
 
+        public HogarController(AppDbContext context)
+        {
+            this.context = context;
+        }
+
         // GET: api/Hogar
         [HttpGet]
-        public IEnumerable<Hogar> Get()
+        public ActionResult<IEnumerable<Hogar>> Get()
         {
-            return context.Hogar.ToList();
+            try
+            {
+                return Ok(context.Hogar.ToList());
+            }
+            catch (Exception ex)
+            {
+                /* turn BadRequest(
+                        new object []
+                        {
+                            new { error = "Error: aun no hay domicilios guardados"}
+                        }
+                    ); */
+                return BadRequest(ex.Message);
+            }
         }
 
         // GET: api/Hogar/5
         [HttpGet("{id}")]
-        public Hogar Get(int id)
+        public IActionResult Get(int id)
         {
-            var hogar = context.Hogar.FirstOrDefault(hog => hog.hog_Id_Hogar == id);
-            return hogar;
+            Hogar hogar = new Hogar();
+            try
+            {
+                hogar = context.Hogar.FirstOrDefault(hog => hog.hog_Id_Hogar == id);
+                return Ok(hogar);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // POST: api/Hogar
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] Hogar hogar)
         {
+            try
+            {
+                context.Hogar.Add(hogar);
+                context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         // PUT: api/Hogar/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(int id, [FromBody] Hogar hogar)
         {
+            if(hogar.hog_Id_Hogar == id)
+            {
+                context.Entry(hogar).State = EntityState.Modified;
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            Hogar hogar = new Hogar();
+            hogar = context.Hogar.FirstOrDefault(hog => hog.hog_Id_Hogar == id);
+            if (hogar != null)
+            {
+                context.Hogar.Remove(hogar);
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }

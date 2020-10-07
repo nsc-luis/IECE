@@ -10,7 +10,7 @@ namespace IECE_WebApi.Models
     {
         // DATOS GENERALES //
         [Key]
-        public int per_Id_Miembro { get; set; }
+        public int per_Id_Persona { get; set; }
         [Required]
         [Display(Name = "Activo")]
         public bool per_Activo { get; set; }
@@ -64,9 +64,10 @@ namespace IECE_WebApi.Models
         [Required]
         [Display(Name = "Visibilidad abierta")]
         public bool per_Visibilidad_Abierta { get; set; }
-        [Required]
-        [Display(Name = "Solicitud de traslado")]
-        public bool per_Solicitud_De_Traslado { get; set; }
+        [Display(Name = "Observaciones")]
+        public string per_Observaciones { get; set; }
+        [Display(Name = "Cargos desempeñados")]
+        public string per_Cargos_Desempenados { get; set; }
 
         // DATOS DE ESTADO CIVIL //
         [Required]
