@@ -12,7 +12,7 @@ namespace IECE_WebApi.Models
         [Required]
         public int eci_Id_Relacion_Civil { get; set; }
         [Required]
-        public int per_Id_Miembro { get; set; }
+        public int per_Id_Persona { get; set; }
         [Required]
         [Display(Name = "Fecha de boda civil")]
         public DateTime eci_Fecha_Boda_Civil { get; set; }
