@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Persona
         [HttpGet]
+        [EnableCors("AllowOrigin")]
         // public IEnumerable<Persona> Get()
         public ActionResult<IEnumerable<Persona>> Get()
         {
@@ -45,6 +47,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Persona/5
         [HttpGet("{id}")]
+        [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
             //var persona = context.Persona.FirstOrDefault(per => per.per_Id_Miembro == id);
@@ -67,13 +70,16 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Persona
         [HttpPost]
+        [EnableCors("AllowOrigin")]
         public ActionResult Post([FromBody] Persona persona)
         {
             try
             {
                 context.Persona.Add(persona);
                 context.SaveChanges();
-                return Ok();
+                return Ok(
+                    new { idNuevaPersona = persona.per_Id_Persona }
+                );
             }
             catch (Exception ex)
             {
@@ -83,6 +89,7 @@ namespace IECE_WebApi.Controllers
 
         // PUT: api/Persona/5
         [HttpPut("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Put(int id, [FromBody] Persona persona)
         {
             if(persona.per_Id_Persona == id)
@@ -99,6 +106,7 @@ namespace IECE_WebApi.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
             var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Estado
         [HttpGet]
+        [EnableCors("AllowOrigin")]
         public IEnumerable<Estado> Get()
         {
             return context.Estado.ToList();
@@ -37,18 +39,21 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Estado
         [HttpPost]
+        [EnableCors("AllowOrigin")]
         public void Post([FromBody] string value)
         {
         }
 
         // PUT: api/Estado/5
         [HttpPut("{id}")]
+        [EnableCors("AllowOrigin")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [EnableCors("AllowOrigin")]
         public void Delete(int id)
         {
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Hogar
         [HttpGet]
+        [EnableCors("AllowOrigin")]
         public ActionResult<IEnumerable<Hogar>> Get()
         {
             try
@@ -43,6 +45,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Hogar/5
         [HttpGet("{id}")]
+        [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
             Hogar hogar = new Hogar();
@@ -59,6 +62,7 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Hogar
         [HttpPost]
+        [EnableCors("AllowOrigin")]
         public ActionResult Post([FromBody] Hogar hogar)
         {
             try
@@ -75,6 +79,7 @@ namespace IECE_WebApi.Controllers
 
         // PUT: api/Hogar/5
         [HttpPut("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Put(int id, [FromBody] Hogar hogar)
         {
             if(hogar.hog_Id_Hogar == id)
@@ -91,6 +96,7 @@ namespace IECE_WebApi.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
             Hogar hogar = new Hogar();

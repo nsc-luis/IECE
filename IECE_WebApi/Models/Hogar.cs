@@ -13,6 +13,6 @@ namespace IECE_WebApi.Models
         public int per_Id_Persona { get; set; }
         [Required]
         [Display(Name = "Jerarquia")]
-        public int jerarquia { get; set; }
+        public int hog_Jerarquia { get; set; }
     }
 }

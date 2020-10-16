@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Domicilio
         [HttpGet]
+        [EnableCors("AllowOrigin")]
         public ActionResult<IEnumerable<Domicilio>> Get()
         {
             Domicilio domicilio = new Domicilio();
@@ -43,6 +45,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Domicilio/5
         [HttpGet("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Get(int id)
         {
             Domicilio domicilio = new Domicilio();
@@ -62,8 +65,32 @@ namespace IECE_WebApi.Controllers
             
         }
 
+        // GET: api/Domicilio/GetByIdHogar/5
+        [Route("[action]/{idHogar}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public ActionResult GetByIdHogar(int idHogar)
+        {
+            Domicilio domicilio = new Domicilio();
+            try
+            {
+                domicilio = context.Domicilio.FirstOrDefault(dom => dom.hog_Id_Hogar == idHogar);
+                return Ok(domicilio);
+            }
+            catch (Exception ex)
+            {
+                /*return BadRequest(
+                    new object[] {
+                        new {error = "Error: no se encontro el indice del domicilio"}
+                    }); */
+                return BadRequest(ex.Message);
+            }
+
+        }
+
         // POST: api/Domicilio
         [HttpPost]
+        [EnableCors("AllowOrigin")]
         public ActionResult Post([FromBody] Domicilio domicilio)
         {
             try
@@ -80,6 +107,7 @@ namespace IECE_WebApi.Controllers
 
         // PUT: api/Domicilio/5
         [HttpPut("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Put(int id, [FromBody] Domicilio domicilio)
         {
             if (domicilio.dom_Id_Domicilio == id)
@@ -96,6 +124,7 @@ namespace IECE_WebApi.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
             var domicilio = context.Domicilio.FirstOrDefault(dom => dom.dom_Id_Domicilio == id);

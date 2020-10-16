@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Usuario
         [HttpGet]
+        [EnableCors("AllowOrigin")]
         public ActionResult<IEnumerable<Usuario>> Get()
         {
             try
@@ -37,6 +39,7 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Usuario/5
         [HttpGet("{id}")]
+        [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
             Usuario usuario = new Usuario(); 
@@ -53,6 +56,7 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Usuario
         [HttpPost]
+        [EnableCors("AllowOrigin")]
         public IActionResult Post([FromBody] Usuario usuario)
         {
             try
@@ -69,6 +73,7 @@ namespace IECE_WebApi.Controllers
 
         // PUT: api/Usuario/5
         [HttpPut("{id}")]
+        [EnableCors("AllowOrigin")]
         public ActionResult Put(int id, [FromBody] Usuario usuario)
         {
             if(usuario.usu_Id_Usuario == id)
@@ -85,6 +90,7 @@ namespace IECE_WebApi.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
+        [EnableCors("AllowOrigin")]
         public IActionResult Delete(int id)
         {
             Usuario usuario = new Usuario();
