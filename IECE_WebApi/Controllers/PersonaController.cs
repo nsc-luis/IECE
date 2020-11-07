@@ -68,6 +68,31 @@ namespace IECE_WebApi.Controllers
 
         }
 
+        // GET: api/Persona/GetByRFCSinHomo/str
+        [Route("[action]/{RFCSinHomo}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetByRFCSinHomo(string RFCSinHomo)
+        {
+            var persona = context.Persona.FirstOrDefault(per => per.per_RFC_Sin_Homo == RFCSinHomo);
+
+            if (persona != null)
+            {
+                return Ok(
+                    new object[] {
+                        new {status = true, persona = persona}
+                    }
+                );
+            } else
+            {
+                return Ok(
+                    new object[] {
+                        new {status = false, mensaje = "Persona no encontrada"}
+                    }
+                );
+            }
+        }
+
         // POST: api/Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]

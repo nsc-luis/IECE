@@ -37,6 +37,8 @@ namespace IECE_WebApi.Models
         [Required]
         [Display(Name = "Fecha de nacimiento")]
         public DateTime per_Fecha_Nacimiento { get; set; }
+        [Display(Name = "RFC sin homoclave")]
+        public string per_RFC_Sin_Homo { get; set; }
         [Display(Name = "Padre")]
         public string per_Nombre_Padre { get; set; }
         [Display(Name = "Madre")]
