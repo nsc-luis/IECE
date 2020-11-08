@@ -12,3 +12,5 @@ C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\I
 C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.dll
 C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.pdb
 C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.csprojAssemblyReference.cache
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\bin\Debug\netcoreapp2.2\IECE_WebApi.xml
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.xml

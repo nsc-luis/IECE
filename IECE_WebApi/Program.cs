@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace IECE_WebApi
 {
+    #pragma warning disable CS1591
     public class Program
     {
         public static void Main(string[] args)
@@ -21,4 +22,5 @@ namespace IECE_WebApi
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
     }
+    #pragma warning restore CS1591
 }

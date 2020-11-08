@@ -1,0 +1,14 @@
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\bin\Debug\netcoreapp2.2\IECE_WebApi.deps.json
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\bin\Debug\netcoreapp2.2\IECE_WebApi.runtimeconfig.json
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\bin\Debug\netcoreapp2.2\IECE_WebApi.runtimeconfig.dev.json
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\bin\Debug\netcoreapp2.2\IECE_WebApi.dll
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\bin\Debug\netcoreapp2.2\IECE_WebApi.pdb
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.csproj.CoreCompileInputs.cache
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.RazorAssemblyInfo.cache
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.RazorAssemblyInfo.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.AssemblyInfoInputs.cache
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.AssemblyInfo.cs
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.RazorTargetAssemblyInfo.cache
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.dll
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.pdb
+C:\Users\Propietario\Desktop\IECEMembresia\IECE_WebApi\obj\Debug\netcoreapp2.2\IECE_WebApi.csprojAssemblyReference.cache
