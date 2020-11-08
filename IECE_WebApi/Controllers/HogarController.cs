@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
@@ -64,6 +65,31 @@ namespace IECE_WebApi.Controllers
         [HttpPost]
         [EnableCors("AllowOrigin")]
         public ActionResult Post([FromBody] Hogar hogar)
+        {
+            try
+            {
+                context.Hogar.Add(hogar);
+                context.SaveChanges();
+                int idHogar = hogar.hog_Id_Hogar;
+                var sql = @"Update [Hogar] SET hog_Relacion_Hogar_Persona = @hog_Relacion_Hogar_Persona WHERE hog_Id_Hogar = @hog_Id_Hogar";
+                context.Database.ExecuteSqlCommand(
+                    sql,
+                    new SqlParameter("@hog_Relacion_Hogar_Persona", idHogar),
+                    new SqlParameter("@hog_Id_Hogar", idHogar)
+                );
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        // POST: api/Hogar/AddPersonaToHogar
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AddPersonaToHogar([FromBody] Hogar hogar)
         {
             try
             {

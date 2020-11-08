@@ -14,5 +14,6 @@ namespace IECE_WebApi.Models
         [Required]
         [Display(Name = "Jerarquia")]
         public int hog_Jerarquia { get; set; }
+        public int hog_Relacion_Hogar_Persona { get; set; }
     }
 }
