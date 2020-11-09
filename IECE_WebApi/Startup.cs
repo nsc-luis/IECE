@@ -78,7 +78,7 @@ namespace IECE_WebApi
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+                c.SwaggerEndpoint("v1/swagger.json", "API");
             });
 
             if (env.IsDevelopment())
