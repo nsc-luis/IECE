@@ -56,7 +56,42 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                return Ok(context.Hogar.ToList());
+                return context.Hogar.ToList();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // GET: api/Hogar/GetListaHogares
+        [Route("[action]")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetListaHogares()
+        {
+            try
+            {
+                var query = (from d in context.Domicilio
+                    join h in context.Hogar
+                    on d.hog_Id_Hogar equals h.hog_Id_Hogar
+                    join e in context.Estado
+                    on d.est_Id_Estado equals e.est_Id_Estado
+                    join p in context.Persona
+                    on h.per_Id_Persona equals p.per_Id_Persona
+                    where h.hog_Jerarquia == 1
+                    select new
+                    {
+                        hog_Id_Hogar = h.hog_Id_Hogar,
+                        per_Nombre = p.per_Nombre,
+                        per_Apellido_Paterno = p.per_Apellido_Paterno,
+                        per_Apellido_Materno = p.per_Apellido_Materno,
+                        dom_Calle = d.dom_Calle,
+                        dom_Numero_Exterior = d.dom_Numero_Exterior,
+                        dom_Localidad = d.dom_Localidad,
+                        est_Nombre = e.est_Nombre
+                    }).ToList();
+                return Ok(query);
             }
             catch (Exception ex)
             {
@@ -93,6 +128,7 @@ namespace IECE_WebApi.Controllers
                     join p in context.Persona
                     on h.per_Id_Persona equals p.per_Id_Persona
                     where h.hog_Relacion_Hogar_Persona == hog_Relacion_Hogar_Persona
+                    orderby (h.hog_Jerarquia)
                     select new
                     {
                         hog_Id_Hogar = h.hog_Id_Hogar,
