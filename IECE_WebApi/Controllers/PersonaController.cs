@@ -115,14 +115,14 @@ namespace IECE_WebApi.Controllers
         // POST: api/Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult Post([FromBody] Persona persona)
+        public IActionResult Post([FromBody] Persona persona)
         {
             try
             {
                 context.Persona.Add(persona);
                 context.SaveChanges();
                 return Ok(
-                    new { idNuevaPersona = persona.per_Id_Persona }
+                    new { status = "success", persona }
                 );
             }
             catch (Exception ex)
