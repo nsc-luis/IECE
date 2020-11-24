@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IECE_WebApi.Models
 {
-    public class Persona1
+    public class Persona
     {
         [Key]
         [Required]

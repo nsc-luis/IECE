@@ -13,11 +13,11 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Persona1Controller : ControllerBase
+    public class PersonaController : ControllerBase
     {
         private readonly AppDbContext context;
 
-        public Persona1Controller(AppDbContext context)
+        public PersonaController(AppDbContext context)
         {
             this.context = context;
         }
@@ -25,11 +25,11 @@ namespace IECE_WebApi.Controllers
         // GET: api/Persona1
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult<IEnumerable<Persona1>> Get()
+        public ActionResult<IEnumerable<Persona>> Get()
         {
             try
             {
-                return Ok(context.Persona1.ToList());
+                return Ok(context.Persona.ToList());
             }
             catch (Exception ex)
             {
@@ -42,10 +42,10 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
-            Persona1 persona = new Persona1();
+            Persona persona = new Persona();
             try
             {
-                persona = context.Persona1.FirstOrDefault(per => per.per_Id_Persona == id);
+                persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);
                 return Ok(persona);
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace IECE_WebApi.Controllers
         {
             // var persona = context.Persona.FirstOrDefault(per => per.per_RFC_Sin_Homo == RFCSinHomo);
 
-            var query = (from p in context.Persona1
+            var query = (from p in context.Persona
                          join s in context.Sector
                          on p.sec_Id_Sector equals s.sec_Id_Sector
                          join d in context.Distrito
@@ -101,11 +101,11 @@ namespace IECE_WebApi.Controllers
         // POST: api/Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult Post([FromBody] Persona1 persona)
+        public IActionResult Post([FromBody] Persona persona)
         {
             try
             {
-                context.Persona1.Add(persona);
+                context.Persona.Add(persona);
                 context.SaveChanges();
                 return Ok(
                     new { status = "success", persona }
@@ -120,7 +120,7 @@ namespace IECE_WebApi.Controllers
         // PUT: api/Persona/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Persona1 persona)
+        public ActionResult Put(int id, [FromBody] Persona persona)
         {
             if (persona.per_Id_Persona == id)
             {
@@ -139,10 +139,10 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
-            var persona = context.Persona1.FirstOrDefault(per => per.per_Id_Persona == id);
+            var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);
             if (persona != null)
             {
-                context.Persona1.Remove(persona);
+                context.Persona.Remove(persona);
                 context.SaveChanges();
                 return Ok();
             }

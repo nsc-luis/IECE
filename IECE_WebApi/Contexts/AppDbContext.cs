@@ -20,7 +20,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Distrito> Distrito { get; set; }
         public DbSet<Sector> Sector { get; set; }
         public DbSet<HogarDomicilio> HogarDomicilio { get; set; }
-        public DbSet<Persona1> Persona1 { get; set; }
+        public DbSet<Persona> Persona { get; set; }
         public DbSet<Hogar_Persona> Hogar_Persona { get; set; }
     }
 }
