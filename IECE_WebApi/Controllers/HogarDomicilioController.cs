@@ -13,23 +13,24 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BautismoController : ControllerBase
+    public class HogarDomicilioController : ControllerBase
     {
+
         private readonly AppDbContext context;
 
-        public BautismoController(AppDbContext context)
+        public HogarDomicilioController(AppDbContext context)
         {
             this.context = context;
         }
 
-        // GET: api/Bautismo
+        // GET: api/HogarDomicilio
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult<IEnumerable<Bautismo>> Get()
+        public ActionResult<IEnumerable<HogarDomicilio>> Get()
         {
             try
             {
-                return Ok(context.Bautismo.ToList());
+                return Ok(context.HogarDomicilio.ToList());
             }
             catch (Exception ex)
             {
@@ -37,16 +38,16 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/Bautismo/5
+        // GET: api/HogarDomicilio/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
         public ActionResult Get(int id)
         {
-            Bautismo bautismo = new Bautismo();
+            HogarDomicilio hogardomicilio = new HogarDomicilio();
             try
             {
-                bautismo = context.Bautismo.FirstOrDefault(bau => bau.bau_Id_Bautismo == id);
-                return Ok(bautismo);
+                hogardomicilio = context.HogarDomicilio.FirstOrDefault(hd => hd.hd_Id_Hogar == id);
+                return Ok(hogardomicilio);
             }
             catch (Exception ex)
             {
@@ -54,32 +55,14 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/Bautismo/GetByIdPersona/5
-        [Route("[action]/{idPersona}")]
-        [HttpGet]
-        [EnableCors("AllowOrigin")]
-        public ActionResult GetByIdPersona(int idPersona)
-        {
-            Bautismo bautismo = new Bautismo();
-            try
-            {
-                bautismo = context.Bautismo.FirstOrDefault(bau => bau.per_Id_Persona == idPersona);
-                return Ok(bautismo);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        // POST: api/Bautismo
+        // POST: api/HogarDomicilio
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult Post([FromBody] Bautismo bautismo)
+        public ActionResult Post([FromBody] HogarDomicilio hogardomicilio)
         {
             try
             {
-                context.Bautismo.Add(bautismo);
+                context.HogarDomicilio.Add(hogardomicilio);
                 context.SaveChanges();
                 return Ok();
             }
@@ -89,14 +72,14 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // PUT: api/Bautismo/5
+        // PUT: api/HogarDomicilio/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Bautismo bautismo)
+        public ActionResult Put(int id, [FromBody] HogarDomicilio hogardomicilio)
         {
-            if(bautismo.bau_Id_Bautismo == id)
+            if (hogardomicilio.hd_Id_Hogar == id)
             {
-                context.Entry(bautismo).State = EntityState.Modified;
+                context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok();
             }
@@ -112,14 +95,15 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
-            Bautismo bautismo = new Bautismo();
-            bautismo = context.Bautismo.FirstOrDefault(bau => bau.bau_Id_Bautismo == id);
-            if (bautismo != null)
+            HogarDomicilio hogardomicilio = new HogarDomicilio();
+            hogardomicilio = context.HogarDomicilio.FirstOrDefault(hd => hd.hd_Id_Hogar == id);
+            if (hogardomicilio != null)
             {
-                context.Bautismo.Remove(bautismo);
+                context.HogarDomicilio.Remove(hogardomicilio);
                 context.SaveChanges();
                 return Ok();
-            } else
+            }
+            else
             {
                 return BadRequest();
             }

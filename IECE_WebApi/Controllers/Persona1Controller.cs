@@ -13,59 +13,45 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PersonaController : ControllerBase
+    public class Persona1Controller : ControllerBase
     {
         private readonly AppDbContext context;
 
-        public PersonaController(AppDbContext context)
+        public Persona1Controller(AppDbContext context)
         {
             this.context = context;
         }
 
-        // GET: api/Persona
+        // GET: api/Persona1
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        // public IEnumerable<Persona> Get()
-        public ActionResult<IEnumerable<Persona>> Get()
+        public ActionResult<IEnumerable<Persona1>> Get()
         {
-            Persona persona = new Persona();
-            // return context.Persona.ToList();
             try
             {
-                // persona = context.Persona.ToList();
-                return Ok(context.Persona.ToList());
+                return Ok(context.Persona1.ToList());
             }
             catch (Exception ex)
             {
-                /* return BadRequest(
-                    new object[] {
-                        new {error = "Error: no se encontro ninguna persona en la lista"}
-                    }); */
                 return BadRequest(ex.Message);
             }
         }
 
-        // GET: api/Persona/5
+        // GET: api/Persona1/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
-            //var persona = context.Persona.FirstOrDefault(per => per.per_Id_Miembro == id);
-            //return persona;
-            Persona persona = new Persona();
+            Persona1 persona = new Persona1();
             try
             {
-                persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);
+                persona = context.Persona1.FirstOrDefault(per => per.per_Id_Persona == id);
                 return Ok(persona);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                /* return BadRequest(
-                    new object[] {
-                        new {error = "Error: no se encontro el indice de persona"}
-                    }); */
                 return BadRequest(ex.Message);
             }
-
         }
 
         // GET: api/Persona/GetByRFCSinHomo/str
@@ -76,7 +62,7 @@ namespace IECE_WebApi.Controllers
         {
             // var persona = context.Persona.FirstOrDefault(per => per.per_RFC_Sin_Homo == RFCSinHomo);
 
-            var query = (from p in context.Persona
+            var query = (from p in context.Persona1
                          join s in context.Sector
                          on p.sec_Id_Sector equals s.sec_Id_Sector
                          join d in context.Distrito
@@ -115,11 +101,11 @@ namespace IECE_WebApi.Controllers
         // POST: api/Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult Post([FromBody] Persona persona)
+        public IActionResult Post([FromBody] Persona1 persona)
         {
             try
             {
-                context.Persona.Add(persona);
+                context.Persona1.Add(persona);
                 context.SaveChanges();
                 return Ok(
                     new { status = "success", persona }
@@ -134,9 +120,9 @@ namespace IECE_WebApi.Controllers
         // PUT: api/Persona/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Persona persona)
+        public ActionResult Put(int id, [FromBody] Persona1 persona)
         {
-            if(persona.per_Id_Persona == id)
+            if (persona.per_Id_Persona == id)
             {
                 context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
@@ -153,10 +139,10 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
-            var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);
+            var persona = context.Persona1.FirstOrDefault(per => per.per_Id_Persona == id);
             if (persona != null)
             {
-                context.Persona.Remove(persona);
+                context.Persona1.Remove(persona);
                 context.SaveChanges();
                 return Ok();
             }

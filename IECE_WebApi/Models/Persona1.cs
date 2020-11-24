@@ -6,21 +6,23 @@ using System.Threading.Tasks;
 
 namespace IECE_WebApi.Models
 {
-    public class Persona
+    public class Persona1
     {
-        // DATOS GENERALES //
         [Key]
+        [Required]
         public int per_Id_Persona { get; set; }
         [Required]
         [Display(Name = "Activo")]
         public bool per_Activo { get; set; }
-        [Display(Name = "En comunion")]
+        [Required]
+        [Display(Name = "Comunion")]
         public bool per_En_Comunion { get; set; }
         [Required]
         [Display(Name = "Vivo")]
         public bool per_Vivo { get; set; }
         [Required]
-        [Display(Name = "Sector")]
+        [Display(Name = "Visibilidad")]
+        public bool per_Visibilidad_Abierta { get; set; }
         public int sec_Id_Sector { get; set; }
         [Required]
         [Display(Name = "Categoria")]
@@ -29,70 +31,56 @@ namespace IECE_WebApi.Models
         [Display(Name = "Nombre")]
         public string per_Nombre { get; set; }
         [Required]
-        [Display(Name = "Apellido Paterno")]
+        [Display(Name = "Apellido paterno")]
         public string per_Apellido_Paterno { get; set; }
         [Required]
-        [Display(Name = "Apellido Materno")]
+        [Display(Name = "Apellido materno")]
         public string per_Apellido_Materno { get; set; }
         [Required]
-        [Display(Name = "Fecha de nacimiento")]
-        public DateTime per_Fecha_Nacimiento { get; set; }
-        [Display(Name = "RFC sin homoclave")]
+        [Display(Name = "Fecha nacimiento")]
+        public string per_Fecha_Nacimiento { get; set; }
+        [Required]
+        [Display(Name = "RFC")]
         public string per_RFC_Sin_Homo { get; set; }
-        [Display(Name = "Padre")]
         public string per_Nombre_Padre { get; set; }
-        [Display(Name = "Madre")]
         public string per_Nombre_Madre { get; set; }
-        [Display(Name = "Abuelo paterno")]
         public string per_Nombre_Abuelo_Paterno { get; set; }
-        [Display(Name = "Abuela paterna")]
         public string per_Nombre_Abuela_Paterna { get; set; }
-        [Display(Name = "Abuelo materno")]
         public string per_Nombre_Abuelo_Materno { get; set; }
-        [Display(Name = "Abuela materna")]
         public string per_Nombre_Abuela_Materna { get; set; }
-        [Display(Name = "Oficio/profesion 1")]
         public int pro_Id_Profesion_Oficio1 { get; set; }
-        [Display(Name = "Oficio/profesion 2")]
         public int pro_Id_Profesion_Oficio2 { get; set; }
-        [Display(Name = "Telefono fijo")]
         public string per_Telefono_Fijo { get; set; }
-        [Display(Name = "Telefono movil")]
         public string per_Telefono_Movil { get; set; }
-        [Display(Name = "Email")]
         public string per_Email_Personal { get; set; }
+        [Required]
         [Display(Name = "Foto")]
         public string per_foto { get; set; }
-        [Required]
-        [Display(Name = "Visibilidad abierta")]
-        public bool per_Visibilidad_Abierta { get; set; }
-        [Display(Name = "Observaciones")]
         public string per_Observaciones { get; set; }
-        [Display(Name = "Cargos desempeñados")]
-        public string per_Cargos_Desempenados { get; set; }
-
-        // DATOS DE ESTADO CIVIL //
-        [Required]
-        [Display(Name = "Estado civil")]
-        public string per_Estado_Civil { get; set; }
-
-        // DATOS ECLESIASTICOS //
         [Required]
         [Display(Name = "Bautizado")]
         public bool per_Bautizado { get; set; }
-
-        [Display(Name = "Fecha recibio el Espiritu Santo")]
-        public DateTime per_Fecha_Recibio_Espiritu_Santo { get; set; }
-        [Display(Name = "Bajo imposicion de manos")]
-        public string per_Bajo_Imposicion_De_Manos { get; set; }
-        [Display(Name = "Cambios de domicilio")]
-        public string per_Cambios_De_Domicilio { get; set; }
-        
-        // CONTROL DE DATOS //
-        public bool sw_Registro { get; set; }
-        public DateTime Fecha_Registro { get; set; }
         [Required]
-        public int usu_Id_Usuario { get; set; }
-        
+        [Display(Name = "Lugar de bautismo")]
+        public string per_Lugar_Bautismo { get; set; }
+        public DateTime per_Fecha_Bautismo { get; set; }
+        public string per_Ministro_Que_Bautizo { get; set; }
+        public DateTime per_Fecha_Recibio_Espiritu_Santo { get; set; }
+        public string per_Bajo_Imposicion_De_Manos { get; set; }
+        public string per_Cargos_Desempenados { get; set; }
+        public string per_Cambios_De_Domicilio { get; set; }
+        [Required]
+        [Display(Name = "Estado civil")]
+        public string per_Estado_Civil { get; set; }
+        public string per_Nombre_Conyuge { get; set; }
+        public DateTime per_Fecha_Boda_Civil { get; set; }
+        public string per_Num_Acta_Boda_Civil { get; set; }
+        public string per_Libro_Acta_Boda_Civil { get; set; }
+        public string per_Oficialia_Boda_Civil { get; set; }
+        public string per_Registro_Civil { get; set; }
+        public DateTime per_Fecha_Boda_Eclesiastica { get; set; }
+        public string per_Lugar_Boda_Eclesiastica { get; set; }
+        public string per_Cantidad_Hijos { get; set; }
+        public string per_Nombre_Hijos { get; set; }
     }
 }

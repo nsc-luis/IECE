@@ -13,24 +13,23 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Estado_CivilController : ControllerBase
+    public class Hogar_PersonaController : ControllerBase
     {
         private readonly AppDbContext context;
 
-        public Estado_CivilController(AppDbContext context)
+        public Hogar_PersonaController(AppDbContext context)
         {
             this.context = context;
         }
 
-        // GET: api/Estado_Civil
+        // GET: api/Hogar_Persona
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult<IEnumerable<Estado_Civil>> Get()
+        public ActionResult<IEnumerable<Hogar_Persona>> Get()
         {
-            Estado_Civil estado_civil = new Estado_Civil();
             try
             {
-                return Ok(context.Estado_Civil.ToList());
+                return Ok(context.Hogar_Persona.ToList());
             }
             catch (Exception ex)
             {
@@ -38,51 +37,31 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/Estado_Civil/5
+        // GET: api/Hogar_Persona/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
         public ActionResult Get(int id)
         {
-            Estado_Civil estado_civil = new Estado_Civil();
+            Hogar_Persona hogar_persona = new Hogar_Persona();
             try
             {
-                estado_civil = context.Estado_Civil.FirstOrDefault(eci => eci.eci_Id_Relacion_Civil == id);
-                return Ok(estado_civil);
+                hogar_persona = context.Hogar_Persona.FirstOrDefault(hp => hp.hp_Id_Hogar_Persona == id);
+                return Ok(hogar_persona);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex);
             }
-            
         }
 
-        // GET: api/Estado_Civil/GetByIdPersona/5
-        [Route("[action]/{idPersona}")]
-        [HttpGet]
-        [EnableCors("AllowOrigin")]
-        public ActionResult GetByIdPersona(int idPersona)
-        {
-            Estado_Civil estado_civil = new Estado_Civil();
-            try
-            {
-                estado_civil = context.Estado_Civil.FirstOrDefault(eci => eci.per_Id_Persona == idPersona);
-                return Ok(estado_civil);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-
-        }
-
-        // POST: api/Estado_Civil
+        // POST: api/Hogar_Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult Post([FromBody] Estado_Civil estado_civil)
+        public ActionResult Post([FromBody] Hogar_Persona hogar_persona)
         {
             try
             {
-                context.Estado_Civil.Add(estado_civil);
+                context.Hogar_Persona.Add(hogar_persona);
                 context.SaveChanges();
                 return Ok();
             }
@@ -92,14 +71,14 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // PUT: api/Estado_Civil/5
+        // PUT: api/Hogar_Persona/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Estado_Civil estado_civil)
+        public ActionResult Put(int id, [FromBody] Hogar_Persona hogar_persona)
         {
-            if(estado_civil.eci_Id_Relacion_Civil == id)
+            if (hogar_persona.hp_Id_Hogar_Persona == id)
             {
-                context.Entry(estado_civil).State = EntityState.Modified;
+                context.Entry(hogar_persona).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok();
             }
@@ -107,6 +86,7 @@ namespace IECE_WebApi.Controllers
             {
                 return BadRequest();
             }
+
         }
 
         // DELETE: api/ApiWithActions/5
@@ -114,11 +94,11 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Delete(int id)
         {
-            Estado_Civil estado_civil = new Estado_Civil();
-            estado_civil = context.Estado_Civil.FirstOrDefault(eci => eci.eci_Id_Relacion_Civil == id);
-            if (estado_civil != null)
+            Hogar_Persona hogar_persona = new Hogar_Persona();
+            hogar_persona = context.Hogar_Persona.FirstOrDefault(hp => hp.hp_Id_Hogar_Persona == id);
+            if (hogar_persona != null)
             {
-                context.Estado_Civil.Remove(estado_civil);
+                context.Hogar_Persona.Remove(hogar_persona);
                 context.SaveChanges();
                 return Ok();
             }
