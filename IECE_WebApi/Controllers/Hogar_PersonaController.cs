@@ -54,6 +54,36 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Hogar_Persona/GetMiembros/2
+        [Route("[action]/{hd_Id_Hogar}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetMiembros(int hd_Id_Hogar)
+        {
+            try
+            {
+                var query = (from hp in context.Hogar_Persona
+                        join p in context.Persona
+                        on hp.per_Id_Persona equals p.per_Id_Persona
+                        where hp.hd_Id_Hogar == hd_Id_Hogar
+                        orderby (hp.hp_Jerarquia)
+                        select new
+                        {
+                            hd_Id_Hogar = hp.hd_Id_Hogar,
+                            hp_Jerarquia = hp.hp_Jerarquia,
+                            per_Id_Persona = p.per_Id_Persona,
+                            per_Nombre = p.per_Nombre,
+                            per_Apellido_Paterno = p.per_Apellido_Paterno,
+                            per_Apellido_Materno = p.per_Apellido_Materno
+                        }).ToList();
+                return Ok(query);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
         // POST: api/Hogar_Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]

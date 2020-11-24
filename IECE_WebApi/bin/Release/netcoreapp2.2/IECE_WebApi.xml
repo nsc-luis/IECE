@@ -4,33 +4,5 @@
         <name>IECE_WebApi</name>
     </assembly>
     <members>
-        <member name="M:IECE_WebApi.Controllers.HogarController.Get">
-             <summary>
-             Lista todos los hogares disponibles
-             </summary>
-             <remarks>
-             Ejemplo:
-            
-                 GET /hogar
-                [
-                {
-                    "hog_Id_Hogar": 1,
-                    "per_Id_Persona": 2,
-                    "hog_Jerarquia": 1,
-                    "hog_Relacion_Hogar_Persona": 1
-                },
-                {
-                    "hog_Id_Hogar": 2,
-                    "per_Id_Persona": 5,
-                    "hog_Jerarquia": 1,
-                    "hog_Relacion_Hogar_Persona": 2
-                }
-                ]
-            
-             </remarks>
-             <returns>JSON con lista de hogares</returns>
-             <response code="201">Retorna JSON de lista de hogares</response>
-             <response code="400">Retorna JSON con mensaje de error</response> 
-        </member>
     </members>
 </doc>

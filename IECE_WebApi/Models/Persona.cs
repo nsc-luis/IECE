@@ -38,7 +38,7 @@ namespace IECE_WebApi.Models
         public string per_Apellido_Materno { get; set; }
         [Required]
         [Display(Name = "Fecha nacimiento")]
-        public string per_Fecha_Nacimiento { get; set; }
+        public DateTime per_Fecha_Nacimiento { get; set; }
         [Required]
         [Display(Name = "RFC")]
         public string per_RFC_Sin_Homo { get; set; }
@@ -80,7 +80,7 @@ namespace IECE_WebApi.Models
         public string per_Registro_Civil { get; set; }
         public DateTime per_Fecha_Boda_Eclesiastica { get; set; }
         public string per_Lugar_Boda_Eclesiastica { get; set; }
-        public string per_Cantidad_Hijos { get; set; }
+        public int per_Cantidad_Hijos { get; set; }
         public string per_Nombre_Hijos { get; set; }
     }
 }

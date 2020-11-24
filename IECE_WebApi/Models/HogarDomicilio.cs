@@ -28,6 +28,6 @@ namespace IECE_WebApi.Models
         public int pais_Id_Pais { get; set; }
         public int est_Id_Estado { get; set; }
         [Display(Name = "Telefono")]
-        public int hd_Telefono { get; set; }
+        public string hd_Telefono { get; set; }
     }
 }
