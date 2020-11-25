@@ -60,7 +60,6 @@ namespace IECE_WebApi.Models
         [Required]
         [Display(Name = "Bautizado")]
         public bool per_Bautizado { get; set; }
-        [Required]
         [Display(Name = "Lugar de bautismo")]
         public string per_Lugar_Bautismo { get; set; }
         public DateTime per_Fecha_Bautismo { get; set; }

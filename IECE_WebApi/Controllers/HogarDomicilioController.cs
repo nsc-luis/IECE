@@ -68,6 +68,8 @@ namespace IECE_WebApi.Controllers
                     on hp.hp_Id_Hogar_Persona equals hd.hd_Id_Hogar
                     join e in context.Estado
                     on hd.est_Id_Estado equals e.est_Id_Estado
+                    join pais in context.Pais
+                    on hd.pais_Id_Pais equals pais.pais_Id_Pais
                     join p in context.Persona
                     on hp.per_Id_Persona equals p.per_Id_Persona
                     where hp.hp_Jerarquia == 1
@@ -79,8 +81,14 @@ namespace IECE_WebApi.Controllers
                         per_Apellido_Materno = p.per_Apellido_Materno,
                         hd_Calle = hd.hd_Calle,
                         hd_Numero_Exterior = hd.hd_Numero_Exterior,
+                        hd_Numero_Interior = hd.hd_Numero_Interior,
+                        hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
+                        hd_Subdivision = hd.hd_Subdivision,
                         hd_Localidad = hd.hd_Localidad,
-                        est_Nombre = e.est_Nombre
+                        hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                        est_Nombre = e.est_Nombre,
+                        pais_Nombre_Corto = pais.pais_Nombre_Corto,
+                        hd_Telefono = hd.hd_Telefono
                     }).ToList();
                 return Ok(query);
             }
