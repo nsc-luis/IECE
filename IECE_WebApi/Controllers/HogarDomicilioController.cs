@@ -107,7 +107,14 @@ namespace IECE_WebApi.Controllers
             {
                 context.HogarDomicilio.Add(hogardomicilio);
                 context.SaveChanges();
-                return Ok();
+                return Ok
+                (
+                    new
+                    {
+                        status = "success",
+                        nvoHogarDomicilio = hogardomicilio.hd_Id_Hogar
+                    }
+                );
             }
             catch (Exception ex)
             {

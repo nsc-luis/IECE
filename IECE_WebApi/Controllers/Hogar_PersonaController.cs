@@ -93,7 +93,14 @@ namespace IECE_WebApi.Controllers
             {
                 context.Hogar_Persona.Add(hogar_persona);
                 context.SaveChanges();
-                return Ok();
+                return Ok
+                (
+                    new
+                    {
+                        status = "success",
+                        hogar_persona
+                    }
+                );
             }
             catch (Exception ex)
             {

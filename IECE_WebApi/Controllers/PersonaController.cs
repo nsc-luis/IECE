@@ -107,8 +107,13 @@ namespace IECE_WebApi.Controllers
             {
                 context.Persona.Add(persona);
                 context.SaveChanges();
-                return Ok(
-                    new { status = "success", persona }
+                return Ok
+                (
+                    new
+                    {
+                        status = "success",
+                        nvaPersona = persona.per_Id_Persona
+                    }
                 );
             }
             catch (Exception ex)
