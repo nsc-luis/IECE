@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,15 +14,19 @@ namespace IECE_WebApi.Models
         public int per_Id_Persona { get; set; }
         [Required]
         [Display(Name = "Activo")]
+        [DefaultValue("true")]
         public bool per_Activo { get; set; }
         [Required]
         [Display(Name = "Comunion")]
+        [DefaultValue("true")]
         public bool per_En_Comunion { get; set; }
         [Required]
         [Display(Name = "Vivo")]
+        [DefaultValue("true")]
         public bool per_Vivo { get; set; }
         [Required]
         [Display(Name = "Visibilidad")]
+        [DefaultValue("true")]
         public bool per_Visibilidad_Abierta { get; set; }
         public int sec_Id_Sector { get; set; }
         [Required]

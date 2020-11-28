@@ -22,7 +22,7 @@ namespace IECE_WebApi.Controllers
             this.context = context;
         }
 
-        // GET: api/Persona1
+        // GET: api/Persona
         [HttpGet]
         [EnableCors("AllowOrigin")]
         public ActionResult<IEnumerable<Persona>> Get()
@@ -37,7 +37,7 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/Persona1/5
+        // GET: api/Persona/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
@@ -52,6 +52,42 @@ namespace IECE_WebApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        // GET: api/Persona/GetProfesion1/idPersona
+        [Route("[action]/{idPersona}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetProfesion1(int idPersona)
+        {
+            var query = (from per in context.Persona
+                         join pro in context.Profesion_Oficio
+                         on per.pro_Id_Profesion_Oficio1 equals pro.pro_Id_Profesion_Oficio
+                         where per.per_Id_Persona == idPersona
+                         select new
+                         {
+                             pro_Definicion_Profesion_Oficio = pro.pro_Definicion_Profesion_Oficio,
+                             pro_Desc_Profesion_Oficio = pro.pro_Desc_Profesion_Oficio
+                         }).ToList();
+            return Ok(query);
+        }
+
+        // GET: api/Persona/GetProfesion2/idPersona
+        [Route("[action]/{idPersona}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetProfesion2(int idPersona)
+        {
+            var query = (from per in context.Persona
+                         join pro in context.Profesion_Oficio
+                         on per.pro_Id_Profesion_Oficio2 equals pro.pro_Id_Profesion_Oficio
+                         where per.per_Id_Persona == idPersona
+                         select new
+                         {
+                             pro_Definicion_Profesion_Oficio = pro.pro_Definicion_Profesion_Oficio,
+                             pro_Desc_Profesion_Oficio = pro.pro_Desc_Profesion_Oficio
+                         }).ToList();
+            return Ok(query);
         }
 
         // GET: api/Persona/GetByRFCSinHomo/str

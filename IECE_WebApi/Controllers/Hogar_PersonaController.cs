@@ -54,6 +54,88 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Hogar_Domicilio/GetListaHogares
+        [Route("[action]")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public ActionResult GetListaHogares()
+        {
+            try
+            {
+                var query = (from hp in context.Hogar_Persona
+                    join hd in context.HogarDomicilio
+                    on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
+                    join e in context.Estado
+                    on hd.est_Id_Estado equals e.est_Id_Estado
+                    join pais in context.Pais
+                    on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                    join p in context.Persona
+                    on hp.per_Id_Persona equals p.per_Id_Persona
+                    where hp.hp_Jerarquia == 1
+                    select new
+                    {
+                        hd_Id_Hogar = hp.hd_Id_Hogar,
+                        per_Nombre = p.per_Nombre,
+                        per_Apellido_Paterno = p.per_Apellido_Paterno,
+                        per_Apellido_Materno = p.per_Apellido_Materno,
+                        hd_Calle = hd.hd_Calle,
+                        hd_Numero_Exterior = hd.hd_Numero_Exterior,
+                        hd_Numero_Interior = hd.hd_Numero_Interior,
+                        hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
+                        hd_Subdivision = hd.hd_Subdivision,
+                        hd_Localidad = hd.hd_Localidad,
+                        hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                        est_Nombre = e.est_Nombre,
+                        pais_Nombre_Corto = pais.pais_Nombre_Corto,
+                        hd_Telefono = hd.hd_Telefono
+                    }).ToList();
+                return Ok(query);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // GET: api/Hogar_Domicilio/GetDatosHogarDomicilio
+        [Route("[action]/{hd_Id_Hogar}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public ActionResult GetDatosHogarDomicilio(int hd_Id_Hogar)
+        {
+            try
+            {
+                var query = (from hp in context.Hogar_Persona
+                    join hd in context.HogarDomicilio
+                    on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
+                    join e in context.Estado
+                    on hd.est_Id_Estado equals e.est_Id_Estado
+                    join pais in context.Pais
+                    on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                    where hp.hd_Id_Hogar == hd_Id_Hogar
+                    && hp.hp_Jerarquia == 1
+                    select new
+                    {
+                        hd_Id_Hogar = hp.hd_Id_Hogar,
+                        hd_Calle = hd.hd_Calle,
+                        hd_Numero_Exterior = hd.hd_Numero_Exterior,
+                        hd_Numero_Interior = hd.hd_Numero_Interior,
+                        hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
+                        hd_Subdivision = hd.hd_Subdivision,
+                        hd_Localidad = hd.hd_Localidad,
+                        hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                        est_Nombre = e.est_Nombre,
+                        pais_Nombre_Corto = pais.pais_Nombre_Corto,
+                        hd_Telefono = hd.hd_Telefono
+                    }).ToList();
+                return Ok(query);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         // GET: api/Hogar_Persona/GetMiembros/2
         [Route("[action]/{hd_Id_Hogar}")]
         [HttpGet]
