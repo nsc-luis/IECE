@@ -16,10 +16,5 @@ namespace IECE_WebApi.Models
         [Required]
         [Display(Name = "Definicion del oficio")]
         public string pro_Definicion_Profesion_Oficio { get; set; }
-        [Required]
-        public bool sw_Registro { get; set; }
-        public DateTime Fecha_Registro { get; set; }
-        [Required]
-        public int usu_Id_Usuario { get; set; }
     }
 }
