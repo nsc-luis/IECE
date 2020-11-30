@@ -37,6 +37,24 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Hogar_Persona/GetHogarByPersona/{per_Id_Persona}
+        [Route("[action]/{per_Id_Persona}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetHogarByPersona(int per_Id_Persona)
+        {
+            Hogar_Persona hogar_persona = new Hogar_Persona();
+            try
+            {
+                hogar_persona = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == per_Id_Persona);
+                return Ok(hogar_persona);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
         // GET: api/Hogar_Persona/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
