@@ -59,8 +59,9 @@ namespace IECE_WebApi.Models
         public string per_Nombre_Abuelo_Materno { get; set; }
         [DefaultValue("Desconocido / no capturado")]
         public string per_Nombre_Abuela_Materna { get; set; }
-        [DefaultValue("Desconocido / no capturado")]
+        [DefaultValue(1)]
         public int pro_Id_Profesion_Oficio1 { get; set; }
+        [DefaultValue(1)]
         public int pro_Id_Profesion_Oficio2 { get; set; }
         public string per_Telefono_Fijo { get; set; }
         public string per_Telefono_Movil { get; set; }
@@ -97,6 +98,7 @@ namespace IECE_WebApi.Models
         [DefaultValue("1890/01/01")]
         public DateTime per_Fecha_Boda_Eclesiastica { get; set; }
         public string per_Lugar_Boda_Eclesiastica { get; set; }
+        [Required]
         [DefaultValue(0)]
         public int per_Cantidad_Hijos { get; set; }
         public string per_Nombre_Hijos { get; set; }

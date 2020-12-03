@@ -33,7 +33,7 @@ namespace IECE_WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
@@ -161,7 +161,7 @@ namespace IECE_WebApi.Controllers
         // PUT: api/Persona/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Persona persona)
+        public ActionResult Put([FromBody] Persona persona, int id)
         {
             if (persona.per_Id_Persona == id)
             {
@@ -178,9 +178,65 @@ namespace IECE_WebApi.Controllers
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
-            var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);
+            // CONSULTA HOGAR A PARTIR DEL ID DE LA PERSONA
+            Hogar_Persona hogar_persona = new Hogar_Persona();
+            hogar_persona = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == id);
+
+            // CONSULTA LOS MIEMBROS DEL HOGAR AL QUE PERTENESE LA PERSONA
+            var miembrosDelHogar = (from hp in context.Hogar_Persona
+                                    join p in context.Persona
+                                    on hp.per_Id_Persona equals p.per_Id_Persona
+                                    where hp.hd_Id_Hogar == hogar_persona.hd_Id_Hogar
+                                    orderby hp.hp_Jerarquia
+                                    select new
+                                    {
+                                        hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
+                                        hd_Id_Hogar = hp.hd_Id_Hogar,
+                                        per_Id_Persona = hp.per_Id_Persona,
+                                        hp_Jerarquia = hp.hp_Jerarquia
+                                    }).ToList();
+            for (int i = miembrosDelHogar.Count(); i > hogar_persona.hp_Jerarquia; i--)
+            {
+                // ACTUALIZA LA JERARQUIA DE LOS MIEMBROS RESTANTES DENTRO DEL HOGAR
+                if (miembrosDelHogar[i - 1].hp_Jerarquia > hogar_persona.hp_Jerarquia)
+                {
+                    var registro = new Hogar_Persona
+                    {
+                        hp_Id_Hogar_Persona = miembrosDelHogar[i - 1].hp_Id_Hogar_Persona,
+                        hd_Id_Hogar = miembrosDelHogar[i - 1].hd_Id_Hogar,
+                        per_Id_Persona = miembrosDelHogar[i - 1].per_Id_Persona,
+                        hp_Jerarquia = i - 1
+                    };
+                    context.Entry(registro).State = EntityState.Modified;
+                    context.SaveChanges();
+                }
+
+            }
+
+            // ELIMINA REGISTRO DE LA PERSONA EN LA TABLA HOGAR_PERSONA
+            if (hogar_persona != null)
+            {
+                context.Hogar_Persona.Remove(hogar_persona);
+                context.SaveChanges();
+            }
+
+            // ELIMINA EL DOMICILIO SI LA PERSONA QUE SE ELIMINA ES LA ULTIMA DEL HOGAR
+            if(miembrosDelHogar.Count() == 1)
+            {
+                HogarDomicilio hd = new HogarDomicilio();
+                hd = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == miembrosDelHogar[0].hd_Id_Hogar);
+                if (hd != null)
+                {
+                    context.HogarDomicilio.Remove(hd);
+                    context.SaveChanges();
+                }
+            }
+
+            // ELIMINA LA PERSONA POR SU ID Y RETORNA EL RESULTADO
+            Persona persona = new Persona();
+            persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == id);
             if (persona != null)
             {
                 context.Persona.Remove(persona);

@@ -81,32 +81,32 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from hp in context.Hogar_Persona
-                    join hd in context.HogarDomicilio
-                    on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
-                    join e in context.Estado
-                    on hd.est_Id_Estado equals e.est_Id_Estado
-                    join pais in context.Pais
-                    on hd.pais_Id_Pais equals pais.pais_Id_Pais
-                    join p in context.Persona
-                    on hp.per_Id_Persona equals p.per_Id_Persona
-                    where hp.hp_Jerarquia == 1
-                    select new
-                    {
-                        hd_Id_Hogar = hp.hd_Id_Hogar,
-                        per_Nombre = p.per_Nombre,
-                        per_Apellido_Paterno = p.per_Apellido_Paterno,
-                        per_Apellido_Materno = p.per_Apellido_Materno,
-                        hd_Calle = hd.hd_Calle,
-                        hd_Numero_Exterior = hd.hd_Numero_Exterior,
-                        hd_Numero_Interior = hd.hd_Numero_Interior,
-                        hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
-                        hd_Subdivision = hd.hd_Subdivision,
-                        hd_Localidad = hd.hd_Localidad,
-                        hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
-                        est_Nombre = e.est_Nombre,
-                        pais_Nombre_Corto = pais.pais_Nombre_Corto,
-                        hd_Telefono = hd.hd_Telefono
-                    }).ToList();
+                             join hd in context.HogarDomicilio
+                             on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
+                             join e in context.Estado
+                             on hd.est_Id_Estado equals e.est_Id_Estado
+                             join pais in context.Pais
+                             on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                             join p in context.Persona
+                             on hp.per_Id_Persona equals p.per_Id_Persona
+                             where hp.hp_Jerarquia == 1
+                             select new
+                             {
+                                 hd_Id_Hogar = hp.hd_Id_Hogar,
+                                 per_Nombre = p.per_Nombre,
+                                 per_Apellido_Paterno = p.per_Apellido_Paterno,
+                                 per_Apellido_Materno = p.per_Apellido_Materno,
+                                 hd_Calle = hd.hd_Calle,
+                                 hd_Numero_Exterior = hd.hd_Numero_Exterior,
+                                 hd_Numero_Interior = hd.hd_Numero_Interior,
+                                 hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
+                                 hd_Subdivision = hd.hd_Subdivision,
+                                 hd_Localidad = hd.hd_Localidad,
+                                 hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                                 est_Nombre = e.est_Nombre,
+                                 pais_Nombre_Corto = pais.pais_Nombre_Corto,
+                                 hd_Telefono = hd.hd_Telefono
+                             }).ToList();
                 return Ok(query);
             }
             catch (Exception ex)
@@ -124,28 +124,28 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from hp in context.Hogar_Persona
-                    join hd in context.HogarDomicilio
-                    on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
-                    join e in context.Estado
-                    on hd.est_Id_Estado equals e.est_Id_Estado
-                    join pais in context.Pais
-                    on hd.pais_Id_Pais equals pais.pais_Id_Pais
-                    where hp.hd_Id_Hogar == hd_Id_Hogar
-                    && hp.hp_Jerarquia == 1
-                    select new
-                    {
-                        hd_Id_Hogar = hp.hd_Id_Hogar,
-                        hd_Calle = hd.hd_Calle,
-                        hd_Numero_Exterior = hd.hd_Numero_Exterior,
-                        hd_Numero_Interior = hd.hd_Numero_Interior,
-                        hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
-                        hd_Subdivision = hd.hd_Subdivision,
-                        hd_Localidad = hd.hd_Localidad,
-                        hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
-                        est_Nombre = e.est_Nombre,
-                        pais_Nombre_Corto = pais.pais_Nombre_Corto,
-                        hd_Telefono = hd.hd_Telefono
-                    }).ToList();
+                             join hd in context.HogarDomicilio
+                             on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
+                             join e in context.Estado
+                             on hd.est_Id_Estado equals e.est_Id_Estado
+                             join pais in context.Pais
+                             on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                             where hp.hd_Id_Hogar == hd_Id_Hogar
+                             && hp.hp_Jerarquia == 1
+                             select new
+                             {
+                                 hd_Id_Hogar = hp.hd_Id_Hogar,
+                                 hd_Calle = hd.hd_Calle,
+                                 hd_Numero_Exterior = hd.hd_Numero_Exterior,
+                                 hd_Numero_Interior = hd.hd_Numero_Interior,
+                                 hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
+                                 hd_Subdivision = hd.hd_Subdivision,
+                                 hd_Localidad = hd.hd_Localidad,
+                                 hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                                 est_Nombre = e.est_Nombre,
+                                 pais_Nombre_Corto = pais.pais_Nombre_Corto,
+                                 hd_Telefono = hd.hd_Telefono
+                             }).ToList();
                 return Ok(query);
             }
             catch (Exception ex)
@@ -163,19 +163,20 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from hp in context.Hogar_Persona
-                        join p in context.Persona
-                        on hp.per_Id_Persona equals p.per_Id_Persona
-                        where hp.hd_Id_Hogar == hd_Id_Hogar
-                        orderby (hp.hp_Jerarquia)
-                        select new
-                        {
-                            hd_Id_Hogar = hp.hd_Id_Hogar,
-                            hp_Jerarquia = hp.hp_Jerarquia,
-                            per_Id_Persona = p.per_Id_Persona,
-                            per_Nombre = p.per_Nombre,
-                            per_Apellido_Paterno = p.per_Apellido_Paterno,
-                            per_Apellido_Materno = p.per_Apellido_Materno
-                        }).ToList();
+                             join p in context.Persona
+                             on hp.per_Id_Persona equals p.per_Id_Persona
+                             where hp.hd_Id_Hogar == hd_Id_Hogar
+                             orderby (hp.hp_Jerarquia)
+                             select new
+                             {
+                                 hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
+                                 hd_Id_Hogar = hp.hd_Id_Hogar,
+                                 hp_Jerarquia = hp.hp_Jerarquia,
+                                 per_Id_Persona = p.per_Id_Persona,
+                                 per_Nombre = p.per_Nombre,
+                                 per_Apellido_Paterno = p.per_Apellido_Paterno,
+                                 per_Apellido_Materno = p.per_Apellido_Materno
+                             }).ToList();
                 return Ok(query);
             }
             catch (Exception ex)
@@ -187,25 +188,84 @@ namespace IECE_WebApi.Controllers
         // POST: api/Hogar_Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult Post([FromBody] Hogar_Persona hogar_persona)
+        public IActionResult Post([FromBody] Hogar_Persona hogar_persona)
         {
             try
             {
-                context.Hogar_Persona.Add(hogar_persona);
-                context.SaveChanges();
-                return Ok
-                (
+                var miembrosDelHogar = (from hp in context.Hogar_Persona
+                                        where hp.hd_Id_Hogar == hogar_persona.hd_Id_Hogar
+                                        orderby (hp.hp_Jerarquia)
+                                        select new
+                                        {
+                                            hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
+                                            hd_Id_Hogar = hp.hd_Id_Hogar,
+                                            hp_Jerarquia = hp.hp_Jerarquia,
+                                            per_Id_Persona = hp.per_Id_Persona
+                                        }).ToList();
+                
+                foreach (var miembro in miembrosDelHogar)
+                {
+                    if (miembro.hp_Jerarquia == hogar_persona.hp_Jerarquia)
+                    {
+                        context.Hogar_Persona.Add(hogar_persona);
+                        context.SaveChanges();
+
+                        var registro = new Hogar_Persona
+                        {
+                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                            hd_Id_Hogar = miembro.hd_Id_Hogar,
+                            per_Id_Persona = miembro.per_Id_Persona,
+                            hp_Jerarquia = miembro.hp_Jerarquia + 1
+                        };
+                        context.Entry(registro).State = EntityState.Modified;
+                        context.SaveChanges();
+                    }
+                    else if (miembro.hp_Jerarquia > hogar_persona.hp_Jerarquia)
+                    {
+                        var registro = new Hogar_Persona
+                        {
+                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                            hd_Id_Hogar = miembro.hd_Id_Hogar,
+                            per_Id_Persona = miembro.per_Id_Persona,
+                            hp_Jerarquia = miembro.hp_Jerarquia + 1
+                        };
+                        context.Entry(registro).State = EntityState.Modified;
+                        context.SaveChanges();
+                    } else
+                    {
+                        context.Hogar_Persona.Add(hogar_persona);
+                        context.SaveChanges();
+                    }
+                }
+                return Ok(
                     new
                     {
                         status = "success",
                         hogar_persona
-                    }
-                );
+                    });
             }
             catch (Exception ex)
             {
                 return BadRequest(ex);
             }
+
+            //try
+            //{
+            //    context.Hogar_Persona.Add(hogar_persona);
+            //    context.SaveChanges();
+            //    return Ok
+            //    (
+            //        new
+            //        {
+            //            status = "success",
+            //            hogar_persona
+            //        }
+            //    );
+            //}
+            //catch (Exception ex)
+            //{
+            //    return BadRequest(ex);
+            //}
         }
 
         // PUT: api/Hogar_Persona/5
