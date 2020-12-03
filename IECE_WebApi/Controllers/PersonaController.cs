@@ -180,6 +180,8 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult Delete(int id)
         {
+            List<string> message = new List<string>();
+
             // CONSULTA HOGAR A PARTIR DEL ID DE LA PERSONA
             Hogar_Persona hogar_persona = new Hogar_Persona();
             hogar_persona = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == id);
@@ -220,6 +222,7 @@ namespace IECE_WebApi.Controllers
             {
                 context.Hogar_Persona.Remove(hogar_persona);
                 context.SaveChanges();
+                message.Add("Se elimino la jerarquia que correspondia a la persona en el hogar.");
             }
 
             // ELIMINA EL DOMICILIO SI LA PERSONA QUE SE ELIMINA ES LA ULTIMA DEL HOGAR
@@ -231,6 +234,7 @@ namespace IECE_WebApi.Controllers
                 {
                     context.HogarDomicilio.Remove(hd);
                     context.SaveChanges();
+                    message.Add("Se eliminó el registro del domicilio por ser la utima persona registado en el mismo.");
                 }
             }
 
@@ -241,7 +245,14 @@ namespace IECE_WebApi.Controllers
             {
                 context.Persona.Remove(persona);
                 context.SaveChanges();
-                return Ok();
+                message.Add("Se eliminó el registro de la persona con todos sus datos.");
+                return Ok(
+                        new
+                        {
+                            status = "success",
+                            message = message.ToArray()
+                        }
+                    );
             }
             else
             {
