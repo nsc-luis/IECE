@@ -99,21 +99,21 @@ namespace IECE_WebApi.Controllers
             // var persona = context.Persona.FirstOrDefault(per => per.per_RFC_Sin_Homo == RFCSinHomo);
 
             var query = (from p in context.Persona
-                         join s in context.Sector
-                         on p.sec_Id_Sector equals s.sec_Id_Sector
-                         join d in context.Distrito
-                         on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                         //join s in context.Sector
+                         //on p.sec_Id_Sector equals s.sec_Id_Sector
+                         //join d in context.Distrito
+                         //on s.dis_Id_Distrito equals d.dis_Id_Distrito
                          where p.per_RFC_Sin_Homo == RFCSinHomo
                          select new
                          {
                              per_Nombre = p.per_Nombre,
                              per_Apellido_Paterno = p.per_Apellido_Paterno,
                              per_ApellidoMaterno = p.per_Apellido_Materno,
-                             per_Fecha_Nacimiento = p.per_Fecha_Nacimiento,
-                             dis_Numero = d.dis_Numero,
-                             dis_Localidad = d.dis_Localidad,
-                             sec_Numero = s.sec_Numero,
-                             sec_Localidad = s.sec_Localidad
+                             per_Fecha_Nacimiento = p.per_Fecha_Nacimiento//,
+                             //dis_Numero = d.dis_Numero,
+                             //dis_Localidad = d.dis_Localidad,
+                             //sec_Numero = s.sec_Numero,
+                             //sec_Localidad = s.sec_Localidad
                          }).ToList();
 
             if (query.Count > 0)

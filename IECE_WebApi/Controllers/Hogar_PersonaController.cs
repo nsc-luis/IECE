@@ -202,40 +202,45 @@ namespace IECE_WebApi.Controllers
                                             hp_Jerarquia = hp.hp_Jerarquia,
                                             per_Id_Persona = hp.per_Id_Persona
                                         }).ToList();
-                
-                foreach (var miembro in miembrosDelHogar)
-                {
-                    if (miembro.hp_Jerarquia == hogar_persona.hp_Jerarquia)
-                    {
-                        context.Hogar_Persona.Add(hogar_persona);
-                        context.SaveChanges();
 
-                        var registro = new Hogar_Persona
-                        {
-                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
-                            hd_Id_Hogar = miembro.hd_Id_Hogar,
-                            per_Id_Persona = miembro.per_Id_Persona,
-                            hp_Jerarquia = miembro.hp_Jerarquia + 1
-                        };
-                        context.Entry(registro).State = EntityState.Modified;
-                        context.SaveChanges();
-                    }
-                    else if (miembro.hp_Jerarquia > hogar_persona.hp_Jerarquia)
+
+                if (miembrosDelHogar.Count() > 0)
+                {
+                    foreach (var miembro in miembrosDelHogar)
                     {
-                        var registro = new Hogar_Persona
+                        if (miembro.hp_Jerarquia == hogar_persona.hp_Jerarquia)
                         {
-                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
-                            hd_Id_Hogar = miembro.hd_Id_Hogar,
-                            per_Id_Persona = miembro.per_Id_Persona,
-                            hp_Jerarquia = miembro.hp_Jerarquia + 1
-                        };
-                        context.Entry(registro).State = EntityState.Modified;
-                        context.SaveChanges();
-                    } else
-                    {
-                        context.Hogar_Persona.Add(hogar_persona);
-                        context.SaveChanges();
+                            context.Hogar_Persona.Add(hogar_persona);
+                            context.SaveChanges();
+
+                            var registro = new Hogar_Persona
+                            {
+                                hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                                hd_Id_Hogar = miembro.hd_Id_Hogar,
+                                per_Id_Persona = miembro.per_Id_Persona,
+                                hp_Jerarquia = miembro.hp_Jerarquia + 1
+                            };
+                            context.Entry(registro).State = EntityState.Modified;
+                            context.SaveChanges();
+                        }
+                        if (miembro.hp_Jerarquia > hogar_persona.hp_Jerarquia)
+                        {
+                            var registro = new Hogar_Persona
+                            {
+                                hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                                hd_Id_Hogar = miembro.hd_Id_Hogar,
+                                per_Id_Persona = miembro.per_Id_Persona,
+                                hp_Jerarquia = miembro.hp_Jerarquia + 1
+                            };
+                            context.Entry(registro).State = EntityState.Modified;
+                            context.SaveChanges();
+                        }
                     }
+                }
+                else
+                {
+                    context.Hogar_Persona.Add(hogar_persona);
+                    context.SaveChanges();
                 }
                 return Ok(
                     new

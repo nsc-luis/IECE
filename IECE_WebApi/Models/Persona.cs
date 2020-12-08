@@ -43,6 +43,7 @@ namespace IECE_WebApi.Models
         public string per_Apellido_Materno { get; set; }
         [Required]
         [Display(Name = "Fecha nacimiento")]
+        [DefaultValue("1890-01-01")]
         public DateTime per_Fecha_Nacimiento { get; set; }
         [Required]
         [Display(Name = "RFC")]
@@ -79,7 +80,7 @@ namespace IECE_WebApi.Models
         [DefaultValue("1890-01-01")]
         public DateTime per_Fecha_Bautismo { get; set; }
         public string per_Ministro_Que_Bautizo { get; set; }
-        [DefaultValue("1890/01/01")]
+        [DefaultValue("1890-01-01")]
         public DateTime per_Fecha_Recibio_Espiritu_Santo { get; set; }
         public string per_Bajo_Imposicion_De_Manos { get; set; }
         public string per_Cargos_Desempenados { get; set; }
@@ -89,13 +90,13 @@ namespace IECE_WebApi.Models
         [DefaultValue("soltero")]
         public string per_Estado_Civil { get; set; }
         public string per_Nombre_Conyuge { get; set; }
-        [DefaultValue("1890/01/01")]
+        [DefaultValue("1890-01-01")]
         public DateTime per_Fecha_Boda_Civil { get; set; }
         public string per_Num_Acta_Boda_Civil { get; set; }
         public string per_Libro_Acta_Boda_Civil { get; set; }
         public string per_Oficialia_Boda_Civil { get; set; }
         public string per_Registro_Civil { get; set; }
-        [DefaultValue("1890/01/01")]
+        [DefaultValue("1890-01-01")]
         public DateTime per_Fecha_Boda_Eclesiastica { get; set; }
         public string per_Lugar_Boda_Eclesiastica { get; set; }
         [Required]
