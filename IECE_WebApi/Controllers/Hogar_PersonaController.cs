@@ -223,7 +223,7 @@ namespace IECE_WebApi.Controllers
                             context.Entry(registro).State = EntityState.Modified;
                             context.SaveChanges();
                         }
-                        if (miembro.hp_Jerarquia > hogar_persona.hp_Jerarquia)
+                        else if (miembro.hp_Jerarquia > hogar_persona.hp_Jerarquia)
                         {
                             var registro = new Hogar_Persona
                             {
@@ -234,7 +234,11 @@ namespace IECE_WebApi.Controllers
                             };
                             context.Entry(registro).State = EntityState.Modified;
                             context.SaveChanges();
-                        }
+                        }// else
+                        //{
+                        //    context.Hogar_Persona.Add(hogar_persona);
+                        //    context.SaveChanges();
+                        //}
                     }
                 }
                 else
