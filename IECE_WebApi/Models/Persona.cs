@@ -45,6 +45,8 @@ namespace IECE_WebApi.Models
         [Display(Name = "Fecha nacimiento")]
         [DefaultValue("1890-01-01")]
         public DateTime per_Fecha_Nacimiento { get; set; }
+        public string per_Lugar_De_Nacimiento { get; set; }
+        public string per_Nacionalidad { get; set; }
         [Required]
         [Display(Name = "RFC")]
         public string per_RFC_Sin_Homo { get; set; }
@@ -64,7 +66,6 @@ namespace IECE_WebApi.Models
         public int pro_Id_Profesion_Oficio1 { get; set; }
         [DefaultValue(1)]
         public int pro_Id_Profesion_Oficio2 { get; set; }
-        public string per_Telefono_Fijo { get; set; }
         public string per_Telefono_Movil { get; set; }
         public string per_Email_Personal { get; set; }
         [Display(Name = "Foto")]
@@ -103,5 +104,15 @@ namespace IECE_WebApi.Models
         [DefaultValue(0)]
         public int per_Cantidad_Hijos { get; set; }
         public string per_Nombre_Hijos { get; set; }
+
+        [Required]
+        [DefaultValue(0)]
+        public int usu_Id_Usuario { get; set; }
+        [Required]
+        [DefaultValue("1890-01-01")]
+        public DateTime Fecha_Registro { get; set; }
+        [Required]
+        [DefaultValue(false)]
+        public bool sw_Registro { get; set; }
     }
 }

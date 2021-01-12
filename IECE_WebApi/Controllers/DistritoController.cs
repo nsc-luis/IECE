@@ -23,12 +23,26 @@ namespace IECE_WebApi.Controllers
         // GET: api/Distrito
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult<IEnumerable<Distrito>> Get()
+        public IActionResult Get()
         {
-            Distrito distrito = new Distrito();
             try
             {
-                return Ok(context.Distrito.ToList());
+                var query = (from dis in context.Distrito
+                             select new
+                             {
+                                 dis_Id_Distrito = dis.dis_Id_Distrito,
+                                 dis_Numero = dis.dis_Numero,
+                                 dis_Area = dis.dis_Area,
+                                 dis_Alias = dis.dis_Alias,
+                                 dis_Tipo_Distrito = dis.dis_Tipo_Distrito
+                             }).ToList();
+                return Ok(
+                    new
+                    {
+                        status = true,
+                        distritos = query
+                    }
+                );
             }
             catch (Exception ex)
             {

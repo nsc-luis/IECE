@@ -25,16 +25,77 @@ namespace IECE_WebApi.Controllers
         // GET: api/Sector
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult<IEnumerable<Sector>> Get()
+        public IActionResult Get()
         {
-            Sector sector = new Sector();
             try
             {
-                return Ok(context.Sector.ToList());
+                var query = (from sec in context.Sector
+                             select new
+                             {
+                                 sec_Id_Sector = sec.sec_Id_Sector,
+                                 sec_Alias = sec.sec_Alias,
+                                 // sec_Numero = sec.sec_Numero,
+                                 sec_Tipo_Sector = sec.sec_Tipo_Sector,
+                             }).ToList();
+                return Ok(
+                    new
+                    {
+                        status = true,
+                        sectores = query
+                    }
+                );
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(
+                    new object[]
+                    {
+                        new
+                        {
+                            status= false,
+                            mensaje = ex.Message
+                        }
+                    }
+                );
+            }
+        }
+
+        // GET: api/Sector/GetSectoresByDistrito/dis_Id_Distrito
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetSectoresByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                var query = (from sec in context.Sector
+                             join dis in context.Distrito
+                             on sec.dis_Id_Distrito equals dis.dis_Id_Distrito
+                             where sec.dis_Id_Distrito == dis_Id_Distrito
+                             orderby sec.sec_Id_Sector ascending
+                             select new
+                             {
+                                 sec_Id_Sector = sec.sec_Id_Sector,
+                                 sec_Alias = sec.sec_Alias,
+                                 sec_Tipo_Sector = sec.sec_Tipo_Sector
+                             }).ToList();
+                return Ok(
+                    new
+                    {
+                        status = true,
+                        sectores = query
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new
+                    {
+                        status = false,
+                        mensaje = ex.Message
+                    }
+                );
             }
         }
 
@@ -43,10 +104,26 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
-            Sector sector = new Sector();
+            // Sector sector = new Sector();
             try
             {
-                sector = context.Sector.FirstOrDefault(sec => sec.sec_Id_Sector == id);
+                var sector = (from s in context.Sector
+                              join d in context.Distrito
+                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                              where s.sec_Id_Sector == id
+                              select new
+                              {
+                                  sec_Id_Sector = s.sec_Id_Sector,
+                                  sec_Tipo_Sector = s.sec_Tipo_Sector,
+                                  sec_Numero = s.sec_Numero,
+                                  sec_Alias = s.sec_Alias,
+                                  dis_Id_Distrito = s.dis_Id_Distrito,
+                                  dis_Alias = d.dis_Alias,
+                                  dis_Tipo_Distrito = d.dis_Tipo_Distrito,
+                                  dis_Numero = d.dis_Numero,
+                                  dis_Area = d.dis_Area
+                              }).ToList();
+                // sector = context.Sector.FirstOrDefault(sec => sec.sec_Id_Sector == id);
                 return Ok(sector);
             }
             catch (Exception ex)

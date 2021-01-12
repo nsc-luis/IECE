@@ -102,7 +102,7 @@ namespace IECE_WebApi.Controllers
                                  hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
                                  hd_Subdivision = hd.hd_Subdivision,
                                  hd_Localidad = hd.hd_Localidad,
-                                 hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                                 hd_Municipio_Ciudad = hd.hd_Municipio_Ciudad,
                                  est_Nombre = e.est_Nombre,
                                  pais_Nombre_Corto = pais.pais_Nombre_Corto,
                                  hd_Telefono = hd.hd_Telefono
@@ -141,7 +141,7 @@ namespace IECE_WebApi.Controllers
                                  hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
                                  hd_Subdivision = hd.hd_Subdivision,
                                  hd_Localidad = hd.hd_Localidad,
-                                 hd_Municipio_Cuidad = hd.hd_Municipio_Cuidad,
+                                 hd_Municipio_Ciudad = hd.hd_Municipio_Ciudad,
                                  est_Nombre = e.est_Nombre,
                                  pais_Nombre_Corto = pais.pais_Nombre_Corto,
                                  hd_Telefono = hd.hd_Telefono
