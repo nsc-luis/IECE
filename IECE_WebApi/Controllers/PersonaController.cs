@@ -66,8 +66,8 @@ namespace IECE_WebApi.Controllers
                          where per.per_Id_Persona == idPersona
                          select new
                          {
-                             pro_Definicion_Profesion_Oficio = pro.pro_Definicion_Profesion_Oficio,
-                             pro_Desc_Profesion_Oficio = pro.pro_Desc_Profesion_Oficio
+                             pro_Sub_Categoria = pro.pro_Sub_Categoria,
+                             pro_Categoria = pro.pro_Categoria
                          }).ToList();
             return Ok(query);
         }
@@ -84,8 +84,8 @@ namespace IECE_WebApi.Controllers
                          where per.per_Id_Persona == idPersona
                          select new
                          {
-                             pro_Definicion_Profesion_Oficio = pro.pro_Definicion_Profesion_Oficio,
-                             pro_Desc_Profesion_Oficio = pro.pro_Desc_Profesion_Oficio
+                             pro_Sub_Categoria = pro.pro_Sub_Categoria,
+                             pro_Categoria = pro.pro_Categoria
                          }).ToList();
             return Ok(query);
         }
@@ -99,37 +99,32 @@ namespace IECE_WebApi.Controllers
             // var persona = context.Persona.FirstOrDefault(per => per.per_RFC_Sin_Homo == RFCSinHomo);
 
             var query = (from p in context.Persona
-                         //join s in context.Sector
-                         //on p.sec_Id_Sector equals s.sec_Id_Sector
-                         //join d in context.Distrito
-                         //on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                         join s in context.Sector
+                         on p.sec_Id_Sector equals s.sec_Id_Sector
+                         join d in context.Distrito
+                         on s.dis_Id_Distrito equals d.dis_Id_Distrito
                          where p.per_RFC_Sin_Homo == RFCSinHomo
                          select new
                          {
                              per_Nombre = p.per_Nombre,
                              per_Apellido_Paterno = p.per_Apellido_Paterno,
                              per_ApellidoMaterno = p.per_Apellido_Materno,
-                             per_Fecha_Nacimiento = p.per_Fecha_Nacimiento//,
-                             //dis_Numero = d.dis_Numero,
-                             //dis_Localidad = d.dis_Localidad,
-                             //sec_Numero = s.sec_Numero,
-                             //sec_Localidad = s.sec_Localidad
+                             per_Fecha_Nacimiento = p.per_Fecha_Nacimiento,
+                             dis_Numero = d.dis_Numero,
+                             dis_Tipo_Distrito = d.dis_Tipo_Distrito,
+                             sec_Alias = s.sec_Alias
                          }).ToList();
 
             if (query.Count > 0)
             {
                 return Ok(
-                    new object[] {
-                        new {status = true, persona = query}
-                    }
+                     new { status = true, persona = query }
                 );
             }
             else
             {
                 return Ok(
-                    new object[] {
-                        new {status = false, mensaje = "Persona no encontrada"}
-                    }
+                    new { status = false, mensaje = "Persona no encontrada" }
                 );
             }
         }
@@ -226,7 +221,7 @@ namespace IECE_WebApi.Controllers
             }
 
             // ELIMINA EL DOMICILIO SI LA PERSONA QUE SE ELIMINA ES LA ULTIMA DEL HOGAR
-            if(miembrosDelHogar.Count() == 1)
+            if (miembrosDelHogar.Count() == 1)
             {
                 HogarDomicilio hd = new HogarDomicilio();
                 hd = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == miembrosDelHogar[0].hd_Id_Hogar);

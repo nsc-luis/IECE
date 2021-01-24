@@ -43,7 +43,7 @@ namespace IECE_WebApi.Models
         public string per_Apellido_Materno { get; set; }
         [Required]
         [Display(Name = "Fecha nacimiento")]
-        [DefaultValue("1890-01-01")]
+        [DefaultValue("1900-01-01")]
         public DateTime per_Fecha_Nacimiento { get; set; }
         public string per_Lugar_De_Nacimiento { get; set; }
         public string per_Nacionalidad { get; set; }
@@ -71,17 +71,20 @@ namespace IECE_WebApi.Models
         [Display(Name = "Foto")]
         [DefaultValue("logo_signin.png")]
         public string per_foto { get; set; }
-        public string per_Observaciones { get; set; }
+        
         [Required]
         [Display(Name = "Bautizado")]
         [DefaultValue(false)]
         public bool per_Bautizado { get; set; }
         [Display(Name = "Lugar de bautismo")]
         public string per_Lugar_Bautismo { get; set; }
-        [DefaultValue("1890-01-01")]
+
+        [DefaultValue("1900-01-01")]
         public DateTime per_Fecha_Bautismo { get; set; }
+
         public string per_Ministro_Que_Bautizo { get; set; }
-        [DefaultValue("1890-01-01")]
+
+        [DefaultValue("1900-01-01")]
         public DateTime per_Fecha_Recibio_Espiritu_Santo { get; set; }
         public string per_Bajo_Imposicion_De_Manos { get; set; }
         public string per_Cargos_Desempenados { get; set; }
@@ -111,8 +114,6 @@ namespace IECE_WebApi.Models
         [Required]
         [DefaultValue("1890-01-01")]
         public DateTime Fecha_Registro { get; set; }
-        [Required]
-        [DefaultValue(false)]
-        public bool sw_Registro { get; set; }
+        
     }
 }
