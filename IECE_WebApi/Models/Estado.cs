@@ -16,5 +16,6 @@ namespace IECE_WebApi.Models
         public string est_Pais { get; set; }
         [Display(Name = "Nombre")]
         public string est_Nombre { get; set; }
+        public int pais_Id_Pais { get; set; }
     }
 }

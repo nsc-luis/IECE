@@ -26,6 +26,6 @@ namespace IECE_WebApi.Models
         public DateTime dis_Fecha_Cambio_Obispo { get; set; }
         public DateTime dis_Fecha_Ultimo_Cambio_Admon { get; set; }
         public string dis_Domicilio_Especial_Correspondencia { get; set; }
-        public bool sw_Registro { get; set; }
+        //public bool sw_Registro { get; set; }
     }
 }

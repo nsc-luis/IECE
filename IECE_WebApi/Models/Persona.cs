@@ -89,7 +89,6 @@ namespace IECE_WebApi.Models
         public string per_Bajo_Imposicion_De_Manos { get; set; }
         public string per_Cargos_Desempenados { get; set; }
         public string per_Cambios_De_Domicilio { get; set; }
-        [Required]
         [Display(Name = "Estado civil")]
         [DefaultValue("soltero")]
         public string per_Estado_Civil { get; set; }

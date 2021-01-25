@@ -27,8 +27,8 @@ namespace IECE_WebApi.Models
         public DateTime sec_Fecha_Org_Dpto_Juvenil { get; set; }
         public string sec_Depto_Infantil { get; set; }
         public DateTime sec_Fecha_Org_Depto_Infantil { get; set; }
-        public string sec_Coro_Oficial { get; set; } */
-        public bool sw_Registro { get; set; }
+        public string sec_Coro_Oficial { get; set; }
+        public bool sw_Registro { get; set; } */
         public DateTime Fecha_Registro { get; set; }
         public int usu_Id_Usuario { get; set; }
     }

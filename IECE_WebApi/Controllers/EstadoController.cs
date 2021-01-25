@@ -37,6 +37,45 @@ namespace IECE_WebApi.Controllers
             return estado;
         }
 
+        // GET: api/Estado/GetEstadoByIdPais/151
+        [Route("[action]/{pais_Id_Pais}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public ActionResult GetEstadoByIdPais(int pais_Id_Pais)
+        {
+            try
+            {
+                var query = (from est in context.Estado
+                             join pais in context.Pais
+                             on est.pais_Id_Pais equals pais.pais_Id_Pais
+                             where est.pais_Id_Pais == pais_Id_Pais
+                             orderby est.est_Nombre ascending
+                             select new
+                             {
+                                 est_Id_Estado = est.est_Id_Estado,
+                                 est_Nombre_Corto = est.est_Nombre_Corto,
+                                 est_Pais = est.est_Pais,
+                                 est_Nombre = est.est_Nombre,
+                                 pais_Id_Pais = est.pais_Id_Pais
+                             }).ToList();
+                return Ok(
+                    new
+                    {
+                        status = true,
+                        estados = query
+                    });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new
+                    {
+                        status = false,
+                        message = ex.Message
+                    });
+            }
+        }
+
         // POST: api/Estado
         [HttpPost]
         [EnableCors("AllowOrigin")]
