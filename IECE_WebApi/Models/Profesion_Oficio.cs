@@ -23,8 +23,5 @@ namespace IECE_WebApi.Models
         [Required]
         [DefaultValue("1900-01-01")]
         public DateTime Fecha_Registro { get; set; }
-        [Required]
-        [DefaultValue(false)]
-        public bool sw_Registro { get; set; }
     }
 }

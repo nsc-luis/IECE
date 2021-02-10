@@ -68,14 +68,21 @@ namespace IECE_WebApi.Controllers
                 (
                     new
                     {
-                        status = "success",
+                        status = true,
                         nvoHogarDomicilio = hogardomicilio.hd_Id_Hogar
                     }
                 );
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest
+                (
+                    new
+                    {
+                        status = false,
+                        message = ex.Message
+                    }
+                );
             }
         }
 

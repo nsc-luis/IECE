@@ -22,6 +22,8 @@ namespace IECE_WebApi.Controllers
             this.context = context;
         }
 
+        private DateTime fechayhora = DateTime.UtcNow;
+
         // GET: api/Persona
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -136,20 +138,185 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                persona.Fecha_Registro = fechayhora;
+                persona.usu_Id_Usuario = 1;
                 context.Persona.Add(persona);
                 context.SaveChanges();
                 return Ok
                 (
                     new
                     {
-                        status = "success",
+                        status = true,
                         nvaPersona = persona.per_Id_Persona
                     }
                 );
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest
+                (
+                    new
+                    {
+                        status = false,
+                        message = ex.Message
+                    }
+                );
+            }
+        }
+
+        // POST: api/Persona/AddPersonaHogar
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AddPersonaHogar([FromBody] Persona persona, int jerarquia, int hdId)
+        {
+            try
+            {
+                persona.Fecha_Registro = fechayhora;
+                persona.usu_Id_Usuario = 1;
+                context.Persona.Add(persona);
+                context.SaveChanges();
+
+                Hogar_Persona hpModel = new Hogar_Persona();
+                var miembrosDelHogar = (from hp in context.Hogar_Persona
+                                        where hp.hd_Id_Hogar == hdId
+                                        orderby (hp.hp_Jerarquia)
+                                        select new
+                                        {
+                                            hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
+                                            hd_Id_Hogar = hp.hd_Id_Hogar,
+                                            hp_Jerarquia = hp.hp_Jerarquia,
+                                            per_Id_Persona = hp.per_Id_Persona
+                                        }).ToList();
+
+
+
+                foreach (var miembro in miembrosDelHogar)
+                {
+                    if (miembro.hp_Jerarquia == jerarquia)
+                    {
+                        hpModel.per_Id_Persona = persona.per_Id_Persona;
+                        hpModel.hp_Jerarquia = jerarquia;
+                        hpModel.hd_Id_Hogar = hdId;
+                        hpModel.Fecha_Registro = fechayhora;
+                        hpModel.usu_Id_Usuario = 1;
+                        context.Hogar_Persona.Add(hpModel);
+                        context.SaveChanges();
+
+                        var registro = new Hogar_Persona
+                        {
+                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                            hd_Id_Hogar = miembro.hd_Id_Hogar,
+                            per_Id_Persona = miembro.per_Id_Persona,
+                            hp_Jerarquia = miembro.hp_Jerarquia + 1,
+                            Fecha_Registro = fechayhora,
+                            usu_Id_Usuario = 1
+                        };
+                        context.Entry(registro).State = EntityState.Modified;
+                        context.SaveChanges();
+                    }
+                    if (miembro.hp_Jerarquia > jerarquia)
+                    {
+                        var registro = new Hogar_Persona
+                        {
+                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                            hd_Id_Hogar = miembro.hd_Id_Hogar,
+                            per_Id_Persona = miembro.per_Id_Persona,
+                            hp_Jerarquia = miembro.hp_Jerarquia + 1,
+                            Fecha_Registro = fechayhora,
+                            usu_Id_Usuario = 1
+                        };
+                        context.Entry(registro).State = EntityState.Modified;
+                        context.SaveChanges();
+                    }
+                }
+
+                if (jerarquia > miembrosDelHogar.Count())
+                {
+                    hpModel.per_Id_Persona = persona.per_Id_Persona;
+                    hpModel.hp_Jerarquia = jerarquia;
+                    hpModel.hd_Id_Hogar = hdId;
+                    hpModel.Fecha_Registro = fechayhora;
+                    hpModel.usu_Id_Usuario = 1;
+                    context.Hogar_Persona.Add(hpModel);
+                    context.SaveChanges();
+                }
+
+                return Ok
+                (
+                    new
+                    {
+                        status = true,
+                        persona = persona,
+                        hogar_persona = hpModel
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest
+                (
+                    new
+                    {
+                        status = false,
+                        message = ex.Message
+                    }
+                );
+            }
+        }
+
+        // POST: api/Persona/AddPersonaDomicilioHogar
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AddPersonaDomicilioHogar([FromBody] PersonaDomicilio pd)
+        {
+            try
+            {
+                Persona p = new Persona();
+                p = pd.PersonaEntity;
+                p.usu_Id_Usuario = 1;
+                p.Fecha_Registro = fechayhora;
+                context.Persona.Add(p);
+                context.SaveChanges();
+
+                HogarDomicilio hd = new HogarDomicilio();
+                hd = pd.HogarDomicilioEntity;
+                hd.usu_Id_Usuario = 1;
+                hd.Fecha_Registro = fechayhora;
+                context.HogarDomicilio.Add(hd);
+                context.SaveChanges();
+
+                Hogar_Persona hp = new Hogar_Persona();
+                hp.hp_Jerarquia = 1;
+                hp.per_Id_Persona = p.per_Id_Persona;
+                hp.hd_Id_Hogar = hd.hd_Id_Hogar;
+                hp.Fecha_Registro = fechayhora;
+                hp.usu_Id_Usuario = 1;
+                context.Hogar_Persona.Add(hp);
+                context.SaveChanges();
+
+                return Ok
+                (
+                    new
+                    {
+                        status = true,
+                        persona = p,
+                        hogardomicilio = hd,
+                        hogar_persona = hp
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest
+                (
+                    new
+                    {
+                        status = false,
+                        message = ex.Message
+                    }
+                );
             }
         }
 
@@ -204,7 +371,9 @@ namespace IECE_WebApi.Controllers
                         hp_Id_Hogar_Persona = miembrosDelHogar[i - 1].hp_Id_Hogar_Persona,
                         hd_Id_Hogar = miembrosDelHogar[i - 1].hd_Id_Hogar,
                         per_Id_Persona = miembrosDelHogar[i - 1].per_Id_Persona,
-                        hp_Jerarquia = i - 1
+                        hp_Jerarquia = i - 1,
+                        Fecha_Registro = fechayhora,
+                        usu_Id_Usuario = 1
                     };
                     context.Entry(registro).State = EntityState.Modified;
                     context.SaveChanges();

@@ -23,10 +23,7 @@ namespace IECE_WebApi.Models
         [DefaultValue(0)]
         public int usu_Id_Usuario { get; set; }
         [Required]
-        [DefaultValue("1890-01-01")]
+        [DefaultValue("1900-01-01")]
         public DateTime Fecha_Registro { get; set; }
-        [Required]
-        [DefaultValue(false)]
-        public bool sw_Registro { get; set; }
     }
 }

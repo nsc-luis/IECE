@@ -249,13 +249,20 @@ namespace IECE_WebApi.Controllers
                 return Ok(
                     new
                     {
-                        status = "success",
+                        status = true,
                         hogar_persona
                     });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest
+                (
+                    new
+                    {
+                        status = true,
+                        message = ex.Message
+                    }
+                );
             }
 
             //try

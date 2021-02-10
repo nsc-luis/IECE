@@ -24,9 +24,16 @@ namespace IECE_WebApi.Controllers
         // GET: api/Pais
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public IEnumerable<Pais> Get()
+        public ActionResult<IEnumerable<Pais>> Get()
         {
-            return context.Pais.ToList();
+            try
+            {
+                return Ok(context.Pais.ToList());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         // GET: api/Pais/5
