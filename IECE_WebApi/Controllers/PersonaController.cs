@@ -165,7 +165,7 @@ namespace IECE_WebApi.Controllers
         }
 
         // POST: api/Persona/AddPersonaHogar
-        [Route("[action]")]
+        [Route("[action]/{jerarquia}/{hdId}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
         public IActionResult AddPersonaHogar([FromBody] Persona persona, int jerarquia, int hdId)

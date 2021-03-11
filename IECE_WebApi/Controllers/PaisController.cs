@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,8 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PaisController : ControllerBase
     {
         private readonly AppDbContext context;
