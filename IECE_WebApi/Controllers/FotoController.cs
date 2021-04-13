@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,48 +14,27 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class FotoController : ControllerBase
     {
-        //[Route("api/ImageAPI/UploadFiles")]
         //[HttpPost]
-        //public HttpResponseMessage UploadFiles()
+        //[EnableCors("AllowOrigin")]
+        //public IActionResult Post([FromForm] Foto foto)
         //{
-        //    //Create the Directory.
-        //    string path = HttpContext.Current.Server.MapPath("~/Uploads/");
-        //    if (!Directory.Exists(path))
+        //    try
         //    {
-        //        Directory.CreateDirectory(path);
+        //        var filePath = "C:\\Users\\Propietario\\Desktop\\images\\" + foto.foto.FileName;
+        //        using (var stream = System.IO.File.Create(filePath))
+        //        {
+        //            foto.foto.CopyTo(stream);
+        //        }
+        //        return Ok();
         //    }
-
-        //    //Fetch the File.
-        //    HttpPostedFile postedFile = HttpContext.Current.Request.Files[0];
-
-        //    //Fetch the File Name.
-        //    string fileName = Path.GetFileName(postedFile.FileName);
-
-        //    //Save the File.
-        //    postedFile.SaveAs(path + fileName);
-
-        //    //Send OK Response to Client.
-        //    return Request.CreateResponse(HttpStatusCode.OK, fileName);
-        //}
-
-        //[HttpPost]
-        //[Route("api/ImageAPI/GetFiles")]
-        //public HttpResponseMessage GetFiles()
-        //{
-        //    string path = HttpContext.Current.Server.MapPath("~/Uploads/");
-
-        //    //Fetch the Image Files.
-        //    List<string> images = new List<string>();
-
-        //    //Extract only the File Names to save data.
-        //    foreach (string file in Directory.GetFiles(path))
+        //    catch (Exception ex)
         //    {
-        //        images.Add(Path.GetFileName(file));
+        //        return BadRequest(ex);
         //    }
-
-        //    return Request.CreateResponse(HttpStatusCode.OK, images);
         //}
     }
 }

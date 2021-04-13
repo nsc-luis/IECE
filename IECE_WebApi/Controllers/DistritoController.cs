@@ -7,11 +7,14 @@ using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using IECE_WebApi.Contexts;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DistritoController : ControllerBase
     {
         private readonly AppDbContext context;

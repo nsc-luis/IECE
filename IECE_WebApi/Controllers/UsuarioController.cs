@@ -32,11 +32,13 @@ namespace IECE_WebApi.Controllers
         public UsuarioController(
             UserManager<Usuario> userManager, 
             SignInManager<Usuario> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            AppDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             this._configuration = configuration;
+            this.context = context;
         }
 
         // GET: api/Usuario
@@ -54,11 +56,11 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        private IActionResult BuildToken(Usuario usuario)
+        private IActionResult BuildToken(UserInfo usuario)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.UniqueName, usuario.usu_Usuario),
+                new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
@@ -81,16 +83,13 @@ namespace IECE_WebApi.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CrearUsuario([FromBody] Usuario usuario)
+        [EnableCors("AllowOrigin")]
+        public async Task<IActionResult> CrearUsuario([FromBody] UserInfo usuario)
         {
             if (ModelState.IsValid)
             {
-                var user = new Usuario
-                {
-                    usu_Usuario = usuario.usu_Usuario,
-                    usu_Password = usuario.usu_Password
-                };
-                var result = await _userManager.CreateAsync(user, usuario.usu_Password);
+                var user = new Usuario { UserName = usuario.Email, Email = usuario.Email };
+                var result = await _userManager.CreateAsync(user, usuario.Password);
                 if (result.Succeeded)
                 {
                     return BuildToken(usuario);
@@ -108,15 +107,17 @@ namespace IECE_WebApi.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] Usuario usuario)
+        [EnableCors("AllowOrigin")]
+        public async Task<IActionResult> Login([FromBody] UserInfo usuario)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(usuario.usu_Usuario, usuario.usu_Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(usuario.Email, usuario.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     return BuildToken(usuario);
-                } else
+                }
+                else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt");
                     return BadRequest(ModelState);
@@ -129,21 +130,21 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Usuario/5
-        [HttpGet("{id}")]
-        [EnableCors("AllowOrigin")]
-        public IActionResult Get(int id)
-        {
-            Usuario usuario = new Usuario(); 
-            try
-            {
-                usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
-                return Ok(usuario);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[HttpGet("{id}")]
+        //[EnableCors("AllowOrigin")]
+        //public IActionResult Get(int id)
+        //{
+        //    Usuario usuario = new Usuario();
+        //    try
+        //    {
+        //        usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
+        //        return Ok(usuario);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         // POST: api/Usuario
         [HttpPost]
@@ -163,39 +164,39 @@ namespace IECE_WebApi.Controllers
         }
 
         // PUT: api/Usuario/5
-        [HttpPut("{id}")]
-        [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Usuario usuario)
-        {
-            if(usuario.usu_Id_Usuario == id)
-            {
-                context.Entry(usuario).State = EntityState.Modified;
-                context.SaveChanges();
-                return Ok();
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+        //[HttpPut("{id}")]
+        //[EnableCors("AllowOrigin")]
+        //public ActionResult Put(int id, [FromBody] Usuario usuario)
+        //{
+        //    if (usuario.usu_Id_Usuario == id)
+        //    {
+        //        context.Entry(usuario).State = EntityState.Modified;
+        //        context.SaveChanges();
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
 
         // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        [EnableCors("AllowOrigin")]
-        public IActionResult Delete(int id)
-        {
-            Usuario usuario = new Usuario();
-            usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
-            if (usuario != null)
-            {
-                context.Usuario.Remove(usuario);
-                context.SaveChanges();
-                return Ok();
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+        //[HttpDelete("{id}")]
+        //[EnableCors("AllowOrigin")]
+        //public IActionResult Delete(int id)
+        //{
+        //    Usuario usuario = new Usuario();
+        //    usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
+        //    if (usuario != null)
+        //    {
+        //        context.Usuario.Remove(usuario);
+        //        context.SaveChanges();
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
     }
 }

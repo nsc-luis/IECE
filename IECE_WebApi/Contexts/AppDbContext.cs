@@ -1,4 +1,5 @@
 ﻿using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IECE_WebApi.Contexts
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<Usuario>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -23,5 +24,6 @@ namespace IECE_WebApi.Contexts
         public DbSet<Persona> Persona { get; set; }
         public DbSet<Hogar_Persona> Hogar_Persona { get; set; }
         public DbSet<PersonaDomicilio> PersonaDomicilio { get; set; }
+        //  public DbSet<Foto> Foto { get; set; }
     }
 }
