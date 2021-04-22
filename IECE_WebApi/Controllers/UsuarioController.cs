@@ -30,7 +30,7 @@ namespace IECE_WebApi.Controllers
         public object JwTRegistredClaimName { get; private set; }
 
         public UsuarioController(
-            UserManager<Usuario> userManager, 
+            UserManager<Usuario> userManager,
             SignInManager<Usuario> signInManager,
             IConfiguration configuration,
             AppDbContext context)
@@ -65,7 +65,7 @@ namespace IECE_WebApi.Controllers
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiration = DateTime.UtcNow.AddHours(1);
+            var expiration = DateTime.UtcNow.AddHours(2);
 
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: "iece-tpr.ddns.net",
@@ -76,8 +76,10 @@ namespace IECE_WebApi.Controllers
 
             return Ok(new
             {
+                status = "success",
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = expiration
+                expiration = expiration,
+                message = "Credenciales correctas! Cargando aplicacion..."
             });
         }
 
@@ -119,13 +121,22 @@ namespace IECE_WebApi.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt");
-                    return BadRequest(ModelState);
+                    ModelState.AddModelError(string.Empty, "Error: Credenciales incorrectas! Vuelva a intentar.");
+                    return Ok(new
+                    {
+                        status = "error",
+                        message = "Error: Credenciales incorrectas! Vuelva a intentar."
+                    });
                 }
             }
             else
             {
-                return BadRequest(ModelState);
+                ModelState.AddModelError(string.Empty, "Ingrese los campos requeridos.");
+                return Ok(new
+                {
+                    status = "error",
+                    message = "Ingrese los campos requeridos."
+                });
             }
         }
 

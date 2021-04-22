@@ -247,7 +247,7 @@ namespace IECE_WebApi.Controllers
                 (
                     new
                     {
-                        status = true,
+                        status = "success",
                         persona = persona,
                         hogar_persona = hpModel
                     }
@@ -255,11 +255,11 @@ namespace IECE_WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest
+                return Ok
                 (
                     new
                     {
-                        status = false,
+                        status = "error",
                         message = ex.Message
                     }
                 );
@@ -301,7 +301,7 @@ namespace IECE_WebApi.Controllers
                 (
                     new
                     {
-                        status = true,
+                        status = "success",
                         persona = p,
                         hogardomicilio = hd,
                         hogar_persona = hp
@@ -310,11 +310,11 @@ namespace IECE_WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest
+                return Ok
                 (
                     new
                     {
-                        status = false,
+                        status = "error",
                         message = ex.Message
                     }
                 );
