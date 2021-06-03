@@ -52,7 +52,8 @@ namespace IECE_WebApi
                     ValidIssuer = "iece-tpr.ddns.net",
                     ValidAudience = "iece",
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(Configuration["Llave_super_secreta"])),
+                        //Encoding.UTF8.GetBytes(Configuration["Llave_super_secreta"])),
+                        Encoding.UTF8.GetBytes("E38shaGPv6xDgUHN4BffduCQx5fXSMRhyEY2r5tD")),
                     ClockSkew = TimeSpan.Zero
                 });
 

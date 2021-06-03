@@ -15,7 +15,7 @@ namespace IECE_WebApi.Models
         public int sec_Numero { get; set; }
         public string sec_Alias { get; set; }
         public int dis_Id_Distrito { get; set; }
-        public int pem_Id_Pastor { get; set; }
+        public Nullable<int> pem_Id_Pastor { get; set; }
         public DateTime sec_Fecha_Inicio_Pastorado_Actual { get; set; }
         public int pem_Id_Secretario { get; set; }
         public int pem_Id_Tesorero { get; set; }

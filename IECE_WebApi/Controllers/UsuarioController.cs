@@ -63,7 +63,8 @@ namespace IECE_WebApi.Controllers
                 new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
+            // var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("E38shaGPv6xDgUHN4BffduCQx5fXSMRhyEY2r5tD"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddHours(2);
 
@@ -94,16 +95,28 @@ namespace IECE_WebApi.Controllers
                 var result = await _userManager.CreateAsync(user, usuario.Password);
                 if (result.Succeeded)
                 {
-                    return BuildToken(usuario);
+                    // BuildToken(usuario);
+                    return Ok(
+                        new
+                        {
+                            status = "success",
+                            mensaje = "Usuario creado satisfactoriamente.",
+                            nvoUsuario = user
+                        });
                 }
                 else
                 {
-                    return BadRequest("User or password invalid");
+                    return Ok(
+                        new
+                        {
+                            status = "error",
+                            mensaje = result.Errors
+                        });
                 }
             }
             else
             {
-                return BadRequest(ModelState);
+                return Ok(ModelState);
             }
         }
 
