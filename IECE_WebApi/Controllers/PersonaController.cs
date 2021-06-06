@@ -132,6 +132,19 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Persona/GetBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetBySector(int sec_Id_Sector)
+        {
+            var query = (from p in context.Persona
+                         where p.sec_Id_Sector == sec_Id_Sector
+                         select p).ToList();
+
+            return Ok(query);
+        }
+
         // POST: api/Persona
         [HttpPost]
         [EnableCors("AllowOrigin")]

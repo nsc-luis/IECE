@@ -26,6 +26,7 @@ namespace IECE_WebApi.Controllers
         private readonly SignInManager<Usuario> _signInManager;
         private readonly DateTime fechayhora = DateTime.UtcNow;
         private readonly IConfiguration _configuration;
+        private readonly string superSecreto = "9453bbb3-6aa9-4d3d-826d-85cf343ce59f";
 
         public object JwTRegistredClaimName { get; private set; }
 
@@ -56,8 +57,41 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // METODO QUE CONSTRUYE EL TOKEN
         private IActionResult BuildToken(UserInfo usuario)
         {
+            var infoSesion = (from u in context.Usuario
+                         join mu in context.Ministro_Usuario
+                         on u.Id equals mu.mu_aspNetUsers_Id
+                         join pem in context.Personal_Ministerial
+                         on mu.mu_pem_Id_Pastor equals pem.pem_Id_Ministro
+                         join s in context.Sector
+                         on pem.pem_Id_Ministro equals s.pem_Id_Pastor
+                         join d in context.Distrito
+                         on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                         where u.Email == usuario.Email
+                         select new
+                         {
+                             Id = u.Id,
+                             Email = u.Email,
+                             PasswordHash = u.PasswordHash,
+                             mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
+                             mu_permiso = mu.mu_permiso,
+                             pem_Nombre = pem.pem_Nombre,
+                             pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
+                             pem_Foto_Ministro = pem.pem_Foto_Ministro,
+                             pem_email_Personal = pem.pem_email_Personal,
+                             pem_Cel1 = pem.pem_Cel1,
+                             pem_Cel2 = pem.pem_Cel2,
+                             dis_Tipo_Distrito = d.dis_Tipo_Distrito,
+                             dis_Numero = d.dis_Numero,
+                             dis_Alias = d.dis_Alias,
+                             sec_Id_Sector = s.sec_Id_Sector,
+                             sec_Tipo_Sector = s.sec_Tipo_Sector,
+                             sec_Numero = s.sec_Numero,
+                             sec_Alias = s.sec_Alias
+                         }).ToList();
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
@@ -80,7 +114,8 @@ namespace IECE_WebApi.Controllers
                 status = "success",
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = expiration,
-                message = "Credenciales correctas! Cargando aplicacion..."
+                message = "Credenciales correctas! Cargando aplicacion...",
+                infoSesion = infoSesion
             });
         }
 
@@ -89,6 +124,15 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public async Task<IActionResult> CrearUsuario([FromBody] UserInfo usuario)
         {
+            if (usuario.superSecreto != superSecreto)
+            {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = "Error!. La clave 'super secreto' es incorrecta, el proceso se ha cancelado."
+                    });
+            }
             if (ModelState.IsValid)
             {
                 var user = new Usuario { UserName = usuario.Email, Email = usuario.Email };
@@ -187,40 +231,5 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // PUT: api/Usuario/5
-        //[HttpPut("{id}")]
-        //[EnableCors("AllowOrigin")]
-        //public ActionResult Put(int id, [FromBody] Usuario usuario)
-        //{
-        //    if (usuario.usu_Id_Usuario == id)
-        //    {
-        //        context.Entry(usuario).State = EntityState.Modified;
-        //        context.SaveChanges();
-        //        return Ok();
-        //    }
-        //    else
-        //    {
-        //        return BadRequest();
-        //    }
-        //}
-
-        // DELETE: api/ApiWithActions/5
-        //[HttpDelete("{id}")]
-        //[EnableCors("AllowOrigin")]
-        //public IActionResult Delete(int id)
-        //{
-        //    Usuario usuario = new Usuario();
-        //    usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
-        //    if (usuario != null)
-        //    {
-        //        context.Usuario.Remove(usuario);
-        //        context.SaveChanges();
-        //        return Ok();
-        //    }
-        //    else
-        //    {
-        //        return BadRequest();
-        //    }
-        //}
     }
 }

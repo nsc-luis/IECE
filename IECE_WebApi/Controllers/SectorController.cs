@@ -101,6 +101,45 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: /api/Sector/GetPastorBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPastorBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from s in context.Sector
+                         join pem in context.Personal_Ministerial
+                         on s.pem_Id_Pastor equals pem.pem_Id_Ministro
+                         where s.sec_Id_Sector == sec_Id_Sector
+                         select new
+                         {
+                             pem_Id_Pastor = s.pem_Id_Pastor,
+                             pem_Id_Ministro = pem.pem_Id_Ministro,
+                             pem_Nombre = pem.pem_Nombre,
+                             pem_emailIECE = pem.pem_emailIECE,
+                             pem_email_Personal= pem.pem_email_Personal,
+                             pem_Grado_Ministerial = pem.pem_Grado_Ministerial
+                         }).ToList();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        ministros = query
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
+            }
+        }
+
         // GET: api/Sector/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
