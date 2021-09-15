@@ -339,15 +339,26 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Put([FromBody] Persona persona, int id)
         {
-            if (persona.per_Id_Persona == id)
+            try
             {
+                persona.Fecha_Registro = fechayhora;
+                persona.usu_Id_Usuario = 1;
                 context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
-                return Ok();
+                return Ok(
+                    new {
+                        status = "success",
+                        mensaje = "Datos guardados satisfactoriamente."
+                    });
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
             }
         }
 

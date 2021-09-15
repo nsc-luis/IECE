@@ -13208,11 +13208,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\IECE_WebApi.csproj",
+      "projectUniqueName": "D:\\Perfiles\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\IECE_WebApi.csproj",
       "projectName": "IECE_WebApi",
-      "projectPath": "C:\\Users\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\IECE_WebApi.csproj",
+      "projectPath": "D:\\Perfiles\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\IECE_WebApi.csproj",
       "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\obj\\",
+      "outputPath": "D:\\Perfiles\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\IECE_WebApi",
+    "\\IECE_WebApi\\Controllers",
+    "\\IECE_WebApi\\Models"
   ],
-  "SelectedNode": "\\IECEMembresia.sln",
   "PreviewInSolutionExplorer": false
 }
