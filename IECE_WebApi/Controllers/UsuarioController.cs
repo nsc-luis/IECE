@@ -83,6 +83,7 @@ namespace IECE_WebApi.Controllers
                              pem_email_Personal = pem.pem_email_Personal,
                              pem_Cel1 = pem.pem_Cel1,
                              pem_Cel2 = pem.pem_Cel2,
+                             dis_Id_Distrito = d.dis_Id_Distrito,
                              dis_Tipo_Distrito = d.dis_Tipo_Distrito,
                              dis_Numero = d.dis_Numero,
                              dis_Alias = d.dis_Alias,

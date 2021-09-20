@@ -14,17 +14,17 @@ namespace IECE_WebApi.Models
         public string dis_Alias { get; set; }
         public string dis_Tipo_Distrito { get; set; }
         public int dis_Numero { get; set; }
-        public int sec_Id_Sector_Base { get; set; }
+        public Nullable<int> sec_Id_Sector_Base { get; set; }
         public string dis_Area { get; set; }
-        public int pem_Id_Obispo { get; set; }
-        public int pem_Id_Obispo_Suplente { get; set; }
-        public int pem_Id_Secretario { get; set; }
-        public int pem_Id_Sub_Secretario { get; set; }
-        public int pem_Id_Tesorero { get; set; }
-        public int pem_Id_Sub_Tesorero { get; set; }
-        public DateTime dis_Fecha_Organizacion { get; set; }
-        public DateTime dis_Fecha_Cambio_Obispo { get; set; }
-        public DateTime dis_Fecha_Ultimo_Cambio_Admon { get; set; }
+        public Nullable<int> pem_Id_Obispo { get; set; }
+        public Nullable<int> pem_Id_Obispo_Suplente { get; set; }
+        public Nullable<int> pem_Id_Secretario { get; set; }
+        public Nullable<int> pem_Id_Sub_Secretario { get; set; }
+        public Nullable<int> pem_Id_Tesorero { get; set; }
+        public Nullable<int> pem_Id_Sub_Tesorero { get; set; }
+        public Nullable<DateTime> dis_Fecha_Organizacion { get; set; }
+        public Nullable<DateTime> dis_Fecha_Cambio_Obispo { get; set; }
+        public Nullable<DateTime> dis_Fecha_Ultimo_Cambio_Admon { get; set; }
         public string dis_Domicilio_Especial_Correspondencia { get; set; }
         //public bool sw_Registro { get; set; }
     }

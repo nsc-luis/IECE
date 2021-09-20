@@ -31,6 +31,10 @@ namespace IECE_WebApi.Models
         [Display(Name = "Telefono")]
         public string hd_Telefono { get; set; }
         [Required]
+        public int dis_Id_Distrito { get; set; }
+        [Required]
+        public int sec_Id_Sector { get; set; }
+        [Required]
         [DefaultValue(0)]
         public int usu_Id_Usuario { get; set; }
         [Required]
