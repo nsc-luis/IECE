@@ -133,11 +133,17 @@ namespace IECE_WebApi.Controllers
                              on hd.est_Id_Estado equals e.est_Id_Estado
                              join pais in context.Pais
                              on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                             join p in context.Persona
+                             on hp.per_Id_Persona equals p.per_Id_Persona
                              where hp.hd_Id_Hogar == hd_Id_Hogar
                              && hp.hp_Jerarquia == 1
                              select new
                              {
                                  hd_Id_Hogar = hp.hd_Id_Hogar,
+                                 per_Id_Persona = p.per_Id_Persona,
+                                 per_Nombre = p.per_Nombre,
+                                 per_Apellido_Paterno = p.per_Apellido_Paterno,
+                                 per_Apellido_Materno = p.per_Apellido_Materno,
                                  hd_Calle = hd.hd_Calle,
                                  hd_Numero_Exterior = hd.hd_Numero_Exterior,
                                  hd_Numero_Interior = hd.hd_Numero_Interior,

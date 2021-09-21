@@ -111,25 +111,45 @@ namespace IECE_WebApi.Controllers
                                   on hd.pais_Id_Pais equals pais.pais_Id_Pais
                                   join est in context.Estado
                                   on hd.est_Id_Estado equals est.est_Id_Estado
+                                  join sub in (from hp in context.Hogar_Persona
+                                        join p in context.Persona
+                                        on hp.hp_Id_Hogar_Persona equals p.per_Id_Persona
+                                        where hp.hp_Jerarquia == 1
+                                        select new {
+                                            hp.hp_Id_Hogar_Persona,
+                                            hp.hp_Jerarquia,
+                                            hp.hd_Id_Hogar, 
+	                                        p.per_Id_Persona,
+                                            p.per_Nombre,
+                                            p.per_Apellido_Paterno,
+                                            p.per_Apellido_Materno
+                                        }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
                                   where hd.sec_Id_Sector == sec_Id_Sector
                                   select new
                                   {
-                                      hd_Calle = hd.hd_Calle,
-                                      hd_Numero_Exterior = hd.hd_Numero_Exterior,
-                                      hd_Numero_Interior = hd.hd_Numero_Interior,
-                                      hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
-                                      hd_Subdivision = hd.hd_Subdivision,
-                                      hd_Localidad = hd.hd_Localidad,
-                                      hd_Municipio_Ciudad = hd.hd_Municipio_Ciudad,
-                                      est_Nombre = est.est_Nombre,
-                                      pais_Nombre_Corto = pais.pais_Nombre_Corto,
-                                      hd_Telefono = hd.hd_Telefono,
-                                      dis_Id_Distrito = dis.dis_Id_Distrito,
-                                      dis_Numero = dis.dis_Numero,
-                                      dis_Alias = dis.dis_Alias,
-                                      sec_Id_Sector = sec.sec_Id_Sector,
-                                      sec_Alias = sec.sec_Alias,
-                                      sec_Numero = sec.sec_Numero
+                                      hd.hd_Id_Hogar,
+                                      hd.hd_Calle,
+                                      hd.hd_Numero_Exterior,
+                                      hd.hd_Numero_Interior,
+                                      hd.hd_Tipo_Subdivision,
+                                      hd.hd_Subdivision,
+                                      hd.hd_Localidad,
+                                      hd.hd_Municipio_Ciudad,
+                                      est.est_Nombre,
+                                      pais.pais_Nombre_Corto,
+                                      hd.hd_Telefono,
+                                      dis.dis_Id_Distrito,
+                                      dis.dis_Numero,
+                                      dis.dis_Alias,
+                                      sec.sec_Id_Sector,
+                                      sec.sec_Alias,
+                                      sec.sec_Numero,
+                                      sub.hp_Id_Hogar_Persona,
+                                      sub.hp_Jerarquia,
+                                      sub.per_Id_Persona,
+                                      sub.per_Nombre,
+                                      sub.per_Apellido_Paterno,
+                                      sub.per_Apellido_Materno
                                   }).ToList();
                 return Ok(
                     new
