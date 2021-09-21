@@ -135,7 +135,9 @@ namespace IECE_WebApi.Controllers
                                       hd.hd_Subdivision,
                                       hd.hd_Localidad,
                                       hd.hd_Municipio_Ciudad,
+                                      est.est_Id_Estado,
                                       est.est_Nombre,
+                                      pais.pais_Id_Pais,
                                       pais.pais_Nombre_Corto,
                                       hd.hd_Telefono,
                                       dis.dis_Id_Distrito,
@@ -222,15 +224,23 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Put(int id, [FromBody] HogarDomicilio hogardomicilio)
         {
-            if (hogardomicilio.hd_Id_Hogar == id)
-            {
+            try {
                 context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
-                return Ok();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        domicilio = hogardomicilio
+                    });
             }
-            else
-            {
-                return BadRequest();
+            catch (Exception ex) {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
             }
 
         }
