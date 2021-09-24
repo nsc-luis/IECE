@@ -95,6 +95,39 @@ namespace IECE_WebApi.Controllers
             return Ok(query);
         }
 
+        // GET: api/Persona/GetListaNinosBySector/227
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetListaNinosBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             where p.per_Categoria == "NIÑO" || p.per_Categoria == "NIÑA"
+                             select new
+                             {
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Categoria
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    listaDeNinos = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Persona/GetByRFCSinHomo/str
         [Route("[action]/{RFCSinHomo}")]
         [HttpGet]
