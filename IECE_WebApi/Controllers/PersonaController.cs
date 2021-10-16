@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -103,10 +101,17 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //SELECT per_Id_Persona,per_Nombre,per_Apellido_Paterno,
+                //  per_Apellido_Materno,per_Categoria 
+                //FROM Persona 
+                //WHERE per_Categoria LIKE 'NIÑ%' 
+                //  AND per_Id_Persona NOT IN (SELECT per_Id_Persona FROM Presentacion_Nino)
                 var query = (from p in context.Persona
-                             where p.per_Categoria == "NIÑO" || p.per_Categoria == "NIÑA"
+                             where p.per_Categoria.Contains("NIÑ")
+                             && !(from pdn in context.Presentacion_Nino select pdn.per_Id_Persona).Contains(p.per_Id_Persona)
                              select new
                              {
+                                 p.per_Id_Persona,
                                  p.per_Nombre,
                                  p.per_Apellido_Paterno,
                                  p.per_Apellido_Materno,

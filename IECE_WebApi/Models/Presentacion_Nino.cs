@@ -18,7 +18,6 @@ namespace IECE_WebApi.Models
         public Nullable<int> sec_Id_Sector { get; set; }
         [Required]
         public Nullable<int> usu_Id_Usuario { get; set; }
-        [Required]
         public Nullable<DateTime> Fecha_Registro { get; set; }
     }
 }
