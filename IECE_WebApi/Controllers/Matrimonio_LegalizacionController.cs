@@ -70,6 +70,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                          where p.per_Categoria == "ADULTO_MUJER"
+                         && p.sec_Id_Sector == idSector
                          && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                          select new
                          {
@@ -110,6 +111,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where p.per_Categoria == "JOVEN_MUJER"
+                             && p.sec_Id_Sector == idSector
                              && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -150,6 +152,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where p.per_Categoria == "ADULTO_HOMBRE"
+                             && p.sec_Id_Sector == idSector
                              && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -190,6 +193,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where p.per_Categoria == "JOVEN_HOMBRE"
+                             && p.sec_Id_Sector == idSector
                              && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
