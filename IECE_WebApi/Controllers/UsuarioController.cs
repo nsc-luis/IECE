@@ -77,6 +77,7 @@ namespace IECE_WebApi.Controllers
                              PasswordHash = u.PasswordHash,
                              mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
                              mu_permiso = mu.mu_permiso,
+                             pem.pem_Id_Ministro,
                              pem_Nombre = pem.pem_Nombre,
                              pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
                              pem_Foto_Ministro = pem.pem_Foto_Ministro,

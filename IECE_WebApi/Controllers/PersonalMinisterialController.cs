@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,7 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PersonalMinisterialController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -61,6 +64,77 @@ namespace IECE_WebApi.Controllers
                         }
                     }
                 );
+            }
+        }
+
+        // GET: api/Personal_Ministerial
+        [Route("[action]/{idMinistro}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetAlcancePastoralByMinistro(int idMinistro)
+        {
+            var query = (from d in context.Distrito
+                         where d.pem_Id_Obispo == idMinistro && d.dis_Activo == true
+                         orderby d.dis_Numero ascending, d.dis_Tipo_Distrito ascending
+                         select new
+                         {
+                             d.dis_Id_Distrito,
+                             d.dis_Alias,
+                             d.dis_Tipo_Distrito,
+                             d.dis_Numero
+                         }).ToList();
+
+            if (query.Count > 0)
+            {
+                return Ok(new
+                {
+                    status = "success",
+                    obispo = true,
+                    datos = query
+                });
+            }
+            else if (query.Count == 0)
+            {
+                var query2 = (from s in context.Sector
+                              join d in context.Distrito
+                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                              where d.pem_Id_Obispo == idMinistro && d.dis_Activo == true && s.sec_Activo == true && s.sec_Tipo_Sector == "SECTOR"
+                              orderby d.dis_Numero ascending, s.sec_Numero ascending
+                              select new
+                              {
+                                  d.dis_Id_Distrito,
+                                  d.dis_Alias,
+                                  d.dis_Tipo_Distrito,
+                                  d.dis_Numero,
+                                  s.sec_Alias,
+                                  s.sec_Id_Sector,
+                                  s.sec_Tipo_Sector
+                              }).ToList();
+                if (query2.Count > 0)
+                {
+                    return Ok(new
+                    {
+                        status = "success",
+                        obispo = false,
+                        datos = query2
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No se encontraron registros para el ID del Ministro."
+                    });
+                }
+            }
+            else
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = "No se encontraron registros para el ID del Ministro."
+                });
             }
         }
 
@@ -120,5 +194,5 @@ namespace IECE_WebApi.Controllers
             var ministro = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == pem_Id_Ministro);
             return ministro;
         }
-        }
+    }
 }
