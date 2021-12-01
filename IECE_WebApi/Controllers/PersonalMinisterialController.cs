@@ -25,6 +25,7 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Personal_Ministerial
+        // METODO PARA LISTAR PERSONAL MINISTERIAL
         [HttpGet]
         [EnableCors("AllowOrigin")]
         public IActionResult Get()
@@ -68,6 +69,7 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER LOS DISTRITOS/SECTORES CON ACCESO SEGUN ID DEL MINISTRO
         [Route("[action]/{idMinistro}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -98,7 +100,7 @@ namespace IECE_WebApi.Controllers
                 var query2 = (from s in context.Sector
                               join d in context.Distrito
                               on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                              where d.pem_Id_Obispo == idMinistro && d.dis_Activo == true && s.sec_Activo == true && s.sec_Tipo_Sector == "SECTOR"
+                              where s.pem_Id_Pastor == idMinistro && s.sec_Tipo_Sector == "SECTOR"
                               orderby d.dis_Numero ascending, s.sec_Numero ascending
                               select new
                               {
@@ -139,6 +141,7 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
         [Route("[action]/{sec_Id_Congregacion}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -187,6 +190,7 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER INFO DEL MINISTRO POR SU ID
         [HttpGet("{pem_Id_Ministro}")]
         [EnableCors("AllowOrigin")]
         public Personal_Ministerial Get(int pem_Id_Ministro)

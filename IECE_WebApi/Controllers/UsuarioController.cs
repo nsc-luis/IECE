@@ -27,6 +27,10 @@ namespace IECE_WebApi.Controllers
         private readonly DateTime fechayhora = DateTime.UtcNow;
         private readonly IConfiguration _configuration;
         private readonly string superSecreto = "9453bbb3-6aa9-4d3d-826d-85cf343ce59f";
+        // CLAVE PARA FASE 1 DE ALTA DE USUARIO, METODO DE VERIFICACION DE CORREO
+        private readonly string cf1 = "1dc5cfa8-b770-43f4-ad11-51126df7f8ad";
+        // CLAVE PARA FASE 2 DE ALTA DE USUARIO, METODO DE ALTA DE USUARIO
+        private readonly string cf2 = "d41a3311-1098-4639-9c55-e2dd88351fa9";
 
         public object JwTRegistredClaimName { get; private set; }
 
@@ -61,38 +65,38 @@ namespace IECE_WebApi.Controllers
         private IActionResult BuildToken(UserInfo usuario)
         {
             var infoSesion = (from u in context.Usuario
-                         join mu in context.Ministro_Usuario
-                         on u.Id equals mu.mu_aspNetUsers_Id
-                         join pem in context.Personal_Ministerial
-                         on mu.mu_pem_Id_Pastor equals pem.pem_Id_Ministro
-                         join s in context.Sector
-                         on pem.pem_Id_Ministro equals s.pem_Id_Pastor
-                         join d in context.Distrito
-                         on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                         where u.Email == usuario.Email
-                         select new
-                         {
-                             Id = u.Id,
-                             Email = u.Email,
-                             PasswordHash = u.PasswordHash,
-                             mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
-                             mu_permiso = mu.mu_permiso,
-                             pem.pem_Id_Ministro,
-                             pem_Nombre = pem.pem_Nombre,
-                             pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
-                             pem_Foto_Ministro = pem.pem_Foto_Ministro,
-                             pem_email_Personal = pem.pem_email_Personal,
-                             pem_Cel1 = pem.pem_Cel1,
-                             pem_Cel2 = pem.pem_Cel2,
-                             dis_Id_Distrito = d.dis_Id_Distrito,
-                             dis_Tipo_Distrito = d.dis_Tipo_Distrito,
-                             dis_Numero = d.dis_Numero,
-                             dis_Alias = d.dis_Alias,
-                             sec_Id_Sector = s.sec_Id_Sector,
-                             sec_Tipo_Sector = s.sec_Tipo_Sector,
-                             sec_Numero = s.sec_Numero,
-                             sec_Alias = s.sec_Alias
-                         }).ToList();
+                              join mu in context.Ministro_Usuario
+                              on u.Id equals mu.mu_aspNetUsers_Id
+                              join pem in context.Personal_Ministerial
+                              on mu.mu_pem_Id_Pastor equals pem.pem_Id_Ministro
+                              join s in context.Sector
+                              on pem.pem_Id_Ministro equals s.pem_Id_Pastor
+                              join d in context.Distrito
+                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                              where u.Email == usuario.Email
+                              select new
+                              {
+                                  Id = u.Id,
+                                  Email = u.Email,
+                                  PasswordHash = u.PasswordHash,
+                                  mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
+                                  mu_permiso = mu.mu_permiso,
+                                  pem.pem_Id_Ministro,
+                                  pem_Nombre = pem.pem_Nombre,
+                                  pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
+                                  pem_Foto_Ministro = pem.pem_Foto_Ministro,
+                                  pem_email_Personal = pem.pem_email_Personal,
+                                  pem_Cel1 = pem.pem_Cel1,
+                                  pem_Cel2 = pem.pem_Cel2,
+                                  dis_Id_Distrito = d.dis_Id_Distrito,
+                                  dis_Tipo_Distrito = d.dis_Tipo_Distrito,
+                                  dis_Numero = d.dis_Numero,
+                                  dis_Alias = d.dis_Alias,
+                                  sec_Id_Sector = s.sec_Id_Sector,
+                                  sec_Tipo_Sector = s.sec_Tipo_Sector,
+                                  sec_Numero = s.sec_Numero,
+                                  sec_Alias = s.sec_Alias
+                              }).ToList();
 
             var claims = new[]
             {
@@ -121,12 +125,15 @@ namespace IECE_WebApi.Controllers
             });
         }
 
+        // POST: api/CrearUsuario
+        // METODO PARA AGREGAR CREDENCIALES DE USUARIO PARA INICIO DE SESION
         [HttpPost]
         [Route("Create")]
         [EnableCors("AllowOrigin")]
         public async Task<IActionResult> CrearUsuario([FromBody] UserInfo usuario)
         {
-            if (usuario.superSecreto != superSecreto)
+            // if (usuario.superSecreto != superSecreto)
+            if (usuario.superSecreto != cf2)
             {
                 return Ok(
                     new
@@ -139,9 +146,26 @@ namespace IECE_WebApi.Controllers
             {
                 var user = new Usuario { UserName = usuario.Email, Email = usuario.Email };
                 var result = await _userManager.CreateAsync(user, usuario.Password);
+
                 if (result.Succeeded)
                 {
                     // BuildToken(usuario);
+                    var query = (from pem in context.Personal_Ministerial
+                                  where (pem.pem_emailIECE == user.Email || pem.pem_email_Personal == user.Email)
+                                  && pem.pem_Activo == true
+                                  select new
+                                  {
+                                      pem.pem_Id_Ministro,
+                                      pem.pem_Nombre
+                                  }).ToList();
+
+                    Ministro_Usuario mu = new Ministro_Usuario();
+                    mu.mu_aspNetUsers_Id = user.Id;
+                    mu.mu_pem_Id_Pastor = query[0].pem_Id_Ministro;
+                    mu.mu_permiso = "CRUD";
+
+                    context.Ministro_Usuario.Add(mu);
+                    context.SaveChanges();
                     return Ok(
                         new
                         {
@@ -166,6 +190,8 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // POST: api/Login
+        // METODO PARA VALIDAR CREDENCIALES DE INICIO DE SESION
         [HttpPost]
         [Route("Login")]
         [EnableCors("AllowOrigin")]
@@ -195,6 +221,79 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     message = "Ingrese los campos requeridos."
+                });
+            }
+        }
+
+        // GET: api/VerificaEmail
+        // METODO PARA LA FASE1 DE ALTA DE USUARIOS
+        [HttpGet]
+        [Route("[action]/{email}/{claveFase1}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult VerificaEmail(string email, string claveFase1)
+        {
+            if (cf1 == claveFase1)
+            {
+                try
+                {
+                    var query = (from u in context.Usuario
+                                 where u.Email == email
+                                 select new
+                                 {
+                                     u.Id,
+                                     u.Email
+                                 }).ToList();
+                    if (query.Count > 0)
+                    {
+                        return Ok(new
+                        {
+                            status = "error",
+                            mensaje = "El email ya esta registado como usuario en la base de datos."
+                        });
+                    }
+                    else
+                    {
+                        var query1 = (from pem in context.Personal_Ministerial
+                                      where (pem.pem_emailIECE == email || pem.pem_email_Personal == email)
+                                      && pem.pem_Activo == true
+                                      select new
+                                      {
+                                          pem.pem_Id_Ministro,
+                                          pem.pem_Nombre
+                                      }).ToList();
+                        if (query1.Count > 0)
+                        {
+                            return Ok(new
+                            {
+                                status = "success",
+                                datos = query1
+                            });
+                        }
+                        else
+                        {
+                            return Ok(new
+                            {
+                                status = "error",
+                                mensaje = "No existe el correo registrado para ningun ministro."
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
+                }
+            }
+            else
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = "La clave de la Fase 1 de validación es incorrecta."
                 });
             }
         }
