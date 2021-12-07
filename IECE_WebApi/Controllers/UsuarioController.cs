@@ -132,8 +132,8 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public async Task<IActionResult> CrearUsuario([FromBody] UserInfo usuario)
         {
-            // if (usuario.superSecreto != superSecreto)
-            if (usuario.superSecreto != cf2)
+            if (usuario.superSecreto != superSecreto)
+            // if (usuario.superSecreto != cf2)
             {
                 return Ok(
                     new
@@ -228,74 +228,129 @@ namespace IECE_WebApi.Controllers
         // GET: api/VerificaEmail
         // METODO PARA LA FASE1 DE ALTA DE USUARIOS
         [HttpGet]
-        [Route("[action]/{email}/{claveFase1}")]
+        // [Route("[action]/{email}/{claveFase1}")]
+        [Route("[action]/{email}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult VerificaEmail(string email, string claveFase1)
+        // public IActionResult VerificaEmail(string email, string claveFase1)
+        public IActionResult VerificaEmail(string email)
         {
-            if (cf1 == claveFase1)
+            try
             {
-                try
-                {
-                    var query = (from u in context.Usuario
-                                 where u.Email == email
-                                 select new
-                                 {
-                                     u.Id,
-                                     u.Email
-                                 }).ToList();
-                    if (query.Count > 0)
-                    {
-                        return Ok(new
-                        {
-                            status = "error",
-                            mensaje = "El email ya esta registado como usuario en la base de datos."
-                        });
-                    }
-                    else
-                    {
-                        var query1 = (from pem in context.Personal_Ministerial
-                                      where (pem.pem_emailIECE == email || pem.pem_email_Personal == email)
-                                      && pem.pem_Activo == true
-                                      select new
-                                      {
-                                          pem.pem_Id_Ministro,
-                                          pem.pem_Nombre
-                                      }).ToList();
-                        if (query1.Count > 0)
-                        {
-                            return Ok(new
-                            {
-                                status = "success",
-                                datos = query1
-                            });
-                        }
-                        else
-                        {
-                            return Ok(new
-                            {
-                                status = "error",
-                                mensaje = "No existe el correo registrado para ningun ministro."
-                            });
-                        }
-                    }
-                }
-                catch (Exception ex)
+                var query = (from u in context.Usuario
+                             where u.Email == email
+                             select new
+                             {
+                                 u.Id,
+                                 u.Email
+                             }).ToList();
+                if (query.Count > 0)
                 {
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = ex.Message
+                        mensaje = "El email ya esta registado como usuario en la base de datos."
                     });
                 }
+                else
+                {
+                    var query1 = (from pem in context.Personal_Ministerial
+                                  where (pem.pem_emailIECE == email || pem.pem_email_Personal == email)
+                                  && pem.pem_Activo == true
+                                  select new
+                                  {
+                                      pem.pem_Id_Ministro,
+                                      pem.pem_Nombre
+                                  }).ToList();
+                    if (query1.Count > 0)
+                    {
+                        return Ok(new
+                        {
+                            status = "success",
+                            datos = query1
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            status = "error",
+                            mensaje = "No existe el correo registrado para ningun ministro."
+                        });
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
                 return Ok(new
                 {
                     status = "error",
-                    mensaje = "La clave de la Fase 1 de validación es incorrecta."
+                    mensaje = ex.Message
                 });
             }
+            //if (cf1 == claveFase1)
+            //{
+            //    try
+            //    {
+            //        var query = (from u in context.Usuario
+            //                     where u.Email == email
+            //                     select new
+            //                     {
+            //                         u.Id,
+            //                         u.Email
+            //                     }).ToList();
+            //        if (query.Count > 0)
+            //        {
+            //            return Ok(new
+            //            {
+            //                status = "error",
+            //                mensaje = "El email ya esta registado como usuario en la base de datos."
+            //            });
+            //        }
+            //        else
+            //        {
+            //            var query1 = (from pem in context.Personal_Ministerial
+            //                          where (pem.pem_emailIECE == email || pem.pem_email_Personal == email)
+            //                          && pem.pem_Activo == true
+            //                          select new
+            //                          {
+            //                              pem.pem_Id_Ministro,
+            //                              pem.pem_Nombre
+            //                          }).ToList();
+            //            if (query1.Count > 0)
+            //            {
+            //                return Ok(new
+            //                {
+            //                    status = "success",
+            //                    datos = query1
+            //                });
+            //            }
+            //            else
+            //            {
+            //                return Ok(new
+            //                {
+            //                    status = "error",
+            //                    mensaje = "No existe el correo registrado para ningun ministro."
+            //                });
+            //            }
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        return Ok(new
+            //        {
+            //            status = "error",
+            //            mensaje = ex.Message
+            //        });
+            //    }
+            //}
+            //else
+            //{
+            //    return Ok(new
+            //    {
+            //        status = "error",
+            //        mensaje = "La clave de la Fase 1 de validación es incorrecta."
+            //    });
+            //}
         }
 
         // GET: api/Usuario/5

@@ -107,7 +107,7 @@ namespace IECE_WebApi.Controllers
                 //WHERE per_Categoria LIKE 'NIÑ%' 
                 //  AND per_Id_Persona NOT IN (SELECT per_Id_Persona FROM Presentacion_Nino)
                 var query = (from p in context.Persona
-                             where p.per_Categoria.Contains("NIÑ")
+                             where (p.per_Categoria.Contains("NIÑ") && p.sec_Id_Sector == sec_Id_Sector)
                              && !(from pdn in context.Presentacion_Nino select pdn.per_Id_Persona).Contains(p.per_Id_Persona)
                              select new
                              {

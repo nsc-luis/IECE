@@ -189,6 +189,83 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/GetSectoresByMinistro/idMinistro
+        [Route("[action]/{idMinistro}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetSectoresByMinistro(int idMinistro)
+        {
+            try
+            {
+                var query = (from s in context.Sector
+                              join d in context.Distrito
+                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                              where s.pem_Id_Pastor == idMinistro && s.sec_Tipo_Sector == "SECTOR"
+                              orderby d.dis_Numero ascending, s.sec_Numero ascending
+                              select new
+                              {
+                                  d.dis_Id_Distrito,
+                                  d.dis_Alias,
+                                  d.dis_Tipo_Distrito,
+                                  d.dis_Numero,
+                                  s.sec_Alias,
+                                  s.sec_Id_Sector,
+                                  s.sec_Tipo_Sector
+                              }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    sectores = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/GetSectoresByDistritoMinistro/idDistrito/idMinistro
+        [Route("[action]/{idDistrito}/{idMinistro}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetSectoresByDistritoMinistro(int idDistrito, int idMinistro)
+        {
+            try
+            {
+                var query = (from s in context.Sector
+                             join d in context.Distrito
+                             on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where s.dis_Id_Distrito == idDistrito && s.pem_Id_Pastor == idMinistro
+                             select new
+                             {
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 d.dis_Tipo_Distrito,
+                                 d.dis_Numero,
+                                 s.sec_Alias,
+                                 s.sec_Id_Sector,
+                                 s.sec_Tipo_Sector
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    sectores = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Personal_Ministerial
         // METODO PARA OBTENER INFO DEL MINISTRO POR SU ID
         [HttpGet("{pem_Id_Ministro}")]
