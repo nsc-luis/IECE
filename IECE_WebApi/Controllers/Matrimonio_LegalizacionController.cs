@@ -28,6 +28,16 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        private class ListaMatrimoniosLegalizaciones
+        {
+            public int mat_Id_MatrimonioLegalizacion { get; set; }
+            public string mat_Tipo_Enlace { get; set; }
+            public string mat_NombreConyugeHombre { get; set; }
+            public string mat_NombreConyugeMujer { get; set; }
+            public int sec_Numero { get; set; }
+            public string sec_Alias { get; set; }
+        }
+
         // GET: api/Matrimonio_Legalizacion
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -52,11 +62,115 @@ namespace IECE_WebApi.Controllers
             try
             {
                 matLegal = context.Matrimonio_Legalizacion.FirstOrDefault(mat => mat.mat_Id_MatrimonioLegalizacion == id);
-                return Ok(matLegal);
+                return Ok(new
+                {
+                    status = "success",
+                    matrimonioLegalizacion = matLegal
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+                
+            }
+        }
+
+        // GET: api/Matrimonio_Legalizacion/GetBySector/idSector
+        [Route("[action]/{idSector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public ActionResult GetBySector(int idSector)
+        {
+            List<ListaMatrimoniosLegalizaciones> listaMatrimoniosLegalizaciones = new List<ListaMatrimoniosLegalizaciones>();
+            try
+            {
+                var matLeg = (from mat in context.Matrimonio_Legalizacion
+                              join sec in context.Sector
+                              on mat.sec_Id_Sector equals sec.sec_Id_Sector
+                              where mat.sec_Id_Sector == idSector
+                              select new
+                              {
+                                  mat.mat_Id_MatrimonioLegalizacion,
+                                  mat.mat_Tipo_Enlace,
+                                  mat.per_Id_Persona_Hombre,
+                                  mat.per_Id_Persona_Mujer,
+                                  mat.mat_Nombre_Contrayente_Hombre_Foraneo,
+                                  mat.mat_Nombre_Contrayente_Mujer_Foraneo,
+                                  sec.sec_Numero,
+                                  sec.sec_Alias
+                              }).ToList();
+                foreach (var mt in matLeg)
+                {
+                    // listaMatrimoniosLegalizaciones = new ListaMatrimoniosLegalizaciones
+                    string NombreConyugeHombre = "";
+                    string NombreConyugeMujer = "";
+
+                    if (mt.per_Id_Persona_Hombre != null)
+                    {
+                        var qHombre = (from per in context.Persona
+                                       where per.per_Id_Persona == mt.per_Id_Persona_Hombre
+                                       select new
+                                       {
+                                           per.per_Nombre,
+                                           per.per_Apellido_Paterno,
+                                           per.per_Apellido_Materno
+                                       }).ToList();
+                        foreach (var qh in qHombre)
+                        {
+                            NombreConyugeHombre = qh.per_Nombre + " " + qh.per_Apellido_Paterno + " " + qh.per_Apellido_Materno;
+                        }
+
+                    }
+                    else
+                    {
+                        NombreConyugeHombre = mt.mat_Nombre_Contrayente_Hombre_Foraneo;
+                    }
+                    if (mt.per_Id_Persona_Mujer != null)
+                    {
+                        var qMujer = (from per in context.Persona
+                                      where per.per_Id_Persona == mt.per_Id_Persona_Mujer
+                                      select new
+                                      {
+                                          per.per_Nombre,
+                                          per.per_Apellido_Paterno,
+                                          per.per_Apellido_Materno
+                                      }).ToList();
+                        foreach (var qm in qMujer)
+                        {
+                            NombreConyugeMujer = qm.per_Nombre + " " + qm.per_Apellido_Paterno + " " + qm.per_Apellido_Materno;
+                        }
+                    }
+                    else
+                    {
+                        NombreConyugeMujer = mt.mat_Nombre_Contrayente_Mujer_Foraneo;
+                    }
+                    listaMatrimoniosLegalizaciones.Add(new ListaMatrimoniosLegalizaciones
+                    {
+                        mat_Id_MatrimonioLegalizacion = mt.mat_Id_MatrimonioLegalizacion,
+                        mat_Tipo_Enlace = mt.mat_Tipo_Enlace,
+                        mat_NombreConyugeHombre = NombreConyugeHombre,
+                        mat_NombreConyugeMujer = NombreConyugeMujer,
+                        sec_Numero = mt.sec_Numero,
+                        sec_Alias = mt.sec_Alias
+                    });
+                }
+                return Ok(new
+                {
+                    status = "success",
+                    matrimoniosLegalizaciones = listaMatrimoniosLegalizaciones
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
 
@@ -69,18 +183,18 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from p in context.Persona
-                         where p.per_Categoria == "ADULTO_MUJER"
-                         && p.sec_Id_Sector == idSector
-                         && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
-                         select new
-                         {
-                             p.per_Id_Persona,
-                             p.per_Nombre,
-                             p.per_Apellido_Paterno,
-                             p.per_Apellido_Materno,
-                             p.per_Categoria,
-                             p.sec_Id_Sector
-                         }).ToList();
+                             where p.per_Categoria == "ADULTO_MUJER"
+                             && p.sec_Id_Sector == idSector
+                             && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Categoria,
+                                 p.sec_Id_Sector
+                             }).ToList();
                 return Ok(
                     new
                     {
@@ -141,7 +255,7 @@ namespace IECE_WebApi.Controllers
                 );
             }
         }
-        
+
         // GET: /api/Matrimonio_Legalizacion/GetHombresPorSectorParaLegalizacion/idSector
         [Route("[action]/{idSector}")]
         [HttpGet]
@@ -232,28 +346,21 @@ namespace IECE_WebApi.Controllers
             try
             {
                 matLegal.Fecha_Registro = fechayhora;
-                matLegal.usu_Id_Usuario = 1;
                 context.Matrimonio_Legalizacion.Add(matLegal);
                 context.SaveChanges();
-                return Ok
-                (
-                    new
-                    {
-                        status = true,
-                        nvoMatLegal = matLegal.mat_Id_MatrimonioLegalizacion
-                    }
-                );
+                return Ok(new
+                {
+                    status = "success",
+                    nvoMatLegal = matLegal.mat_Id_MatrimonioLegalizacion
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest
-                (
-                    new
-                    {
-                        status = false,
-                        message = ex.Message
-                    }
-                );
+                return Ok(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
             }
         }
 
