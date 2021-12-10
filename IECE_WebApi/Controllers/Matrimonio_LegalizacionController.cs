@@ -109,7 +109,7 @@ namespace IECE_WebApi.Controllers
                     string NombreConyugeHombre = "";
                     string NombreConyugeMujer = "";
 
-                    if (mt.per_Id_Persona_Hombre != null)
+                    if (mt.per_Id_Persona_Hombre != 0)
                     {
                         var qHombre = (from per in context.Persona
                                        where per.per_Id_Persona == mt.per_Id_Persona_Hombre
@@ -129,7 +129,7 @@ namespace IECE_WebApi.Controllers
                     {
                         NombreConyugeHombre = mt.mat_Nombre_Contrayente_Hombre_Foraneo;
                     }
-                    if (mt.per_Id_Persona_Mujer != null)
+                    if (mt.per_Id_Persona_Mujer != 0)
                     {
                         var qMujer = (from per in context.Persona
                                       where per.per_Id_Persona == mt.per_Id_Persona_Mujer
@@ -185,7 +185,7 @@ namespace IECE_WebApi.Controllers
                 var query = (from p in context.Persona
                              where p.per_Categoria == "ADULTO_MUJER"
                              && p.sec_Id_Sector == idSector
-                             && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
+                             // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -226,7 +226,7 @@ namespace IECE_WebApi.Controllers
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_MUJER" || p.per_Categoria == "ADULTO_MUJER")
                              && p.sec_Id_Sector == idSector
-                             && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
+                             // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -267,7 +267,7 @@ namespace IECE_WebApi.Controllers
                 var query = (from p in context.Persona
                              where p.per_Categoria == "ADULTO_HOMBRE"
                              && p.sec_Id_Sector == idSector
-                             && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
+                             // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -308,7 +308,7 @@ namespace IECE_WebApi.Controllers
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_HOMBRE" || p.per_Categoria == "ADULTO_HOMBRE")
                              && p.sec_Id_Sector == idSector
-                             && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
+                             // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -367,12 +367,11 @@ namespace IECE_WebApi.Controllers
         // PUT: api/Matrimonio_Legalizacion/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] Matrimonio_Legalizacion matLegal)
+        public ActionResult Put([FromBody] Matrimonio_Legalizacion matLegal, int id)
         {
             try
             {
                 matLegal.Fecha_Registro = fechayhora;
-                matLegal.usu_Id_Usuario = 1;
                 context.Entry(matLegal).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok(
