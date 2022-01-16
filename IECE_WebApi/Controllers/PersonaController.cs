@@ -25,6 +25,21 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        private class ResumenDeMembresia
+        {
+            public int totalDeMiembros { get; set; }
+            public int hb { get; set; }
+            public int mb { get; set; }
+            public int jhb { get; set; }
+            public int jmb { get; set; }
+            public int totalBautizados { get; set; }
+            public int jhnb { get; set; }
+            public int jmnb { get; set; }
+            public int ninos { get; set; }
+            public int ninas { get; set; }
+            public int totalNoBautizados { get; set; }
+        }
+
         // GET: api/Persona
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -183,6 +198,77 @@ namespace IECE_WebApi.Controllers
                          select p).ToList();
 
             return Ok(query);
+        }
+
+        // GET: api/Persona/GetResumenMembresiaBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetResumenMembresiaBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                int totalDeMiembros = (from p in context.Persona
+                                       where p.sec_Id_Sector == sec_Id_Sector
+                                       select new { p.per_Id_Persona }).Count();
+                int hb = (from p in context.Persona
+                          where p.sec_Id_Sector == sec_Id_Sector &&
+                          (p.per_Categoria == "ADULTO_HOMBRE" && p.per_Bautizado == true)
+                          select new { p.per_Id_Persona }).Count();
+                int mb = (from p in context.Persona
+                          where p.sec_Id_Sector == sec_Id_Sector &&
+                          (p.per_Categoria == "ADULTO_MUJER" && p.per_Bautizado == true)
+                          select new { p.per_Id_Persona }).Count();
+                int jhb = (from p in context.Persona
+                           where p.sec_Id_Sector == sec_Id_Sector &&
+                           (p.per_Categoria == "JOVEN_HOMBRE" && p.per_Bautizado == true)
+                           select new { p.per_Id_Persona }).Count();
+                int jmb = (from p in context.Persona
+                           where p.sec_Id_Sector == sec_Id_Sector &&
+                           (p.per_Categoria == "JOVEN_MUJER" && p.per_Bautizado == true)
+                           select new { p.per_Id_Persona }).Count();
+                int totalBautizados = hb + mb + jhb + jmb;
+                int jhnb = (from p in context.Persona
+                            where p.sec_Id_Sector == sec_Id_Sector &&
+                            (p.per_Categoria == "JOVEN_HOMBRE" && p.per_Bautizado == false)
+                            select new { p.per_Id_Persona }).Count();
+                int jmnb = (from p in context.Persona
+                            where p.sec_Id_Sector == sec_Id_Sector &&
+                            (p.per_Categoria == "JOVEN_MUJER" && p.per_Bautizado == false)
+                            select new { p.per_Id_Persona }).Count();
+                int ninos = (from p in context.Persona
+                             where p.sec_Id_Sector == sec_Id_Sector && p.per_Categoria == "NIÑO"
+                             select new { p.per_Id_Persona }).Count();
+                int ninas = (from p in context.Persona
+                             where p.sec_Id_Sector == sec_Id_Sector && p.per_Categoria == "NIÑA"
+                             select new { p.per_Id_Persona }).Count();
+                int totalNoBautizados = jhnb + jmnb + ninos + ninas;
+                ResumenDeMembresia resumen = new ResumenDeMembresia();
+                resumen.totalDeMiembros = totalDeMiembros;
+                resumen.hb = hb;
+                resumen.mb = mb;
+                resumen.jhb = jhb;
+                resumen.jmb = jmb;
+                resumen.totalBautizados = totalBautizados;
+                resumen.jhnb = jhnb;
+                resumen.jmnb = jmnb;
+                resumen.ninos = ninos;
+                resumen.ninas = ninas;
+                resumen.totalNoBautizados = totalNoBautizados;
+                return Ok(new
+                {
+                    status = "success",
+                    resumen = resumen
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
 
         // POST: api/Persona
@@ -386,7 +472,8 @@ namespace IECE_WebApi.Controllers
                 context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok(
-                    new {
+                    new
+                    {
                         status = "success",
                         mensaje = "Datos guardados satisfactoriamente."
                     });

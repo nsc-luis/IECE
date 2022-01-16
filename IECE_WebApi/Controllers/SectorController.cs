@@ -165,11 +165,19 @@ namespace IECE_WebApi.Controllers
                                   dis_Area = d.dis_Area
                               }).ToList();
                 // sector = context.Sector.FirstOrDefault(sec => sec.sec_Id_Sector == id);
-                return Ok(sector);
+                return Ok(
+                    new {
+                        status = "success",
+                        sector = sector
+                    });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return Ok(
+                    new {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
             }
         }
 
