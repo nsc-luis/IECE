@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,19 +26,77 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        // MODELO PRIVADO PARA EL RESUMEN DE LA MEMBRESIA
         private class ResumenDeMembresia
         {
-            public int totalDeMiembros { get; set; }
             public int hb { get; set; }
             public int mb { get; set; }
             public int jhb { get; set; }
             public int jmb { get; set; }
-            public int totalBautizados { get; set; }
             public int jhnb { get; set; }
             public int jmnb { get; set; }
             public int ninos { get; set; }
             public int ninas { get; set; }
+            public int totalBautizados { get; set; }
             public int totalNoBautizados { get; set; }
+            public int totalDeMiembros { get; set; }
+        }
+
+        // MODELO PARA CREAR EL ARREGLO DE LA LISTA DE CATEGORIAS
+        private class FiltroCategorias
+        {
+            public string dato { get; set; }
+            public string categoria { get; set; }
+            public bool bautizado { get; set; }
+            public int valor { get; set; }
+        }
+
+        // LISTA DE CATEGORIAS, UTILIZA EL MODELO: FiltroCategorias
+        FiltroCategorias[] listaCategorias = new FiltroCategorias[]
+        {
+            new FiltroCategorias{dato = "hb", categoria = "ADULTO_HOMBRE", bautizado = true, valor = 0 },
+            new FiltroCategorias{dato = "mb", categoria = "ADULTO_MUJER", bautizado = true, valor = 0 },
+            new FiltroCategorias{dato = "jhb", categoria = "JOVEN_HOMBRE", bautizado = true, valor = 0 },
+            new FiltroCategorias{dato = "jmb", categoria = "JOVEN_MUJER", bautizado = true, valor = 0 },
+            new FiltroCategorias{dato = "jhnb", categoria = "JOVEN_HOMBRE", bautizado = false, valor = 0 },
+            new FiltroCategorias{dato = "jmnb", categoria = "JOVEN_MUJER", bautizado = false, valor = 0 },
+            new FiltroCategorias{dato = "ninos", categoria = "NIÑO", bautizado = false, valor = 0 },
+            new FiltroCategorias{dato = "ninas", categoria = "NIÑA", bautizado = false, valor = 0 },
+        };
+
+        // METRODO PRIVADO PARA CALCULAR EL RESUMEN DE MEMBRESIA POR SECTOR
+        private IActionResult CalculaResumenPorSector(int sec_Id_Sector)
+        {
+            foreach(FiltroCategorias categoria in listaCategorias)
+            {
+                categoria.valor = (from p in context.Persona
+                          where p.sec_Id_Sector == sec_Id_Sector &&
+                          (p.per_Categoria == categoria.categoria && p.per_Bautizado == categoria.bautizado)
+                          select new { p.per_Id_Persona }).Count();
+            }
+            
+            int totalBautizados = 0;
+            int totalNoBautizados = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                if (i < 4) { totalBautizados += listaCategorias[i].valor; }
+                else { totalNoBautizados += listaCategorias[i].valor; }
+            }
+            int totalDeMiembros = totalBautizados + totalNoBautizados;
+
+            ResumenDeMembresia resumen = new ResumenDeMembresia();
+            resumen.totalDeMiembros = totalDeMiembros;
+            resumen.hb = listaCategorias[0].valor;
+            resumen.mb = listaCategorias[1].valor;
+            resumen.jhb = listaCategorias[2].valor;
+            resumen.jmb = listaCategorias[3].valor;
+            resumen.totalBautizados = totalBautizados;
+            resumen.jhnb = listaCategorias[4].valor;
+            resumen.jmnb = listaCategorias[5].valor;
+            resumen.ninos = listaCategorias[6].valor;
+            resumen.ninas = listaCategorias[7].valor;
+            resumen.totalNoBautizados = totalNoBautizados;
+            return Ok(resumen);
         }
 
         // GET: api/Persona
@@ -208,53 +267,82 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                int totalDeMiembros = (from p in context.Persona
-                                       where p.sec_Id_Sector == sec_Id_Sector
-                                       select new { p.per_Id_Persona }).Count();
-                int hb = (from p in context.Persona
-                          where p.sec_Id_Sector == sec_Id_Sector &&
-                          (p.per_Categoria == "ADULTO_HOMBRE" && p.per_Bautizado == true)
-                          select new { p.per_Id_Persona }).Count();
-                int mb = (from p in context.Persona
-                          where p.sec_Id_Sector == sec_Id_Sector &&
-                          (p.per_Categoria == "ADULTO_MUJER" && p.per_Bautizado == true)
-                          select new { p.per_Id_Persona }).Count();
-                int jhb = (from p in context.Persona
-                           where p.sec_Id_Sector == sec_Id_Sector &&
-                           (p.per_Categoria == "JOVEN_HOMBRE" && p.per_Bautizado == true)
-                           select new { p.per_Id_Persona }).Count();
-                int jmb = (from p in context.Persona
-                           where p.sec_Id_Sector == sec_Id_Sector &&
-                           (p.per_Categoria == "JOVEN_MUJER" && p.per_Bautizado == true)
-                           select new { p.per_Id_Persona }).Count();
-                int totalBautizados = hb + mb + jhb + jmb;
-                int jhnb = (from p in context.Persona
-                            where p.sec_Id_Sector == sec_Id_Sector &&
-                            (p.per_Categoria == "JOVEN_HOMBRE" && p.per_Bautizado == false)
-                            select new { p.per_Id_Persona }).Count();
-                int jmnb = (from p in context.Persona
-                            where p.sec_Id_Sector == sec_Id_Sector &&
-                            (p.per_Categoria == "JOVEN_MUJER" && p.per_Bautizado == false)
-                            select new { p.per_Id_Persona }).Count();
-                int ninos = (from p in context.Persona
-                             where p.sec_Id_Sector == sec_Id_Sector && p.per_Categoria == "NIÑO"
-                             select new { p.per_Id_Persona }).Count();
-                int ninas = (from p in context.Persona
-                             where p.sec_Id_Sector == sec_Id_Sector && p.per_Categoria == "NIÑA"
-                             select new { p.per_Id_Persona }).Count();
-                int totalNoBautizados = jhnb + jmnb + ninos + ninas;
+                var resumen = CalculaResumenPorSector(sec_Id_Sector);
+                return Ok(new
+                {
+                    status = "success",
+                    resumen = resumen
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Persona/GetResumenMembresiaByDistrito/dis_Id_Distrito
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetResumenMembresiaByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
                 ResumenDeMembresia resumen = new ResumenDeMembresia();
-                resumen.totalDeMiembros = totalDeMiembros;
-                resumen.hb = hb;
-                resumen.mb = mb;
-                resumen.jhb = jhb;
-                resumen.jmb = jmb;
-                resumen.totalBautizados = totalBautizados;
-                resumen.jhnb = jhnb;
-                resumen.jmnb = jmnb;
-                resumen.ninos = ninos;
-                resumen.ninas = ninas;
-                resumen.totalNoBautizados = totalNoBautizados;
+                resumen.totalBautizados = 0;
+                resumen.hb = 0;
+                resumen.mb = 0;
+                resumen.jhb = 0;
+                resumen.jmb = 0;
+                resumen.totalNoBautizados = 0;
+                resumen.jhnb = 0;
+                resumen.jmnb = 0;
+                resumen.ninos = 0;
+                resumen.ninas = 0;
+                resumen.totalDeMiembros = 0;
+
+                var sectores = (from sec in context.Sector
+                                join dis in context.Distrito
+                                on sec.dis_Id_Distrito equals dis.dis_Id_Distrito
+                                where sec.dis_Id_Distrito == dis_Id_Distrito
+                                orderby sec.sec_Id_Sector ascending
+                                select new { sec.sec_Id_Sector }).ToList();
+
+                foreach (var sector in sectores)
+                {
+                    foreach (FiltroCategorias categoria in listaCategorias)
+                    {
+                        categoria.valor = (from p in context.Persona
+                                           where p.sec_Id_Sector == sector.sec_Id_Sector &&
+                                           (p.per_Categoria == categoria.categoria && p.per_Bautizado == categoria.bautizado)
+                                           select new { p.per_Id_Persona }).Count();
+                    }
+
+                    int totalBautizados = 0;
+                    int totalNoBautizados = 0;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (i < 4) { totalBautizados += listaCategorias[i].valor; }
+                        else { totalNoBautizados += listaCategorias[i].valor; }
+                    }
+                    int totalDeMiembros = totalBautizados + totalNoBautizados;
+                    
+                    resumen.totalDeMiembros += totalDeMiembros;
+                    resumen.hb += listaCategorias[0].valor;
+                    resumen.mb += listaCategorias[1].valor;
+                    resumen.jhb += listaCategorias[2].valor;
+                    resumen.jmb += listaCategorias[3].valor;
+                    resumen.totalBautizados += totalBautizados;
+                    resumen.jhnb += listaCategorias[4].valor;
+                    resumen.jmnb += listaCategorias[5].valor;
+                    resumen.ninos += listaCategorias[6].valor;
+                    resumen.ninas += listaCategorias[7].valor;
+                    resumen.totalNoBautizados += totalNoBautizados;
+                }
                 return Ok(new
                 {
                     status = "success",
