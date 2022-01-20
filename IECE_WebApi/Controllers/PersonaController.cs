@@ -67,14 +67,14 @@ namespace IECE_WebApi.Controllers
         // METRODO PRIVADO PARA CALCULAR EL RESUMEN DE MEMBRESIA POR SECTOR
         private IActionResult CalculaResumenPorSector(int sec_Id_Sector)
         {
-            foreach(FiltroCategorias categoria in listaCategorias)
+            foreach (FiltroCategorias categoria in listaCategorias)
             {
                 categoria.valor = (from p in context.Persona
-                          where p.sec_Id_Sector == sec_Id_Sector &&
-                          (p.per_Categoria == categoria.categoria && p.per_Bautizado == categoria.bautizado)
-                          select new { p.per_Id_Persona }).Count();
+                                   where p.sec_Id_Sector == sec_Id_Sector &&
+                                   (p.per_Categoria == categoria.categoria && p.per_Bautizado == categoria.bautizado)
+                                   select new { p.per_Id_Persona }).Count();
             }
-            
+
             int totalBautizados = 0;
             int totalNoBautizados = 0;
             for (int i = 0; i < 8; i++)
@@ -253,10 +253,136 @@ namespace IECE_WebApi.Controllers
         public IActionResult GetBySector(int sec_Id_Sector)
         {
             var query = (from p in context.Persona
+                         join s in context.Sector
+                         on p.sec_Id_Sector equals s.sec_Id_Sector
                          where p.sec_Id_Sector == sec_Id_Sector
-                         select p).ToList();
-
+                         select new {
+                             p.per_Id_Persona,
+                             p.per_Activo,
+                             p.per_En_Comunion,
+                             p.per_Vivo,
+                             p.per_Visibilidad_Abierta,
+                             p.sec_Id_Sector,
+                             p.per_Categoria,
+                             p.per_Nombre,
+                             p.per_Apellido_Paterno,
+                             p.per_Apellido_Materno,
+                             p.per_Fecha_Nacimiento,
+                             p.per_RFC_Sin_Homo,
+                             p.per_Nombre_Padre,
+                             p.per_Nombre_Madre,
+                             p.per_Nombre_Abuelo_Paterno,
+                             p.per_Nombre_Abuela_Paterna,
+                             p.per_Nombre_Abuelo_Materno,
+                             p.per_Nombre_Abuela_Materna,
+                             p.pro_Id_Profesion_Oficio1,
+                             p.pro_Id_Profesion_Oficio2,
+                             p.per_Telefono_Movil,
+                             p.per_Email_Personal,
+                             p.per_foto,
+                             p.per_Bautizado,
+                             p.per_Lugar_Bautismo,
+                             p.per_Fecha_Bautismo,
+                             p.per_Ministro_Que_Bautizo,
+                             p.per_Fecha_Recibio_Espiritu_Santo,
+                             p.per_Bajo_Imposicion_De_Manos,
+                             p.per_Cargos_Desempenados,
+                             p.per_Cambios_De_Domicilio,
+                             p.per_Estado_Civil,
+                             p.per_Nombre_Conyuge,
+                             p.per_Fecha_Boda_Civil,
+                             p.per_Num_Acta_Boda_Civil,
+                             p.per_Libro_Acta_Boda_Civil,
+                             p.per_Oficialia_Boda_Civil,
+                             p.per_Registro_Civil,
+                             p.per_Fecha_Boda_Eclesiastica,
+                             p.per_Lugar_Boda_Eclesiastica,
+                             p.per_Cantidad_Hijos,
+                             p.per_Nombre_Hijos,
+                             p.per_Nacionalidad,
+                             p.per_Lugar_De_Nacimiento,
+                             s.sec_Alias,
+                             s.sec_Numero
+                         }).ToList();
             return Ok(query);
+        }
+
+        // GET: api/Persona/GetByDistrito/dis_Id_Distrito
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                var personas = (from p in context.Persona
+                                join s in context.Sector
+                                on p.sec_Id_Sector equals s.sec_Id_Sector
+                                join d in context.Distrito
+                                on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                select new
+                                {
+                                    p.per_Id_Persona,
+                                    p.per_Activo,
+                                    p.per_En_Comunion,
+                                    p.per_Vivo,
+                                    p.per_Visibilidad_Abierta,
+                                    p.sec_Id_Sector,
+                                    p.per_Categoria,
+                                    p.per_Nombre,
+                                    p.per_Apellido_Paterno,
+                                    p.per_Apellido_Materno,
+                                    p.per_Fecha_Nacimiento,
+                                    p.per_RFC_Sin_Homo,
+                                    p.per_Nombre_Padre,
+                                    p.per_Nombre_Madre,
+                                    p.per_Nombre_Abuelo_Paterno,
+                                    p.per_Nombre_Abuela_Paterna,
+                                    p.per_Nombre_Abuelo_Materno,
+                                    p.per_Nombre_Abuela_Materna,
+                                    p.pro_Id_Profesion_Oficio1,
+                                    p.pro_Id_Profesion_Oficio2,
+                                    p.per_Telefono_Movil,
+                                    p.per_Email_Personal,
+                                    p.per_foto,
+                                    p.per_Bautizado,
+                                    p.per_Lugar_Bautismo,
+                                    p.per_Fecha_Bautismo,
+                                    p.per_Ministro_Que_Bautizo,
+                                    p.per_Fecha_Recibio_Espiritu_Santo,
+                                    p.per_Bajo_Imposicion_De_Manos,
+                                    p.per_Cargos_Desempenados,
+                                    p.per_Cambios_De_Domicilio,
+                                    p.per_Estado_Civil,
+                                    p.per_Nombre_Conyuge,
+                                    p.per_Fecha_Boda_Civil,
+                                    p.per_Num_Acta_Boda_Civil,
+                                    p.per_Libro_Acta_Boda_Civil,
+                                    p.per_Oficialia_Boda_Civil,
+                                    p.per_Registro_Civil,
+                                    p.per_Fecha_Boda_Eclesiastica,
+                                    p.per_Lugar_Boda_Eclesiastica,
+                                    p.per_Cantidad_Hijos,
+                                    p.per_Nombre_Hijos,
+                                    p.per_Nacionalidad,
+                                    p.per_Lugar_De_Nacimiento,
+                                    s.sec_Alias,
+                                    s.sec_Numero
+                                }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = personas
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
 
         // GET: api/Persona/GetResumenMembresiaBySector/sec_Id_Sector
