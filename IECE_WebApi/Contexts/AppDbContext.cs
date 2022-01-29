@@ -29,5 +29,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Ministro_Usuario> Ministro_Usuario { get; set; }
         public DbSet<Presentacion_Nino> Presentacion_Nino { get; set; }
         public DbSet<Matrimonio_Legalizacion> Matrimonio_Legalizacion { get; set; }
+        public DbSet<Codigo_Transacciones_Estadisticas> Codigo_Transacciones_Estadisticas { get; set; }
+        public DbSet<Historial_Transacciones_Estadisticas> Historial_Transacciones_Estadisticas { get; set; }
     }
 }
