@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IECE_WebApi.ClasesGenerales;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -380,6 +381,90 @@ namespace IECE_WebApi.Controllers
                 });
             }
             return Ok(query);
+        }
+
+        // GET: api/Persona/GetBautizadosBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetBautizadosBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector
+                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             where p.sec_Id_Sector == sec_Id_Sector
+                             && p.per_Bautizado == true
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Persona/GetBautizadosBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetNoBautizadosBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector
+                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             where p.sec_Id_Sector == sec_Id_Sector
+                             && p.per_Bautizado == false
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
 
         // GET: api/Persona/GetByDistrito/dis_Id_Distrito
@@ -835,6 +920,7 @@ namespace IECE_WebApi.Controllers
                                      s.sec_Id_Sector,
                                      s.sec_Alias
                                  }).ToList();
+                    // HTE.ActulizaciónGeneralPersona(id);
                     Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
                     hte.hte_Cancelado = false;
                     hte.dis_Distrito_Id = query[0].dis_Id_Distrito;
@@ -846,8 +932,8 @@ namespace IECE_WebApi.Controllers
                     hte.hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
                     hte.Usu_Usuario_Id = 1;
                     hte.per_Persona_Id = persona.per_Id_Persona;
-                    context.Historial_Transacciones_Estadisticas.Add(hte);
-                    context.SaveChanges();
+                    // context.Historial_Transacciones_Estadisticas.Add(hte);
+                    // context.SaveChanges();
                     hte.ct_Codigo_Transaccion = 11001;
                     context.Historial_Transacciones_Estadisticas.Add(hte);
                     context.SaveChanges();

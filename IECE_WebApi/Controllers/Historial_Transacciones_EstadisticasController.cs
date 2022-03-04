@@ -32,15 +32,27 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Historial_Transacciones_Estadisticas/5
-        [HttpGet("{id}")]
+        [HttpGet("{per_Id_Persona}")]
         [EnableCors("AllowOrigin")]
         public IActionResult Get(int per_Id_Persona)
         {
             try
             {
                 var query = (from hte in context.Historial_Transacciones_Estadisticas
+                             join sec in context.Sector on hte.sec_Sector_Id equals sec.sec_Id_Sector
+                             join dis in context.Distrito on hte.dis_Distrito_Id equals dis.dis_Id_Distrito
+                             join cte in context.Codigo_Transacciones_Estadisticas on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
                              where hte.per_Persona_Id == per_Id_Persona
-                             select hte).ToList();
+                             select new
+                             {
+                                 hte.hte_Id_Transaccion,
+                                 hte.hte_Fecha_Transaccion,
+                                 hte.hte_Comentario,
+                                 cte.ct_Categoria,
+                                 cte.ct_Subtipo,
+                                 sec.sec_Alias,
+                                 dis.dis_Alias
+                             }).ToList();
                 return Ok(new
                 {
                     status = "success",
