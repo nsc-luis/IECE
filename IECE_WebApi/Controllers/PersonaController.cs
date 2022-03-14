@@ -533,10 +533,8 @@ namespace IECE_WebApi.Controllers
             {
                 List<PersonaDomicilioMiembros> query = new List<PersonaDomicilioMiembros>();
                 var query1 = (from p in context.Persona
-                              join s in context.Sector
-                              on p.sec_Id_Sector equals s.sec_Id_Sector
-                              join d in context.Distrito
-                 on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                              join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                              join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                               where d.dis_Id_Distrito == dis_Id_Distrito
                               select new
                               {
@@ -674,23 +672,59 @@ namespace IECE_WebApi.Controllers
             try
             {
                 // Declarando variables de personas
-                List<Persona> delSector = new List<Persona>();
-                List<Persona> otroSector = new List<Persona>();
-                List<Persona> personas = new List<Persona>();
+                var personas = new List<object>();
 
                 // Poblando variables con personas del sector y con visibilidad abierta
-                delSector = (from p in context.Persona
-                             where p.sec_Id_Sector == sec_Id_Sector 
-                             && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
-                             select p).ToList();
+                var delSector = (from p in context.Persona
+                                 join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                                 join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                 where p.sec_Id_Sector == sec_Id_Sector
+                                 && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
+                                 select new
+                                 {
+                                     p.per_Id_Persona,
+                                     p.per_Activo,
+                                     p.per_En_Comunion,
+                                     p.per_Vivo,
+                                     p.per_Visibilidad_Abierta,
+                                     p.sec_Id_Sector,
+                                     p.per_Nombre,
+                                     p.per_Apellido_Paterno,
+                                     p.per_Apellido_Materno,
+                                     p.per_Bautizado,
+                                     s.sec_Numero,
+                                     s.sec_Tipo_Sector,
+                                     s.sec_Alias,
+                                     d.dis_Id_Distrito,
+                                     d.dis_Alias
+                                 }).ToList();
 
-                otroSector = (from p in context.Persona
-                              where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta) 
-                              && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
-                              select p).ToList();
+                var otroSector = (from p in context.Persona
+                                  join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                                  join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                  where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
+                                  && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
+                                  select new
+                                  {
+                                      p.per_Id_Persona,
+                                      p.per_Activo,
+                                      p.per_En_Comunion,
+                                      p.per_Vivo,
+                                      p.per_Visibilidad_Abierta,
+                                      p.sec_Id_Sector,
+                                      p.per_Nombre,
+                                      p.per_Apellido_Paterno,
+                                      p.per_Apellido_Materno,
+                                      p.per_Bautizado,
+                                      s.sec_Numero,
+                                      s.sec_Tipo_Sector,
+                                      s.sec_Alias,
+                                      d.dis_Id_Distrito,
+                                      d.dis_Alias
+                                  }).ToList();
 
-                foreach (Persona p in delSector) { personas.Add(p); }
-                foreach (Persona p in otroSector) { personas.Add(p); }
+                foreach (var p in delSector) { personas.Add(p); }
+                foreach (var p in otroSector) { personas.Add(p); }
 
                 // Retornando resultados
                 return Ok(new
@@ -718,9 +752,28 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from p in context.Persona
+                             join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                              where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
                              && (p.per_Bautizado == bautizado && p.per_Activo)
-                             select p).ToList();
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado,
+                                 s.sec_Numero,
+                                 s.sec_Tipo_Sector,
+                                 s.sec_Alias,
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias
+                             }).ToList();
                 return Ok(new
                 {
                     status = "success",
