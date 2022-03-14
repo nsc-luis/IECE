@@ -665,6 +665,78 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Persona/GetPersonaRestitucion/227/true
+        [Route("[action]/{sec_Id_Sector}/{bautizado}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonaRestitucion(int sec_Id_Sector, bool bautizado)
+        {
+            try
+            {
+                // Declarando variables de personas
+                List<Persona> delSector = new List<Persona>();
+                List<Persona> otroSector = new List<Persona>();
+                List<Persona> personas = new List<Persona>();
+
+                // Poblando variables con personas del sector y con visibilidad abierta
+                delSector = (from p in context.Persona
+                             where p.sec_Id_Sector == sec_Id_Sector 
+                             && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
+                             select p).ToList();
+
+                otroSector = (from p in context.Persona
+                              where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta) 
+                              && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
+                              select p).ToList();
+
+                foreach (Persona p in delSector) { personas.Add(p); }
+                foreach (Persona p in otroSector) { personas.Add(p); }
+
+                // Retornando resultados
+                return Ok(new
+                {
+                    status = "success",
+                    personas = personas
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Persona/GetPersonaCambioDomicilio/227/false
+        [Route("[action]/{sec_Id_Sector}/{bautizado}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonaCambioDomicilio(int sec_Id_Sector, bool bautizado)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
+                             && (p.per_Bautizado == bautizado && p.per_Activo)
+                             select p).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Persona/GetResumenMembresiaBySector/sec_Id_Sector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
