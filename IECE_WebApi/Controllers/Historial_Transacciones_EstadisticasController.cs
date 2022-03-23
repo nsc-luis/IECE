@@ -49,6 +49,7 @@ namespace IECE_WebApi.Controllers
                                  hte.hte_Fecha_Transaccion,
                                  hte.hte_Comentario,
                                  cte.ct_Categoria,
+                                 cte.ct_Tipo,   
                                  cte.ct_Subtipo,
                                  sec.sec_Alias,
                                  dis.dis_Alias

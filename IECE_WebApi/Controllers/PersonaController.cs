@@ -73,7 +73,7 @@ namespace IECE_WebApi.Controllers
             new FiltroCategorias{dato = "ninas", categoria = "NIÑA", bautizado = false, valor = 0 },
         };
 
-        // METRODO PRIVADO PARA CALCULAR EL RESUMEN DE MEMBRESIA POR SECTOR
+        // METODO PRIVADO PARA CALCULAR EL RESUMEN DE MEMBRESIA POR SECTOR
         private IActionResult CalculaResumenPorSector(int sec_Id_Sector)
         {
             foreach (FiltroCategorias categoria in listaCategorias)
@@ -1097,26 +1097,18 @@ namespace IECE_WebApi.Controllers
         // PUT: api/Persona/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put([FromBody] Persona persona, int id)
+        public ActionResult Put([FromBody] PersonaComentarioHTE objeto, int id)
         {
             try
             {
+                Persona persona = new Persona();
+                persona = objeto.PersonaEntity;
                 persona.Fecha_Registro = fechayhora;
                 persona.usu_Id_Usuario = 1;
                 Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
-                int ct_Codigo_Transaccion = 0;
+                int ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
                 DateTime hte_Fecha_Transaccion = DateTime.Now;
-                if (persona.per_Bautizado)
-                {
-                    ct_Codigo_Transaccion = 11201;
-                    hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
-                }
-                else
-                {
-                    ct_Codigo_Transaccion = 12201;
-                    hte_Fecha_Transaccion = fechayhora;
-                }
-                RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", hte_Fecha_Transaccion, persona.usu_Id_Usuario);
+                RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
 
                 // MODIFICACION DE REGISTRO DE PERSONA
                 context.Entry(persona).State = EntityState.Modified;
@@ -1134,7 +1126,7 @@ namespace IECE_WebApi.Controllers
                     new
                     {
                         status = "error",
-                        mensaje = ex.Message
+                        mensaje = ex
                     });
             }
         }

@@ -31,5 +31,6 @@ namespace IECE_WebApi.Contexts
         public DbSet<Matrimonio_Legalizacion> Matrimonio_Legalizacion { get; set; }
         public DbSet<Codigo_Transacciones_Estadisticas> Codigo_Transacciones_Estadisticas { get; set; }
         public DbSet<Historial_Transacciones_Estadisticas> Historial_Transacciones_Estadisticas { get; set; }
+        public DbSet<PersonaComentarioHTE> PersonaComentarioHTE { get; set; }
     }
 }
