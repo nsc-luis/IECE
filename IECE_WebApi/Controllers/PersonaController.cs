@@ -481,6 +481,99 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Persona/GetBautizadosComunionBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetBautizadosComunionBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector
+                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             where p.sec_Id_Sector == sec_Id_Sector
+                             && p.per_Bautizado == true
+                             && p.per_En_Comunion == true
+                             && p.per_Vivo == true
+                             && !(from hte in context.Historial_Transacciones_Estadisticas where hte.ct_Codigo_Transaccion == 11103 || hte.ct_Codigo_Transaccion == 11102 select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Persona/GetBautizadosComunionVivoBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetBautizadosComunionVivoBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector
+                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             where p.sec_Id_Sector == sec_Id_Sector
+                             && p.per_Bautizado == true
+                             && p.per_En_Comunion == true
+                             && p.per_Vivo == true
+                             && !(from hte in context.Historial_Transacciones_Estadisticas
+                                  where hte.ct_Codigo_Transaccion == 11101
+                                  || (hte.ct_Codigo_Transaccion == 11102 || hte.ct_Codigo_Transaccion == 11103)
+                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Persona/GetBautizadosBySector/sec_Id_Sector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
@@ -892,6 +985,7 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Persona
         [HttpPost]
+        [Route("[action]/{per_Id_Persona}")]
         [EnableCors("AllowOrigin")]
         public IActionResult Post([FromBody] Persona persona)
         {
@@ -920,6 +1014,123 @@ namespace IECE_WebApi.Controllers
                         message = ex.Message
                     }
                 );
+            }
+        }
+
+        // POST: api/Persona/BajaBautizadoExcomunion/per_Id_Persona
+        [HttpPost]
+        [Route("[action]/{per_Id_Persona}/{tipoExcomunion}/{delitoExomunion}/{fechaExcomunion}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BajaBautizadoExcomunion(
+            int per_Id_Persona, 
+            int tipoExcomunion, 
+            string delitoExomunion, 
+            DateTime fechaExcomunion)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where p.per_Id_Persona == per_Id_Persona
+                             select new
+                             {
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 s.sec_Alias,
+                                 s.sec_Id_Sector
+                             }).ToList();
+                Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
+                hte.ct_Codigo_Transaccion = tipoExcomunion;
+                hte.dis_Distrito_Alias = query[0].dis_Alias;
+                hte.dis_Distrito_Id = query[0].dis_Id_Distrito;
+                hte.hte_Cancelado = false;
+                hte.hte_Comentario = delitoExomunion;
+                hte.hte_Fecha_Transaccion = fechaExcomunion;
+                hte.per_Persona_Id = per_Id_Persona;
+                hte.sec_Sector_Alias = query[0].sec_Alias;
+                hte.sec_Sector_Id = query[0].sec_Id_Sector;
+                hte.Usu_Usuario_Id = 1;
+
+                var query2 = (from p in context.Persona
+                              where p.per_Id_Persona == per_Id_Persona
+                              select p).FirstOrDefault();
+                query2.per_En_Comunion = false;
+                context.SaveChanges();
+
+                context.Historial_Transacciones_Estadisticas.Add(hte);
+                context.SaveChanges();
+                return Ok(new
+                {
+                    status = "success",
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST: api/Persona/BajaBautizadoDefuncion/per_Id_Persona
+        [HttpPost]
+        [Route("[action]/{per_Id_Persona}/{comentarioDefuncion}/{fechaDefuncion}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BajaBautizadoDefuncion(
+            int per_Id_Persona,
+            string comentarioDefuncion,
+            DateTime fechaDefuncion)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where p.per_Id_Persona == per_Id_Persona
+                             select new
+                             {
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 s.sec_Alias,
+                                 s.sec_Id_Sector
+                             }).ToList();
+                Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
+                hte.ct_Codigo_Transaccion = 11101;
+                hte.dis_Distrito_Alias = query[0].dis_Alias;
+                hte.dis_Distrito_Id = query[0].dis_Id_Distrito;
+                hte.hte_Cancelado = false;
+                hte.hte_Comentario = comentarioDefuncion;
+                hte.hte_Fecha_Transaccion = fechaDefuncion;
+                hte.per_Persona_Id = per_Id_Persona;
+                hte.sec_Sector_Alias = query[0].sec_Alias;
+                hte.sec_Sector_Id = query[0].sec_Id_Sector;
+                hte.Usu_Usuario_Id = 1;
+
+                context.Historial_Transacciones_Estadisticas.Add(hte);
+                context.SaveChanges();
+
+                var query2 = (from p in context.Persona
+                              where p.per_Id_Persona == per_Id_Persona
+                              select p).FirstOrDefault();
+                query2.per_Vivo = false;
+                query2.per_Activo = false;
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
 
