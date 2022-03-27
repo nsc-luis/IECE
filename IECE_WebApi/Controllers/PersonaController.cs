@@ -496,7 +496,10 @@ namespace IECE_WebApi.Controllers
                              && p.per_Bautizado == true
                              && p.per_En_Comunion == true
                              && p.per_Vivo == true
-                             && !(from hte in context.Historial_Transacciones_Estadisticas where hte.ct_Codigo_Transaccion == 11103 || hte.ct_Codigo_Transaccion == 11102 select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             && !(from hte in context.Historial_Transacciones_Estadisticas
+                                  where hte.ct_Codigo_Transaccion == 11103 
+                                  || hte.ct_Codigo_Transaccion == 11102
+                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -574,6 +577,52 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+       // GET: api/Persona/GetNoBautizadosDefuncionAlejamientoBySector/sec_Id_Sector
+       [Route("[action]/{sec_Id_Sector}")]
+       [HttpGet]
+       [EnableCors("AllowOrigin")]
+        public IActionResult GetNoBautizadosDefuncionAlejamientoBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector
+                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             where p.sec_Id_Sector == sec_Id_Sector
+                             && p.per_Bautizado == false
+                             && p.per_Vivo == true
+                             && !(from hte in context.Historial_Transacciones_Estadisticas
+                                  where hte.ct_Codigo_Transaccion == 12101 || hte.ct_Codigo_Transaccion == 12102
+                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Persona/GetBautizadosBySector/sec_Id_Sector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
@@ -587,6 +636,7 @@ namespace IECE_WebApi.Controllers
                              on p.sec_Id_Sector equals s.sec_Id_Sector
                              where p.sec_Id_Sector == sec_Id_Sector
                              && p.per_Bautizado == false
+                             && p.per_Vivo == true
                              select new
                              {
                                  p.per_Id_Persona,
@@ -1116,6 +1166,66 @@ namespace IECE_WebApi.Controllers
                               where p.per_Id_Persona == per_Id_Persona
                               select p).FirstOrDefault();
                 query2.per_Vivo = false;
+                query2.per_Activo = false;
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST: api/Persona/BajaNoBautizadoDefuncionAlejamiento/per_Id_Persona
+        [HttpPost]
+        [Route("[action]/{per_Id_Persona}/{comentario}/{codigoTransaccion}/{fechaTransaccion}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BajaNoBautizadoDefuncionAlejamiento(
+            int per_Id_Persona,
+            string comentario,
+            int codigoTransaccion,
+            DateTime fechaTransaccion)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where p.per_Id_Persona == per_Id_Persona
+                             select new
+                             {
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 s.sec_Alias,
+                                 s.sec_Id_Sector
+                             }).ToList();
+                Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
+                hte.ct_Codigo_Transaccion = codigoTransaccion;
+                hte.dis_Distrito_Alias = query[0].dis_Alias;
+                hte.dis_Distrito_Id = query[0].dis_Id_Distrito;
+                hte.hte_Cancelado = false;
+                hte.hte_Comentario = comentario;
+                hte.hte_Fecha_Transaccion = fechaTransaccion;
+                hte.per_Persona_Id = per_Id_Persona;
+                hte.sec_Sector_Alias = query[0].sec_Alias;
+                hte.sec_Sector_Id = query[0].sec_Id_Sector;
+                hte.Usu_Usuario_Id = 1;
+
+                context.Historial_Transacciones_Estadisticas.Add(hte);
+                context.SaveChanges();
+
+                var query2 = (from p in context.Persona
+                              where p.per_Id_Persona == per_Id_Persona
+                              select p).FirstOrDefault();
+                query2.per_Vivo = codigoTransaccion == 12101 ? false : true;
                 query2.per_Activo = false;
                 context.SaveChanges();
 
