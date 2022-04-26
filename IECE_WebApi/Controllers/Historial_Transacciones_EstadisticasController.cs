@@ -51,7 +51,10 @@ namespace IECE_WebApi.Controllers
                                  cte.ct_Categoria,
                                  cte.ct_Tipo,   
                                  cte.ct_Subtipo,
+                                 sec.sec_Id_Sector,
                                  sec.sec_Alias,
+                                 dis.dis_Tipo_Distrito,
+                                 dis.dis_Numero,
                                  dis.dis_Alias
                              }).ToList();
                 return Ok(new
