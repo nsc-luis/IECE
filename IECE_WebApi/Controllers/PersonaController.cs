@@ -1426,6 +1426,19 @@ namespace IECE_WebApi.Controllers
                     context.SaveChanges();
                 }
 
+                Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
+                int ct_Codigo_Transaccion = 0;
+                DateTime hte_Fecha_Transaccion = DateTime.Now;
+                if (persona.per_Bautizado)
+                {
+                    ct_Codigo_Transaccion = 11001;
+                }
+                else
+                {
+                    ct_Codigo_Transaccion = 12001;
+                }
+                RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", hte_Fecha_Transaccion, persona.usu_Id_Usuario);
+
                 return Ok
                 (
                     new
@@ -1485,12 +1498,12 @@ namespace IECE_WebApi.Controllers
                 DateTime hte_Fecha_Transaccion = DateTime.Now;
                 if (p.per_Bautizado)
                 {
-                    ct_Codigo_Transaccion = 11201;
+                    ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = p.per_Fecha_Bautismo;
                 }
                 else
                 {
-                    ct_Codigo_Transaccion = 12201;
+                    ct_Codigo_Transaccion = 12001;
                     hte_Fecha_Transaccion = fechayhora;
                 }
                 RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, ct_Codigo_Transaccion, "", hte_Fecha_Transaccion, p.usu_Id_Usuario);
