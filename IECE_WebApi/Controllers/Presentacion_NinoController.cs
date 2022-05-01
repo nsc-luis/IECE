@@ -25,6 +25,61 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        // METODO PARA ALTA DE REGISTRO HISTORICO
+        private IActionResult RegistroHistorico(
+            int per_Id_Persona,
+            int sec_Id_Sector,
+            int ct_Codigo_Transaccion,
+            string hte_Comentario,
+            DateTime hte_Fecha_Transaccion,
+            int Usu_Usuario_Id
+        )
+        {
+            try
+            {
+                var query = (from s in context.Sector
+                             join d in context.Distrito
+                             on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where s.sec_Id_Sector == sec_Id_Sector
+                             select new
+                             {
+                                 s.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 s.sec_Id_Sector,
+                                 s.sec_Alias
+                             }).ToList();
+                Historial_Transacciones_Estadisticas nvoRegistro = new Historial_Transacciones_Estadisticas();
+                nvoRegistro.hte_Cancelado = false;
+                nvoRegistro.dis_Distrito_Id = query[0].dis_Id_Distrito;
+                nvoRegistro.dis_Distrito_Alias = query[0].dis_Alias;
+                nvoRegistro.sec_Sector_Id = query[0].sec_Id_Sector;
+                nvoRegistro.sec_Sector_Alias = query[0].sec_Alias;
+                nvoRegistro.ct_Codigo_Transaccion = ct_Codigo_Transaccion;
+                nvoRegistro.hte_Comentario = hte_Comentario;
+                nvoRegistro.hte_Fecha_Transaccion = hte_Fecha_Transaccion;
+                nvoRegistro.Usu_Usuario_Id = 1;
+                nvoRegistro.per_Persona_Id = per_Id_Persona;
+                nvoRegistro.ct_Codigo_Transaccion = ct_Codigo_Transaccion;
+
+                // ALTA DE REGISTRO PARA HISTORICO
+                context.Historial_Transacciones_Estadisticas.Add(nvoRegistro);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Presentacion_Nino/GetBySector/5
         [Route("[action]/{idSector}")]
         [HttpGet]
@@ -85,6 +140,12 @@ namespace IECE_WebApi.Controllers
                 presentacion.Fecha_Registro = fechayhora;
                 context.Presentacion_Nino.Add(presentacion);
                 context.SaveChanges();
+
+                //Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
+                //hte.hte_Fecha_Transaccion = DateTime.Now;
+                //hte.ct_Codigo_Transaccion = 23203;
+                //RegistroHistorico(presentacion.per_Id_Persona, presentacion.sec_Id_Sector, hte.ct_Codigo_Transaccion, "", hte.hte_Fecha_Transaccion, presentacion.usu_Id_Usuario);
+
                 return Ok(
                     new
                     {

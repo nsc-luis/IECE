@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc; 
 
 namespace IECE_WebApi.Controllers
 {
@@ -189,6 +189,38 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/GetMinistrosAncianoActivoByDistrito/idDistrito
+        [Route("[action]/{idDistrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetMinistrosAncianoActivoByDistrito(int idDistrito)
+        {
+            try
+            {
+                var query = (from pem in context.Personal_Ministerial
+                              where pem.pem_Activo == true && pem.pem_Grado_Ministerial == "ANCIANO"
+                              && (from s in context.Sector where s.dis_Id_Distrito == idDistrito select s.sec_Id_Sector).AsQueryable().Contains(pem.sec_Id_Congregacion.Value)
+                              select new
+                              {
+                                  pem.pem_Id_Ministro,
+                                  pem.pem_Nombre
+                              }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    ministros = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/GetSectoresByMinistro/idMinistro
         [Route("[action]/{idMinistro}")]
         [HttpGet]
@@ -198,20 +230,20 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from s in context.Sector
-                              join d in context.Distrito
-                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                              where s.pem_Id_Pastor == idMinistro && s.sec_Tipo_Sector == "SECTOR"
-                              orderby d.dis_Numero ascending, s.sec_Numero ascending
-                              select new
-                              {
-                                  d.dis_Id_Distrito,
-                                  d.dis_Alias,
-                                  d.dis_Tipo_Distrito,
-                                  d.dis_Numero,
-                                  s.sec_Alias,
-                                  s.sec_Id_Sector,
-                                  s.sec_Tipo_Sector
-                              }).ToList();
+                             join d in context.Distrito
+                             on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where s.pem_Id_Pastor == idMinistro && s.sec_Tipo_Sector == "SECTOR"
+                             orderby d.dis_Numero ascending, s.sec_Numero ascending
+                             select new
+                             {
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 d.dis_Tipo_Distrito,
+                                 d.dis_Numero,
+                                 s.sec_Alias,
+                                 s.sec_Id_Sector,
+                                 s.sec_Tipo_Sector
+                             }).ToList();
                 return Ok(new
                 {
                     status = "success",
