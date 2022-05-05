@@ -32,5 +32,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Codigo_Transacciones_Estadisticas> Codigo_Transacciones_Estadisticas { get; set; }
         public DbSet<Historial_Transacciones_Estadisticas> Historial_Transacciones_Estadisticas { get; set; }
         public DbSet<PersonaComentarioHTE> PersonaComentarioHTE { get; set; }
+        public DbSet<AltaCambioDomicilioRestitucionReactivacion_NuevoDomicilio> AltaCambioDomicilioRestitucionReactivacion_NuevoDomicilio { get; set; }
+        public DbSet<AltaCambioDomicilioRestitucionReactivacion_HogarExistente> AltaCambioDomicilioRestitucionReactivacion_HogarExistente { get; set; }
     }
 }
