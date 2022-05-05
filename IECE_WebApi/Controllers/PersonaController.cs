@@ -496,7 +496,7 @@ namespace IECE_WebApi.Controllers
                              && p.per_En_Comunion == true
                              && p.per_Vivo == true
                              && !(from hte in context.Historial_Transacciones_Estadisticas
-                                  where hte.ct_Codigo_Transaccion == 11103 
+                                  where hte.ct_Codigo_Transaccion == 11103
                                   || hte.ct_Codigo_Transaccion == 11102
                                   select hte.per_Persona_Id).Contains(p.per_Id_Persona)
                              select new
@@ -576,10 +576,10 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-       // GET: api/Persona/GetNoBautizadosDefuncionBySector/sec_Id_Sector
-       [Route("[action]/{sec_Id_Sector}")]
-       [HttpGet]
-       [EnableCors("AllowOrigin")]
+        // GET: api/Persona/GetNoBautizadosDefuncionBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
         public IActionResult GetNoBautizadosDefuncionBySector(int sec_Id_Sector)
         {
             try
@@ -1078,6 +1078,50 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Persona/GetPersonaCambioDomicilioReactivacionRestitucion
+        [Route("[action]")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonaCambioDomicilioReactivacionRestitucion([FromBody] PersonaParaCambioDomicilioReactivacionRestitucion filtro)
+        {
+            var query = new object();
+            try
+            {
+                if (filtro.sectorPersona == filtro.sectorUsuario)
+                {
+                    query = (from p in context.Persona
+                             where p.per_Bautizado == filtro.bautizado &&
+                             p.per_Activo == filtro.activo &&
+                             p.per_Visibilidad_Abierta == filtro.visibiliadaAbierta &&
+                             p.sec_Id_Sector == filtro.sectorPersona
+                             select p).ToList();
+                }
+                else
+                {
+                    query = (from p in context.Persona
+                             where p.per_Bautizado == filtro.bautizado &&
+                             p.per_Activo == filtro.activo &&
+                             p.per_Visibilidad_Abierta == filtro.visibiliadaAbierta &&
+                             p.sec_Id_Sector != filtro.sectorPersona
+                             select p).ToList();
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // POST: api/Persona
         [HttpPost]
         [Route("[action]/{per_Id_Persona}")]
@@ -1117,9 +1161,9 @@ namespace IECE_WebApi.Controllers
         [Route("[action]/{per_Id_Persona}/{tipoExcomunion}/{delitoExomunion}/{fechaExcomunion}")]
         [EnableCors("AllowOrigin")]
         public IActionResult BajaBautizadoExcomunion(
-            int per_Id_Persona, 
-            int tipoExcomunion, 
-            string delitoExomunion, 
+            int per_Id_Persona,
+            int tipoExcomunion,
+            string delitoExomunion,
             DateTime fechaExcomunion)
         {
             try

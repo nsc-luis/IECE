@@ -34,5 +34,6 @@ namespace IECE_WebApi.Contexts
         public DbSet<PersonaComentarioHTE> PersonaComentarioHTE { get; set; }
         public DbSet<AltaCambioDomicilioRestitucionReactivacion_NuevoDomicilio> AltaCambioDomicilioRestitucionReactivacion_NuevoDomicilio { get; set; }
         public DbSet<AltaCambioDomicilioRestitucionReactivacion_HogarExistente> AltaCambioDomicilioRestitucionReactivacion_HogarExistente { get; set; }
+        public DbSet<PersonaParaCambioDomicilioReactivacionRestitucion> PersonaParaCambioDomicilioReactivacionRestitucion { get; set; }
     }
 }

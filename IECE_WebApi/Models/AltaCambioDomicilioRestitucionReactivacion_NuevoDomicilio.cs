@@ -8,6 +8,8 @@ namespace IECE_WebApi.Models
 {
     public class AltaCambioDomicilioRestitucionReactivacion_NuevoDomicilio
     {
+        [Key]
+        public int id { get; set; }
         public int per_Id_Persona { get; set; }
         public int sec_Id_Sector { get; set; }
         public int ct_Codigo_Transaccion { get; set; }
