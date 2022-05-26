@@ -75,7 +75,7 @@ namespace IECE_WebApi.Controllers
                     status = "error",
                     mensaje = ex.Message
                 });
-                
+
             }
         }
 
@@ -345,6 +345,41 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
+                var perHombre = (from p1 in context.Persona
+                                 where p1.per_Id_Persona == matLegal.per_Id_Persona_Hombre
+                                 select p1).ToList();
+                foreach (Persona p in perHombre)
+                {
+                    p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
+                    p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
+                    p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
+                    p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
+                    p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
+                    p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
+                    p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
+                    p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                }
+                context.SaveChanges();
+                hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 21001, "Enlace matrimonial", fechayhora, 1);
+
+                var perMujer = (from p2 in context.Persona
+                                where p2.per_Id_Persona == matLegal.per_Id_Persona_Mujer
+                                select p2).ToList();
+                foreach (Persona p in perMujer)
+                {
+                    p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
+                    p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
+                    p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
+                    p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
+                    p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
+                    p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
+                    p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
+                    p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                }
+                context.SaveChanges();
+                hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 21001, "Enlace matrimonial", fechayhora, 1);
+
                 matLegal.Fecha_Registro = fechayhora;
                 context.Matrimonio_Legalizacion.Add(matLegal);
                 context.SaveChanges();
@@ -359,6 +394,7 @@ namespace IECE_WebApi.Controllers
                 return Ok(new
                 {
                     status = "error",
+
                     message = ex.Message
                 });
             }
@@ -371,6 +407,38 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                var perHombre = (from p1 in context.Persona
+                                 where p1.per_Id_Persona == matLegal.per_Id_Persona_Hombre
+                                 select p1).ToList();
+                foreach (Persona p in perHombre)
+                {
+                    p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
+                    p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
+                    p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
+                    p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
+                    p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
+                    p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
+                    p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
+                    p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                }
+                context.SaveChanges();
+
+                var perMujer = (from p2 in context.Persona
+                                where p2.per_Id_Persona == matLegal.per_Id_Persona_Mujer
+                                select p2).ToList();
+                foreach (Persona p in perMujer)
+                {
+                    p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
+                    p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
+                    p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
+                    p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
+                    p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
+                    p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
+                    p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
+                    p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                }
+                context.SaveChanges();
+
                 matLegal.Fecha_Registro = fechayhora;
                 context.Entry(matLegal).State = EntityState.Modified;
                 context.SaveChanges();

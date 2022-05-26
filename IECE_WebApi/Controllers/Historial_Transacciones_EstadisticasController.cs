@@ -120,7 +120,8 @@ namespace IECE_WebApi.Controllers
                     p.per_Activo = true;
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                    context.Persona.Add(p);
+                    context.Entry(p).State = EntityState.Modified;
+                    //context.Persona.Add(p);
                     context.SaveChanges();
 
                     RegistroHistorico(
@@ -148,7 +149,8 @@ namespace IECE_WebApi.Controllers
                     p.per_Visibilidad_Abierta = false;
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                    context.Persona.Add(p);
+                    // context.Persona.Add(p);
+                    context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
@@ -165,11 +167,12 @@ namespace IECE_WebApi.Controllers
                     p.per_Visibilidad_Abierta = false;
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                    context.Persona.Add(p);
+                    // context.Persona.Add(p);
+                    context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
-                        persona[0].per_Id_Persona,
+                        p.per_Id_Persona,
                         altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                         altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
                         "Alta por reactivación",
@@ -270,7 +273,8 @@ namespace IECE_WebApi.Controllers
                     p.per_Activo = true;
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-                    context.Persona.Add(p);
+                    // context.Persona.Add(p);
+                    context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
@@ -298,7 +302,8 @@ namespace IECE_WebApi.Controllers
                     p.per_Visibilidad_Abierta = false;
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-                    context.Persona.Add(p);
+                    // context.Persona.Add(p);
+                    context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
@@ -315,7 +320,8 @@ namespace IECE_WebApi.Controllers
                     p.per_Visibilidad_Abierta = false;
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-                    context.Persona.Add(p);
+                    // context.Persona.Add(p);
+                    context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(

@@ -286,10 +286,15 @@ namespace IECE_WebApi.Controllers
                          where p.per_RFC_Sin_Homo == RFCSinHomo
                          select new
                          {
+                             p.per_Id_Persona,
                              per_Nombre = p.per_Nombre,
                              per_Apellido_Paterno = p.per_Apellido_Paterno,
                              per_ApellidoMaterno = p.per_Apellido_Materno,
                              per_Fecha_Nacimiento = p.per_Fecha_Nacimiento,
+                             p.per_Bautizado,
+                             p.per_En_Comunion,
+                             p.per_Vivo,
+                             p.per_Categoria,
                              dis_Numero = d.dis_Numero,
                              dis_Tipo_Distrito = d.dis_Tipo_Distrito,
                              sec_Alias = s.sec_Alias
@@ -495,10 +500,10 @@ namespace IECE_WebApi.Controllers
                              && p.per_Bautizado == true
                              && p.per_En_Comunion == true
                              && p.per_Vivo == true
-                             && !(from hte in context.Historial_Transacciones_Estadisticas
-                                  where hte.ct_Codigo_Transaccion == 11103
-                                  || hte.ct_Codigo_Transaccion == 11102
-                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             //&& !(from hte in context.Historial_Transacciones_Estadisticas
+                             //     where (hte.ct_Codigo_Transaccion == 11103
+                             //     || hte.ct_Codigo_Transaccion == 11102)
+                             //     select hte.per_Persona_Id).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -543,10 +548,10 @@ namespace IECE_WebApi.Controllers
                              && p.per_Bautizado == true
                              && p.per_En_Comunion == true
                              && p.per_Vivo == true
-                             && !(from hte in context.Historial_Transacciones_Estadisticas
-                                  where hte.ct_Codigo_Transaccion == 11101
-                                  || (hte.ct_Codigo_Transaccion == 11102 || hte.ct_Codigo_Transaccion == 11103)
-                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             //&& !(from hte in context.Historial_Transacciones_Estadisticas
+                             //     where hte.ct_Codigo_Transaccion == 11101
+                             //     || (hte.ct_Codigo_Transaccion == 11102 || hte.ct_Codigo_Transaccion == 11103)
+                             //     select hte.per_Persona_Id).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -590,9 +595,9 @@ namespace IECE_WebApi.Controllers
                              where p.sec_Id_Sector == sec_Id_Sector
                              && p.per_Bautizado == false
                              && p.per_Vivo == true
-                             && !(from hte in context.Historial_Transacciones_Estadisticas
-                                  where hte.ct_Codigo_Transaccion == 12101
-                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             //&& !(from hte in context.Historial_Transacciones_Estadisticas
+                             //     where hte.ct_Codigo_Transaccion == 12101
+                             //     select hte.per_Persona_Id).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -636,9 +641,9 @@ namespace IECE_WebApi.Controllers
                              where p.sec_Id_Sector == sec_Id_Sector
                              && p.per_Bautizado == false
                              && p.per_Vivo == true
-                             && !(from hte in context.Historial_Transacciones_Estadisticas
-                                  where hte.ct_Codigo_Transaccion == 12102
-                                  select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             //&& !(from hte in context.Historial_Transacciones_Estadisticas
+                             //     where hte.ct_Codigo_Transaccion == 12102
+                             //     select hte.per_Persona_Id).Contains(p.per_Id_Persona)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -1582,14 +1587,35 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                var queryPersona = (from p in context.Persona
+                                    where p.per_Id_Persona == id
+                                    select new
+                                    {
+                                        p.per_Bautizado
+                                    }).ToList();
+
+                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 Persona persona = new Persona();
+                int ct_Codigo_Transaccion = 0;
+                DateTime hte_Fecha_Transaccion = DateTime.Now;
+
                 persona = objeto.PersonaEntity;
                 persona.Fecha_Registro = fechayhora;
                 persona.usu_Id_Usuario = 1;
-                Historial_Transacciones_Estadisticas hte = new Historial_Transacciones_Estadisticas();
-                int ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
-                DateTime hte_Fecha_Transaccion = DateTime.Now;
-                RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
+
+                if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
+                {
+                    ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
+                }
+                else
+                {
+                    persona.per_Bautizado = true;
+                    persona.per_En_Comunion = true;
+                    ct_Codigo_Transaccion = 11001;
+                    hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
+                }
+
+                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
 
                 // MODIFICACION DE REGISTRO DE PERSONA
                 context.Entry(persona).State = EntityState.Modified;

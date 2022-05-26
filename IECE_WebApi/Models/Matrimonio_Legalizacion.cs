@@ -15,12 +15,12 @@ namespace IECE_WebApi.Models
         public Nullable<int> per_Id_Persona_Mujer { get; set; }
         public string mat_Nombre_Contrayente_Hombre_Foraneo { get; set; }
         public string mat_Nombre_Contrayente_Mujer_Foraneo { get; set; }
-        public Nullable<DateTime> mat_Fecha_Boda_Civil { get; set; }
+        public DateTime mat_Fecha_Boda_Civil { get; set; }
         public string mat_Numero_Acta { get; set; }
         public string mat_Libro_Acta { get; set; }
         public string mat_Oficialia { get; set; }
         public string mat_Registro_Civil { get; set; }
-        public Nullable<DateTime> mat_Fecha_Boda_Eclesiastica { get; set; }
+        public DateTime mat_Fecha_Boda_Eclesiastica { get; set; }
         public int mat_Cantidad_Hijos { get; set; }
         public string mat_Nombre_Hijos { get; set; }
         public int dis_Id_Distrito { get; set; }
