@@ -124,14 +124,10 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var domicilios = (from hd in context.HogarDomicilio
-                                  join dis in context.Distrito
-                                  on hd.dis_Id_Distrito equals dis.dis_Id_Distrito
-                                  join sec in context.Sector
-                                  on hd.sec_Id_Sector equals sec.sec_Id_Sector
-                                  join pais in context.Pais
-                                  on hd.pais_Id_Pais equals pais.pais_Id_Pais
-                                  join est in context.Estado
-                                  on hd.est_Id_Estado equals est.est_Id_Estado
+                                  join dis in context.Distrito on hd.dis_Id_Distrito equals dis.dis_Id_Distrito
+                                  join sec in context.Sector on hd.sec_Id_Sector equals sec.sec_Id_Sector
+                                  join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                                  join est in context.Estado on hd.est_Id_Estado equals est.est_Id_Estado
                                   join sub in (from hp in context.Hogar_Persona
                                         join p in context.Persona
                                         on hp.hp_Id_Hogar_Persona equals p.per_Id_Persona
@@ -143,7 +139,10 @@ namespace IECE_WebApi.Controllers
 	                                        p.per_Id_Persona,
                                             p.per_Nombre,
                                             p.per_Apellido_Paterno,
-                                            p.per_Apellido_Materno
+                                            p.per_Apellido_Materno,
+                                            p.per_Fecha_Nacimiento,
+                                            p.per_Bautizado,
+                                            p.per_Telefono_Movil
                                         }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
                                   where hd.sec_Id_Sector == sec_Id_Sector
                                   select new
@@ -172,7 +171,10 @@ namespace IECE_WebApi.Controllers
                                       sub.per_Id_Persona,
                                       sub.per_Nombre,
                                       sub.per_Apellido_Paterno,
-                                      sub.per_Apellido_Materno
+                                      sub.per_Apellido_Materno,
+                                      sub.per_Fecha_Nacimiento,
+                                      sub.per_Bautizado,
+                                      sub.per_Telefono_Movil
                                   }).ToList();
                 return Ok(
                     new

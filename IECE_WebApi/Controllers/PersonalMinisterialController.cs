@@ -298,6 +298,34 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET api/GetSecretarioBySector/idSector
+        [Route("[action]/{idSector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetSecretarioBySector(int idSector)
+        {
+            try
+            {
+                var query = (from d in context.Distrito
+                             join pem in context.Personal_Ministerial on d.pem_Id_Secretario equals pem.pem_Id_Ministro
+                             where d.sec_Id_Sector_Base == idSector
+                             select pem).ToList();
+                    return Ok(new
+                {
+                    status = "success",
+                    infoSecretario = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET: api/Personal_Ministerial
         // METODO PARA OBTENER INFO DEL MINISTRO POR SU ID
         [HttpGet("{pem_Id_Ministro}")]

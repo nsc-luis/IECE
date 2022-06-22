@@ -95,6 +95,7 @@ namespace IECE_WebApi.Controllers
             var persona = (from per in context.Persona
                            where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.per_Id_Persona
                            select per).ToList();
+
             HogarDomicilio hd = new HogarDomicilio();
             hd = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.HD;
             hd.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
@@ -198,73 +199,13 @@ namespace IECE_WebApi.Controllers
             var persona = (from per in context.Persona
                            where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_hogarExistente.per_Id_Persona
                            select per).ToList();
-
-            Hogar_Persona hpModel = new Hogar_Persona();
-            var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                    where hp.hd_Id_Hogar == altaCambioDomicilioRestitucionReactivacion_hogarExistente.hp_Id_Hogar_Persona
-                                    orderby (hp.hp_Jerarquia)
-                                    select new
-                                    {
-                                        hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
-                                        hd_Id_Hogar = hp.hd_Id_Hogar,
-                                        hp_Jerarquia = hp.hp_Jerarquia,
-                                        per_Id_Persona = hp.per_Id_Persona
-                                    }).ToList();
-
-
-
-            foreach (var miembro in miembrosDelHogar)
-            {
-                if (miembro.hp_Jerarquia == altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia)
-                {
-                    hpModel.per_Id_Persona = persona[0].per_Id_Persona;
-                    hpModel.hp_Jerarquia = altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia;
-                    hpModel.hd_Id_Hogar = altaCambioDomicilioRestitucionReactivacion_hogarExistente.hp_Id_Hogar_Persona;
-                    hpModel.Fecha_Registro = fechayhora;
-                    hpModel.usu_Id_Usuario = 1;
-                    context.Hogar_Persona.Add(hpModel);
-                    context.SaveChanges();
-
-                    var registro = new Hogar_Persona
-                    {
-                        hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
-                        hd_Id_Hogar = miembro.hd_Id_Hogar,
-                        per_Id_Persona = miembro.per_Id_Persona,
-                        hp_Jerarquia = miembro.hp_Jerarquia + 1,
-                        Fecha_Registro = fechayhora,
-                        usu_Id_Usuario = 1
-                    };
-                    context.Entry(registro).State = EntityState.Modified;
-                    context.SaveChanges();
-                }
-                if (miembro.hp_Jerarquia > altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia)
-                {
-                    var registro = new Hogar_Persona
-                    {
-                        hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
-                        hd_Id_Hogar = miembro.hd_Id_Hogar,
-                        per_Id_Persona = miembro.per_Id_Persona,
-                        hp_Jerarquia = miembro.hp_Jerarquia + 1,
-                        Fecha_Registro = fechayhora,
-                        usu_Id_Usuario = 1
-                    };
-                    context.Entry(registro).State = EntityState.Modified;
-                    context.SaveChanges();
-                }
-            }
-
-            if (altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia > miembrosDelHogar.Count())
-            {
-                hpModel.per_Id_Persona = persona[0].per_Id_Persona;
-                hpModel.hp_Jerarquia = altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia;
-                hpModel.hd_Id_Hogar = altaCambioDomicilioRestitucionReactivacion_hogarExistente.hp_Id_Hogar_Persona;
-                hpModel.Fecha_Registro = fechayhora;
-                hpModel.usu_Id_Usuario = 1;
-                context.Hogar_Persona.Add(hpModel);
-                context.SaveChanges();
-            }
-
             Persona p = persona[0];
+
+            // RESTRUCTURA TODAS LAS JERARQUIAS EN LOS MIEMBROS DE HOGAR
+            PersonaController personaController = new PersonaController(context);
+            personaController.RestructuraJerarquiasAlta(p.per_Id_Persona, altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia);
+
+            // ACTUALIZA ESTADO DE LA PERSONA EN CAMPOS: per_En_Comunion, per_Activo
             switch (altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion)
             {
                 case 11002: // Restitución Bautizado
@@ -274,7 +215,7 @@ namespace IECE_WebApi.Controllers
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
                     // context.Persona.Add(p);
-                    context.Entry(p).State = EntityState.Modified;
+                    //context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
@@ -303,7 +244,7 @@ namespace IECE_WebApi.Controllers
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
                     // context.Persona.Add(p);
-                    context.Entry(p).State = EntityState.Modified;
+                    //context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
@@ -321,7 +262,7 @@ namespace IECE_WebApi.Controllers
                     p.Fecha_Registro = fechayhora;
                     p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
                     // context.Persona.Add(p);
-                    context.Entry(p).State = EntityState.Modified;
+                    //context.Entry(p).State = EntityState.Modified;
                     context.SaveChanges();
 
                     RegistroHistorico(
