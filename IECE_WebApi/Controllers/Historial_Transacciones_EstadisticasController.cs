@@ -29,7 +29,7 @@ namespace IECE_WebApi.Controllers
 
         // METODO PARA ALTA DE REGISTRO HISTORICO
         [HttpPost]
-        [Route("[action]")]
+        [Route("[action]/{per_Id_Persona}/{sec_Id_Sector}/{ct_Codigo_Transaccion}/{hte_Comentario}/{hte_Fecha_Transaccion}/{Usu_Usuario_Id}")]
         [EnableCors("AllowOrigin")]
         public IActionResult RegistroHistorico(
             int per_Id_Persona,
@@ -54,6 +54,7 @@ namespace IECE_WebApi.Controllers
                                  s.sec_Alias
                              }).ToList();
                 Historial_Transacciones_Estadisticas nvoRegistro = new Historial_Transacciones_Estadisticas();
+                nvoRegistro.hte_Id_Transaccion = 0;
                 nvoRegistro.hte_Cancelado = false;
                 nvoRegistro.dis_Distrito_Id = query[0].dis_Id_Distrito;
                 nvoRegistro.dis_Distrito_Alias = query[0].dis_Alias;
@@ -64,7 +65,6 @@ namespace IECE_WebApi.Controllers
                 nvoRegistro.hte_Fecha_Transaccion = hte_Fecha_Transaccion;
                 nvoRegistro.Usu_Usuario_Id = Usu_Usuario_Id;
                 nvoRegistro.per_Persona_Id = per_Id_Persona;
-                nvoRegistro.ct_Codigo_Transaccion = ct_Codigo_Transaccion;
 
                 // ALTA DE REGISTRO PARA HISTORICO
                 context.Historial_Transacciones_Estadisticas.Add(nvoRegistro);
@@ -73,6 +73,7 @@ namespace IECE_WebApi.Controllers
                 return Ok(new
                 {
                     status = "success",
+                    registro = nvoRegistro
                 });
             }
             catch (Exception ex)
@@ -92,101 +93,112 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult AltaCambioDomicilioReactivacionRestitucion_NuevoDomicilio([FromBody] AltaCambioDomicilioRestitucionReactivacion_NuevoDomicilio altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio)
         {
-            var persona = (from per in context.Persona
-                           where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.per_Id_Persona
-                           select per).ToList();
-
-            HogarDomicilio hd = new HogarDomicilio();
-            hd = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.HD;
-            hd.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-            hd.Fecha_Registro = fechayhora;
-            context.HogarDomicilio.Add(hd);
-            context.SaveChanges();
-
-            Hogar_Persona hp = new Hogar_Persona();
-            hp.hp_Jerarquia = 1;
-            hp.per_Id_Persona = persona[0].per_Id_Persona;
-            hp.hd_Id_Hogar = hd.hd_Id_Hogar;
-            hp.Fecha_Registro = fechayhora;
-            hp.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-            context.Hogar_Persona.Add(hp);
-            context.SaveChanges();
-
-            Persona p = persona[0];
-            switch (altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion)
+            try
             {
-                case 11002: // Restitución Bautizado
-                    p.per_En_Comunion = true;
-                    p.per_Visibilidad_Abierta = false;
-                    p.per_Activo = true;
-                    p.Fecha_Registro = fechayhora;
-                    p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                    context.Entry(p).State = EntityState.Modified;
-                    //context.Persona.Add(p);
-                    context.SaveChanges();
+                var persona = (from per in context.Persona
+                               where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.per_Id_Persona
+                               select per).ToList();
 
-                    RegistroHistorico(
-                        persona[0].per_Id_Persona,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
-                        "Alta por restitución",
-                        fechayhora,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
-                    );
-                    break;
-                default: // Cambio de domicilio bautizado y no bautizado.
-                    int codigoTransaccion = 0;
-                    string comentario = "";
-                    if (persona[0].per_Bautizado)
-                    {
-                        codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 11003 ? 11003 : 11004;
-                        comentario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 11003 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
-                    }
-                    else
-                    {
-                        codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 12002 ? 12002 : 12003;
-                        comentario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 12002 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
-                    }
-                    p.per_Visibilidad_Abierta = false;
-                    p.Fecha_Registro = fechayhora;
-                    p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                    // context.Persona.Add(p);
-                    context.Entry(p).State = EntityState.Modified;
-                    context.SaveChanges();
+                HogarDomicilio hd = new HogarDomicilio();
+                hd = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.HD;
+                hd.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
+                hd.Fecha_Registro = fechayhora;
+                context.HogarDomicilio.Add(hd);
+                context.SaveChanges();
 
-                    RegistroHistorico(
-                        persona[0].per_Id_Persona,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
-                        codigoTransaccion,
-                        comentario,
-                        fechayhora,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
-                    );
-                    break;
-                case 12004: // Reactivacion No Bautizado
-                    p.per_Activo = true;
-                    p.per_Visibilidad_Abierta = false;
-                    p.Fecha_Registro = fechayhora;
-                    p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                    // context.Persona.Add(p);
-                    context.Entry(p).State = EntityState.Modified;
-                    context.SaveChanges();
+                Hogar_Persona hp = new Hogar_Persona();
+                hp.hp_Jerarquia = 1;
+                hp.per_Id_Persona = persona[0].per_Id_Persona;
+                hp.hd_Id_Hogar = hd.hd_Id_Hogar;
+                hp.Fecha_Registro = fechayhora;
+                hp.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
+                context.Hogar_Persona.Add(hp);
+                context.SaveChanges();
 
-                    RegistroHistorico(
-                        p.per_Id_Persona,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
-                        "Alta por reactivación",
-                        fechayhora,
-                        altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
-                    );
-                    break;
+                Persona p = persona[0];
+                switch (altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion)
+                {
+                    case 11002: // Restitución Bautizado
+                        p.per_En_Comunion = true;
+                        p.per_Visibilidad_Abierta = false;
+                        p.per_Activo = true;
+                        p.Fecha_Registro = fechayhora;
+                        p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
+                        context.Entry(p).State = EntityState.Modified;
+                        //context.Persona.Add(p);
+                        context.SaveChanges();
+
+                        RegistroHistorico(
+                            persona[0].per_Id_Persona,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
+                            "Alta por restitución",
+                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
+                        );
+                        break;
+                    default: // Cambio de domicilio bautizado y no bautizado.
+                        int codigoTransaccion = 0;
+                        string comentario = "";
+                        if (persona[0].per_Bautizado)
+                        {
+                            codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 11003 ? 11003 : 11004;
+                            comentario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 11003 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
+                        }
+                        else
+                        {
+                            codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 12002 ? 12002 : 12003;
+                            comentario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion == 12002 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
+                        }
+                        p.per_Visibilidad_Abierta = false;
+                        p.Fecha_Registro = fechayhora;
+                        p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
+                        // context.Persona.Add(p);
+                        context.Entry(p).State = EntityState.Modified;
+                        context.SaveChanges();
+
+                        RegistroHistorico(
+                            persona[0].per_Id_Persona,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
+                            codigoTransaccion,
+                            comentario,
+                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
+                        );
+                        break;
+                    case 12004: // Reactivacion No Bautizado
+                        p.per_Activo = true;
+                        p.per_Visibilidad_Abierta = false;
+                        p.Fecha_Registro = fechayhora;
+                        p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
+                        // context.Persona.Add(p);
+                        context.Entry(p).State = EntityState.Modified;
+                        context.SaveChanges();
+
+                        RegistroHistorico(
+                            p.per_Id_Persona,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
+                            "Alta por reactivación",
+                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
+                        );
+                        break;
+                }
+
+                return Ok(new
+                {
+                    status = "success"
+                });
             }
-
-            return Ok(new
+            catch (Exception ex)
             {
-                status = "success"
-            });
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
 
         // METODO PARA COMPONENTES DE VICTOR
@@ -196,90 +208,101 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult AltaCambioDomicilioReactivacionRestitucion_HogarExistente([FromBody] AltaCambioDomicilioRestitucionReactivacion_HogarExistente altaCambioDomicilioRestitucionReactivacion_hogarExistente)
         {
-            var persona = (from per in context.Persona
-                           where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_hogarExistente.per_Id_Persona
-                           select per).ToList();
-            Persona p = persona[0];
-
-            // RESTRUCTURA TODAS LAS JERARQUIAS EN LOS MIEMBROS DE HOGAR
-            PersonaController personaController = new PersonaController(context);
-            personaController.RestructuraJerarquiasAlta(p.per_Id_Persona, altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia);
-
-            // ACTUALIZA ESTADO DE LA PERSONA EN CAMPOS: per_En_Comunion, per_Activo
-            switch (altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion)
+            try
             {
-                case 11002: // Restitución Bautizado
-                    p.per_En_Comunion = true;
-                    p.per_Visibilidad_Abierta = false;
-                    p.per_Activo = true;
-                    p.Fecha_Registro = fechayhora;
-                    p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-                    // context.Persona.Add(p);
-                    //context.Entry(p).State = EntityState.Modified;
-                    context.SaveChanges();
+                var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_hogarExistente.per_Id_Persona);
 
-                    RegistroHistorico(
-                        p.per_Id_Persona,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion,
-                        "Alta por restitución",
-                        fechayhora,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
-                    );
-                    break;
-                default: // Cambio de domicilio bautizado y no bautizado.
-                    int codigoTransaccion = 0;
-                    string comentario = "";
-                    if (p.per_Bautizado)
-                    {
-                        codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 11003 ? 11003 : 11004;
-                        comentario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 11003 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
-                    }
-                    else
-                    {
-                        codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 12002 ? 12002 : 12003;
-                        comentario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 12002 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
-                    }
-                    p.per_Visibilidad_Abierta = false;
-                    p.Fecha_Registro = fechayhora;
-                    p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-                    // context.Persona.Add(p);
-                    //context.Entry(p).State = EntityState.Modified;
-                    context.SaveChanges();
+                // RESTRUCTURA TODAS LAS JERARQUIAS EN LOS MIEMBROS DE HOGAR
+                PersonaController personaController = new PersonaController(context);
+                personaController.RestructuraJerarquiasAlta(p.per_Id_Persona, altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia);
 
-                    RegistroHistorico(
-                        p.per_Id_Persona,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
-                        codigoTransaccion,
-                        comentario,
-                        fechayhora,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
-                    );
-                    break;
-                case 12004: // Reactivacion No Bautizado
-                    p.per_Activo = true;
-                    p.per_Visibilidad_Abierta = false;
-                    p.Fecha_Registro = fechayhora;
-                    p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-                    // context.Persona.Add(p);
-                    //context.Entry(p).State = EntityState.Modified;
-                    context.SaveChanges();
+                // ACTUALIZA ESTADO DE LA PERSONA EN CAMPOS: per_En_Comunion, per_Activo
+                switch (altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion)
+                {
+                    case 11002: // Restitución Bautizado
+                        p.per_En_Comunion = true;
+                        p.per_Visibilidad_Abierta = false;
+                        p.per_Activo = true;
+                        p.Fecha_Registro = fechayhora;
+                        p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
+                        // context.Persona.Add(p);
+                        //context.Entry(p).State = EntityState.Modified;
+                        //context.SaveChanges();
 
-                    RegistroHistorico(
-                        p.per_Id_Persona,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion,
-                        "Alta por reactivación",
-                        fechayhora,
-                        altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
-                    );
-                    break;
+                        RegistroHistorico(
+                            p.per_Id_Persona,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion,
+                            "Alta por restitución",
+                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
+                        );
+                        break;
+                    default: // Cambio de domicilio bautizado y no bautizado.
+                        int codigoTransaccion = 0;
+                        string comentario = "";
+                        if (p.per_Bautizado)
+                        {
+                            codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 11003 ? 11003 : 11004;
+                            comentario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 11003 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
+                        }
+                        else
+                        {
+                            codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 12002 ? 12002 : 12003;
+                            comentario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 12002 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
+                        }
+                        p.per_Visibilidad_Abierta = false;
+                        p.Fecha_Registro = fechayhora;
+                        p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
+                        // context.Persona.Add(p);
+                        //context.Entry(p).State = EntityState.Modified;
+                        //context.SaveChanges();
+
+                        RegistroHistorico(
+                            p.per_Id_Persona,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
+                            codigoTransaccion,
+                            comentario,
+                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
+                        );
+                        break;
+                    case 12004: // Reactivacion No Bautizado
+                        p.per_Activo = true;
+                        p.per_Visibilidad_Abierta = false;
+                        p.Fecha_Registro = fechayhora;
+                        p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
+                        // context.Persona.Add(p);
+                        //context.Entry(p).State = EntityState.Modified;
+                        //context.SaveChanges();
+
+                        RegistroHistorico(
+                            p.per_Id_Persona,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion,
+                            "Alta por reactivación",
+                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
+                        );
+                        break;
+                }
+                context.Persona.Update(p);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                    persona = p
+                });
             }
-
-            return Ok(new
+            catch (Exception ex)
             {
-                status = "success"
-            });
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
         }
 
         // GET: api/Historial_Transacciones_Estadisticas

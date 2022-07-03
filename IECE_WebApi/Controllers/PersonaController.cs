@@ -108,15 +108,19 @@ namespace IECE_WebApi.Controllers
         }
 
         // METODO PRIVADO PARA RECALCULAR JERARQUIAS PARA BAJAS
-        private IActionResult RestructuraJerarquiasBaja(int idPersona)
+        [HttpPost]
+        [Route("[action]/{idPersona}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult RestructuraJerarquiasBaja(int idPersona)
         {
             try
             {
+                // OBTINE INFORMACION DEL HOGAR PARA CONSULTAR LOS MIEMBROS DEL HOGAR
                 var objhp = (from hp in context.Hogar_Persona
                               where hp.per_Id_Persona == idPersona
                               select hp).FirstOrDefault();
 
-                Hogar_Persona hpModel = new Hogar_Persona();
+                // CONSULTA LOS MIEMBROS DEL HOGAR
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
                                         where hp.hd_Id_Hogar == objhp.hd_Id_Hogar
                                         orderby (hp.hp_Jerarquia)
@@ -129,20 +133,33 @@ namespace IECE_WebApi.Controllers
                                         }).ToList();
 
                 // AUMENTA EL NIVEL DE LA JERARQUIA EN 1 EN TODOS LOS MIEMBROS DEL HOGAR (jerarquia - 1)
-                int jerarquia = objhp.hp_Jerarquia;
                 foreach (var miembro in miembrosDelHogar)
                 {
-                    var objMiembro = (from hp in context.Hogar_Persona
-                                          where hp.per_Id_Persona == miembro.per_Id_Persona
-                                          select hp).FirstOrDefault();
-                        objMiembro.hp_Jerarquia = miembro.hp_Jerarquia - 1;
+                    if (miembro.per_Id_Persona != idPersona
+                        && miembro.hp_Jerarquia >= objhp.hp_Jerarquia)
+                    {
+                        var registro = new Hogar_Persona
+                        {
+                            hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                            hd_Id_Hogar = miembro.hd_Id_Hogar,
+                            per_Id_Persona = miembro.per_Id_Persona,
+                            hp_Jerarquia = miembro.hp_Jerarquia - 1,
+                            usu_Id_Usuario = 1,
+                            Fecha_Registro = fechayhora
+                        };
+                        context.Hogar_Persona.Update(registro);
                         context.SaveChanges();
+                    }   
                 }
 
                 // ESTABLECE A LA PERSONA QUE SE DA DE BAJA COMO EL ULTIMO EN LA JERARQUIA DEL HOGAR
                 objhp.hp_Jerarquia = miembrosDelHogar.Count();
                 context.SaveChanges();
-                return Ok();
+                return Ok(new
+                {
+                    status = "success",
+                    objeto = objhp
+                });
             }
             catch (Exception ex)
             {
@@ -156,69 +173,52 @@ namespace IECE_WebApi.Controllers
 
         // METODO PRIVADO PARA RECALCULAR JERARQUIAS PARA ALTAS
         [HttpPost]
-        [Route("[action]")]
+        [Route("[action]/{idPersona}/{nvaJerarquia}")]
         [EnableCors("AllowOrigin")]
         public IActionResult RestructuraJerarquiasAlta(int idPersona, int nvaJerarquia)
         {
             try
             {
-                // CONSULTA SI LA PERSONA PERTENECE A ALGUN HOGAR
+                // CONSULTA EL HOGAR AL QUE PERTENECE LA PERSONA
                 var objhp = (from hp in context.Hogar_Persona
                              where hp.per_Id_Persona == idPersona
-                             select hp).FirstOrDefault();
-                Hogar_Persona hpModel = new Hogar_Persona();
+                             select hp).ToList();
 
-                // ALTA DE PERSONA NUEVA EN EL HOGAR
-                if (objhp == null)
-                {
-                    hpModel.per_Id_Persona = idPersona;
-                    hpModel.hp_Jerarquia = nvaJerarquia;
-                    hpModel.hd_Id_Hogar = objhp.hd_Id_Hogar;
-                    hpModel.Fecha_Registro = fechayhora;
-                    hpModel.usu_Id_Usuario = 1;
-                    context.Hogar_Persona.Add(hpModel);
-                    context.SaveChanges();
-                }
-                // ALTA DE PERSONA EN UN HOGAR EXISTENTE
-                else
-                {
-                    var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                            where hp.hd_Id_Hogar == objhp.hd_Id_Hogar
-                                            orderby (hp.hp_Jerarquia)
-                                            select new
-                                            {
-                                                hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
-                                                hd_Id_Hogar = hp.hd_Id_Hogar,
-                                                hp_Jerarquia = hp.hp_Jerarquia,
-                                                per_Id_Persona = hp.per_Id_Persona
-                                            }).ToList();
+                // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
+                var miembrosDelHogar = (from hp in context.Hogar_Persona
+                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                                        orderby hp.hp_Jerarquia
+                                        select new
+                                        {
+                                            hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
+                                            hd_Id_Hogar = hp.hd_Id_Hogar,
+                                            hp_Jerarquia = hp.hp_Jerarquia,
+                                            per_Id_Persona = hp.per_Id_Persona
+                                        }).ToList();
 
+                // ALTA DE PERSONA EN OTRO HOGAR EXISTENTE
+                //if (objhp.Count < 1)
+                //{
+                //    var hpModel = new Hogar_Persona
+                //    {
+                //        hp_Id_Hogar_Persona = objhp[0].hp_Id_Hogar_Persona,
+                //        hd_Id_Hogar = objhp[0].hd_Id_Hogar,
+                //        per_Id_Persona = idPersona,
+                //        hp_Jerarquia = nvaJerarquia,
+                //        usu_Id_Usuario = 1,
+                //        Fecha_Registro = fechayhora
+                //    };
+                //    context.Hogar_Persona.Add(hpModel);
+                //    context.SaveChanges();
+                //}
+
+                // SI LA JERARQUIA SELECCIONADA ES 1 AUMENTA ESTABLECE (JERARQUIA + 1) 
+                // EN TODOS LOS MIEMBROS DEL HOGAR
+                if (nvaJerarquia == 1)
+                {
                     foreach (var miembro in miembrosDelHogar)
                     {
-                        if (miembro.hp_Jerarquia == nvaJerarquia)
-                        {
-                            hpModel.per_Id_Persona = idPersona;
-                            hpModel.hp_Jerarquia = nvaJerarquia;
-                            hpModel.hd_Id_Hogar = objhp.hd_Id_Hogar;
-                            hpModel.Fecha_Registro = fechayhora;
-                            hpModel.usu_Id_Usuario = 1;
-                            // context.Hogar_Persona.Add(hpModel);
-                            context.Entry(hpModel).State = EntityState.Modified;
-                            context.SaveChanges();
-
-                            //var registro = new Hogar_Persona
-                            //{
-                            //    hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
-                            //    hd_Id_Hogar = miembro.hd_Id_Hogar,
-                            //    per_Id_Persona = miembro.per_Id_Persona,
-                            //    hp_Jerarquia = miembro.hp_Jerarquia + 1,
-                            //    Fecha_Registro = fechayhora,
-                            //    usu_Id_Usuario = 1
-                            //};
-                            //context.Entry(registro).State = EntityState.Modified;
-                            //context.SaveChanges();
-                        }
-                        if (miembro.hp_Jerarquia > nvaJerarquia)
+                        if (miembro.per_Id_Persona != idPersona)
                         {
                             var registro = new Hogar_Persona
                             {
@@ -226,69 +226,46 @@ namespace IECE_WebApi.Controllers
                                 hd_Id_Hogar = miembro.hd_Id_Hogar,
                                 per_Id_Persona = miembro.per_Id_Persona,
                                 hp_Jerarquia = miembro.hp_Jerarquia + 1,
-                                Fecha_Registro = fechayhora,
-                                usu_Id_Usuario = 1
+                                usu_Id_Usuario = 1,
+                                Fecha_Registro = fechayhora
                             };
-                            context.Entry(registro).State = EntityState.Modified;
+                            context.Hogar_Persona.Update(registro);
                             context.SaveChanges();
                         }
                     }
-
-                    if (nvaJerarquia > miembrosDelHogar.Count())
+                }
+                // ESTABLECE (JERARQUIA + 1) A LOS MIEMBROS CON JERARQUIA IGUAL O MAYOR A LA SELECCIONADA
+                else
+                {
+                    foreach(var miembro in miembrosDelHogar)
                     {
-                        hpModel.per_Id_Persona = idPersona;
-                        hpModel.hp_Jerarquia = nvaJerarquia;
-                        hpModel.hd_Id_Hogar = objhp.hd_Id_Hogar;
-                        hpModel.Fecha_Registro = fechayhora;
-                        hpModel.usu_Id_Usuario = 1;
-                        context.Entry(hpModel).State = EntityState.Modified;
-                        //context.Hogar_Persona.Add(hpModel);
-                        context.SaveChanges();
+                        if (miembro.hp_Jerarquia >= nvaJerarquia
+                            && miembro.per_Id_Persona != idPersona)
+                        {
+                            var registro = new Hogar_Persona
+                            {
+                                hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
+                                hd_Id_Hogar = miembro.hd_Id_Hogar,
+                                per_Id_Persona = miembro.per_Id_Persona,
+                                hp_Jerarquia = miembro.hp_Jerarquia + 1,
+                                usu_Id_Usuario = 1,
+                                Fecha_Registro = fechayhora
+                            };
+                            context.Hogar_Persona.Update(registro);
+                            context.SaveChanges();
+                        }
                     }
                 }
 
-                
-                //Hogar_Persona hpModel = new Hogar_Persona();
-                //var miembrosDelHogar = (from hp in context.Hogar_Persona
-                //                        where hp.hd_Id_Hogar == objhp.hd_Id_Hogar
-                //                        orderby (hp.hp_Jerarquia)
-                //                        select new
-                //                        {
-                //                            hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
-                //                            hd_Id_Hogar = hp.hd_Id_Hogar,
-                //                            hp_Jerarquia = hp.hp_Jerarquia,
-                //                            per_Id_Persona = hp.per_Id_Persona
-                //                        }).ToList();
-
-                //// ACTUALIZA JERARQUIA PRINCIPAL
-                //if (nvaJerarquia == 1)
-                //{
-                //    var objMiembroJerarquia2 = (from objmj2 in context.Hogar_Persona
-                //                                where objmj2.hp_Jerarquia == 1 && objmj2.hd_Id_Hogar == objhp.hd_Id_Hogar
-                //                                select objmj2).FirstOrDefault();
-                //    objMiembroJerarquia2.hp_Jerarquia = 2;
-                //    context.SaveChanges();
-
-                //    var objMiembro = (from hp in context.Hogar_Persona
-                //                      where hp.per_Id_Persona == idPersona
-                //                      select hp).FirstOrDefault();
-                //    objMiembro.hp_Jerarquia = 1;
-                //    context.SaveChanges();
-                //}
-
-                //foreach (var miembro in miembrosDelHogar)
-                //{
-                //    // ACTUALIZA LA JERARQUIA DEL RESTO DE LOS MIEMBROS DEL HOGAR
-                //    if (miembro.hp_Jerarquia > nvaJerarquia)
-                //    {
-                //        var objMiembro = (from hp in context.Hogar_Persona
-                //                          where hp.per_Id_Persona == miembro.per_Id_Persona
-                //                          select hp).FirstOrDefault();
-                //        objMiembro.hp_Jerarquia = miembro.hp_Jerarquia + 1;
-                //        context.SaveChanges();
-                //    }
-                //}
-                return Ok();
+                // ESTABLECE A LA PERSONA EN LA JERARQUIA SELECIONADA
+                objhp[0].hp_Jerarquia = nvaJerarquia;
+                context.Hogar_Persona.Update(objhp[0]);
+                context.SaveChanges();
+                return Ok(new
+                {
+                    status = "success",
+                    objeto = objhp
+                });
             }
             catch (Exception ex)
             {
