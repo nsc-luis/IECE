@@ -123,6 +123,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Visibilidad_Abierta = false;
                         p.per_Activo = true;
                         p.Fecha_Registro = fechayhora;
+                        p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                         context.Entry(p).State = EntityState.Modified;
                         //context.Persona.Add(p);
@@ -152,6 +153,7 @@ namespace IECE_WebApi.Controllers
                         }
                         p.per_Visibilidad_Abierta = false;
                         p.Fecha_Registro = fechayhora;
+                        p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                         // context.Persona.Add(p);
                         context.Entry(p).State = EntityState.Modified;
@@ -170,6 +172,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Activo = true;
                         p.per_Visibilidad_Abierta = false;
                         p.Fecha_Registro = fechayhora;
+                        p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                         // context.Persona.Add(p);
                         context.Entry(p).State = EntityState.Modified;
@@ -224,6 +227,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Visibilidad_Abierta = false;
                         p.per_Activo = true;
                         p.Fecha_Registro = fechayhora;
+                        p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
                         // context.Persona.Add(p);
                         //context.Entry(p).State = EntityState.Modified;
@@ -253,6 +257,7 @@ namespace IECE_WebApi.Controllers
                         }
                         p.per_Visibilidad_Abierta = false;
                         p.Fecha_Registro = fechayhora;
+                        p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
                         // context.Persona.Add(p);
                         //context.Entry(p).State = EntityState.Modified;
@@ -271,6 +276,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Activo = true;
                         p.per_Visibilidad_Abierta = false;
                         p.Fecha_Registro = fechayhora;
+                        p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
                         // context.Persona.Add(p);
                         //context.Entry(p).State = EntityState.Modified;

@@ -240,6 +240,7 @@ namespace IECE_WebApi.Controllers
                                  d.dis_Alias,
                                  d.dis_Tipo_Distrito,
                                  d.dis_Numero,
+                                 d.pem_Id_Obispo,
                                  s.sec_Alias,
                                  s.sec_Id_Sector,
                                  s.sec_Tipo_Sector
