@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Helpers;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +38,12 @@ namespace IECE_WebApi.Controllers
             public string mensaje { get; set; }
         }
 
+        public class datosParaCambio
+        {
+            public string cadenaDeValidacion { get; set; }
+            public string nvaContrasena { get; set; }
+        }
+
         private static string RandomString(int length)
         {
             Random random = new Random();
@@ -48,6 +55,7 @@ namespace IECE_WebApi.Controllers
         // POST api/<controller>
         [HttpPost]
         [Route("[action]")]
+        [EnableCors("AllowOrigin")]
         public IActionResult GenerarValidacionParaCambio(string correo)
         {
             try
@@ -69,10 +77,25 @@ namespace IECE_WebApi.Controllers
                     context.Valida_Cambio_Contrasena.Add(datosParaCambio);
                     context.SaveChanges();
 
+                    datos datosEnvioCorreo = new datos
+                    {
+                        smtpServer = "smtp.mail.yahoo.com",
+                        puerto = 587,
+                        remitente = "luis_gera_rdz@yahoo.com.mx",
+                        password = "[EMAIL_PASSWORD]",
+                        encriptacion = true,
+                        formato = false,
+                        destinatario = "nsc_luis@nscco.com.mx;jacinto.molina@yahoo.com",
+                        asunto = "IECE WebApp, Solicitud de cambio de contraseña.",
+                        //mensaje = "http://localhost:3000/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
+                        mensaje = "http://http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
+                    };
+
+                    EnviaCorreoDeRestablecimiento(datosEnvioCorreo);
+
                     return Ok(new
                     {
-                        status = "success",
-                        datos = datosParaCambio
+                        status = "success"
                     });
                 }
                 else
@@ -80,7 +103,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = "Error: El correo ingresado no es valido."
+                        mensaje = "Error: El correo ingresado NO esta registrado."
                     });
                 }
             }
@@ -95,10 +118,11 @@ namespace IECE_WebApi.Controllers
 
         }
 
-        // POST api/<controller>
-        [HttpPost]
+        // GET api/ValidaCambioDeContrasena?cadenaDeValidacion=[cadena]
+        [HttpGet]
         [Route("[action]")]
-        public IActionResult CambiarContrasena(string cadenaDeValidacion, string nvaContrasena)
+        [EnableCors("AllowOrigin")]
+        public IActionResult ValidaCambioDeContrasena(string cadenaDeValidacion)
         {
             try
             {
@@ -111,15 +135,10 @@ namespace IECE_WebApi.Controllers
                 if (validaDatos.Count > 0
                     && fechahora < validaDatos[0].vcc_Caducidad)
                 {
-                    var usuario = context.Usuario.FirstOrDefault(u => u.Email == validaDatos[0].vcc_Correo);
-                    usuario.PasswordHash = PasswordHasher.GenerateIdentityV3Hash(nvaContrasena);
-                    context.Usuario.Update(usuario);
-                    context.SaveChanges();
-
                     return Ok(new
                     {
                         status = "success",
-                        mensaje = "Contraseña cambiada satisfactoriamente!"
+                        datosParaCambio = validaDatos
                     });
                 }
                 else
@@ -127,7 +146,54 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = "Error: Ocurrio un error!."
+                        mensaje = "Error: La cadena de validación es incorrecta o ya caducó."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST api/CambiarContrasena/cadenaDeValidacion/nvaContrasena
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult CambiarContrasena([FromBody] datosParaCambio datos)
+        {
+            try
+            {
+                var validaDatos = (from vcc in context.Valida_Cambio_Contrasena
+                                   where vcc.vcc_Cadena == datos.cadenaDeValidacion
+                                   select vcc).ToList();
+
+                DateTime fechahora = DateTime.Now;
+
+                if (validaDatos.Count > 0
+                    && fechahora < validaDatos[0].vcc_Caducidad)
+                {
+                    var usuario = context.Usuario.FirstOrDefault(u => u.Email == validaDatos[0].vcc_Correo);
+                    usuario.PasswordHash = PasswordHasher.GenerateIdentityV3Hash(datos.nvaContrasena);
+                    context.Usuario.Update(usuario);
+                    context.SaveChanges();
+
+                    return Ok(new
+                    {
+                        status = "success",
+                        mensaje = "Contraseña cambiada satisfactoriamente!."
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "Error: La cadena de validación es incorrecta o ya caducó."
                     });
                 }
             }
@@ -143,7 +209,9 @@ namespace IECE_WebApi.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public IActionResult Post([FromBody]datos objeto)
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult EnviaCorreoDeRestablecimiento([FromBody]datos objeto)
         {
             var destinatarios = objeto.destinatario.Split(';');
             try
@@ -151,8 +219,9 @@ namespace IECE_WebApi.Controllers
                 SmtpClient smtp = new SmtpClient();
                 smtp.Host = objeto.smtpServer;
                 smtp.Port = objeto.puerto;
-                smtp.UseDefaultCredentials = false;
                 smtp.EnableSsl = objeto.encriptacion;
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                 smtp.Credentials = new NetworkCredential(objeto.remitente, objeto.password);
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress(objeto.remitente);
