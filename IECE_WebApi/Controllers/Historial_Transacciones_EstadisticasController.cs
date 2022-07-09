@@ -27,6 +27,14 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        public class FechasSectorDistritoCodigo
+        {
+            public int idSectorDistrito { get; set; }
+            public DateTime fechaInicial { get; set; }
+            public DateTime fechaFinal { get; set; }
+            public int codigo { get; set; }
+        }
+
         // METODO PARA ALTA DE REGISTRO HISTORICO
         [HttpPost]
         [Route("[action]/{per_Id_Persona}/{sec_Id_Sector}/{ct_Codigo_Transaccion}/{hte_Comentario}/{hte_Fecha_Transaccion}/{Usu_Usuario_Id}")]
@@ -307,6 +315,122 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     mensaje = ex
+                });
+            }
+        }
+
+        // METODO PARA COMPONENTES DE VICTOR
+        // Consulta tabla de Historial por Fechas, Sector y Codigo
+        [HttpGet]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult HistorialPorFechaSectorCodigo([FromBody] FechasSectorDistritoCodigo fsdc)
+        {
+            try
+            {
+                var query = (from hte in context.Historial_Transacciones_Estadisticas
+                             join cte in context.Codigo_Transacciones_Estadisticas
+                             on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                             where hte.sec_Sector_Id == fsdc.idSectorDistrito
+                             && (hte.hte_Fecha_Transaccion >= fsdc.fechaInicial && hte.hte_Fecha_Transaccion <= fsdc.fechaFinal)
+                             && fsdc.codigo == hte.ct_Codigo_Transaccion
+                             select new
+                             {
+                                 cte.ct_Grupo,
+                                 cte.ct_Tipo,
+                                 cte.ct_Subtipo
+                             }).ToList();
+
+                if (query.Count() > 0)
+                {
+                    var resultado = new
+                    {
+                        query[0].ct_Grupo,
+                        query[0].ct_Tipo,
+                        query[0].ct_Subtipo,
+                        contador = query.Count()
+                    };
+
+                    return Ok(new
+                    {
+                        status = "success",
+                        datos = query
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No hay registros para mostrar"
+                    });
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // METODO PARA COMPONENTES DE VICTOR
+        // Consulta tabla de Historial por Fechas, Distrito y Codigo
+        [HttpGet]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult HistorialPorFechaDistritoCodigo([FromBody] FechasSectorDistritoCodigo fsdc)
+        {
+            try
+            {
+                var query = (from hte in context.Historial_Transacciones_Estadisticas
+                             join cte in context.Codigo_Transacciones_Estadisticas
+                             on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                             where hte.dis_Distrito_Id == fsdc.idSectorDistrito
+                             && (hte.hte_Fecha_Transaccion >= fsdc.fechaInicial && hte.hte_Fecha_Transaccion <= fsdc.fechaFinal)
+                             && fsdc.codigo == hte.ct_Codigo_Transaccion
+                             select new
+                             {
+                                 cte.ct_Grupo,
+                                 cte.ct_Tipo,
+                                 cte.ct_Subtipo
+                             }).ToList();
+
+                if (query.Count() > 0)
+                {
+                    var resultado = new
+                    {
+                        query[0].ct_Grupo,
+                        query[0].ct_Tipo,
+                        query[0].ct_Subtipo,
+                        contador = query.Count()
+                    };
+
+                    return Ok(new
+                    {
+                        status = "success",
+                        datos = query
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No hay registros para mostrar"
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
                 });
             }
         }

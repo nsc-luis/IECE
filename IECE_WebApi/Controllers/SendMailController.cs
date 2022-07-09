@@ -88,7 +88,7 @@ namespace IECE_WebApi.Controllers
                         destinatario = "nsc_luis@nscco.com.mx;jacinto.molina@yahoo.com",
                         asunto = "IECE WebApp, Solicitud de cambio de contraseña.",
                         //mensaje = "http://localhost:3000/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
-                        mensaje = "http://http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
+                        mensaje = "http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
                     };
 
                     EnviaCorreoDeRestablecimiento(datosEnvioCorreo);
