@@ -333,7 +333,7 @@ namespace IECE_WebApi.Controllers
                              on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
                              where hte.sec_Sector_Id == fsdc.idSectorDistrito
                              && (hte.hte_Fecha_Transaccion >= fsdc.fechaInicial && hte.hte_Fecha_Transaccion <= fsdc.fechaFinal)
-                             && fsdc.codigo == hte.ct_Codigo_Transaccion
+                             && hte.ct_Codigo_Transaccion == fsdc.codigo
                              select new
                              {
                                  cte.ct_Grupo,
@@ -354,7 +354,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "success",
-                        datos = query
+                        datos = resultado
                     });
                 }
                 else
@@ -412,7 +412,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "success",
-                        datos = query
+                        datos = resultado
                     });
                 }
                 else
