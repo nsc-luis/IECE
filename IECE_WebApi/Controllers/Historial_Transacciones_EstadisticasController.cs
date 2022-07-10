@@ -27,6 +27,7 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        // CLASE PARA METODOS DE CONSULTA DE HISTORIAL ESTADISTICO
         public class FechasSectorDistritoCodigo
         {
             public int idSectorDistrito { get; set; }
@@ -34,6 +35,13 @@ namespace IECE_WebApi.Controllers
             public DateTime fechaFinal { get; set; }
             public int codigo { get; set; }
         }
+
+        // CLASE PARA CAMBIO DE ESTATUS DE VISIBILIDAD
+        public class EstatusVisibilidad
+        {
+            public int idPersona { get; set; }
+            public bool visibilidad { get; set; }
+        } 
 
         // METODO PARA ALTA DE REGISTRO HISTORICO
         [HttpPost]
@@ -321,7 +329,7 @@ namespace IECE_WebApi.Controllers
 
         // METODO PARA COMPONENTES DE VICTOR
         // Consulta tabla de Historial por Fechas, Sector y Codigo
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
         public IActionResult HistorialPorFechaSectorCodigo([FromBody] FechasSectorDistritoCodigo fsdc)
@@ -379,7 +387,7 @@ namespace IECE_WebApi.Controllers
 
         // METODO PARA COMPONENTES DE VICTOR
         // Consulta tabla de Historial por Fechas, Distrito y Codigo
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
         public IActionResult HistorialPorFechaDistritoCodigo([FromBody] FechasSectorDistritoCodigo fsdc)
@@ -424,6 +432,36 @@ namespace IECE_WebApi.Controllers
                     });
                 }
 
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // METODO PARA COMPONENTES DE VICTOR
+        // Cambiar estatus de visibilidad
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult CambiarVisibilidad([FromBody] EstatusVisibilidad ev)
+        {
+            try
+            {
+                var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == ev.idPersona);
+                persona.per_Visibilidad_Abierta = ev.visibilidad;
+                context.Persona.Update(persona);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                    estatus = persona
+                });
             }
             catch (Exception ex)
             {
