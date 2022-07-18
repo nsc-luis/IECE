@@ -41,7 +41,17 @@ namespace IECE_WebApi.Controllers
         {
             public int idPersona { get; set; }
             public bool visibilidad { get; set; }
-        } 
+        }
+
+        // CLASE PARA BAJA POR CAMBIO DE DOMICILIO
+        public class objBajaCambioDomicilio
+        {
+            public int idPersona { get; set; }
+            public bool bautizado { get; set; }
+            public DateTime fecha { get; set; }
+            public bool CambioOtroDistrito { get; set; }
+            public int idUsuario { get; set; }
+        }
 
         // METODO PARA ALTA DE REGISTRO HISTORICO
         [HttpPost]
@@ -373,7 +383,7 @@ namespace IECE_WebApi.Controllers
                         mensaje = "No hay registros para mostrar"
                     });
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -397,6 +407,7 @@ namespace IECE_WebApi.Controllers
                 var query = (from hte in context.Historial_Transacciones_Estadisticas
                              join cte in context.Codigo_Transacciones_Estadisticas
                              on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                             join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
                              where hte.dis_Distrito_Id == fsdc.idSectorDistrito
                              && (hte.hte_Fecha_Transaccion >= fsdc.fechaInicial && hte.hte_Fecha_Transaccion <= fsdc.fechaFinal)
                              && fsdc.codigo == hte.ct_Codigo_Transaccion
@@ -404,7 +415,12 @@ namespace IECE_WebApi.Controllers
                              {
                                  cte.ct_Grupo,
                                  cte.ct_Tipo,
-                                 cte.ct_Subtipo
+                                 cte.ct_Subtipo,
+                                 per.per_Nombre,
+                                 per.per_Apellido_Paterno,
+                                 per.per_Apellido_Materno,
+                                 hte.hte_Comentario,
+                                 hte.hte_Fecha_Transaccion
                              }).ToList();
 
                 if (query.Count() > 0)
@@ -414,7 +430,8 @@ namespace IECE_WebApi.Controllers
                         query[0].ct_Grupo,
                         query[0].ct_Tipo,
                         query[0].ct_Subtipo,
-                        contador = query.Count()
+                        contador = query.Count(),
+                        detalles = query
                     };
 
                     return Ok(new
@@ -439,6 +456,44 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     mensaje = ex.Message
+                });
+            }
+        }
+
+        // BAJA POR CAMBIO DE DOMICILIO (bautizado/no bautizado)
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BajaPorCambioDeDomicilio([FromBody] objBajaCambioDomicilio bcd)
+        {
+            try
+            {
+                var per = context.Persona.FirstOrDefault(p => p.per_Id_Persona == bcd.idPersona);
+                per.per_Visibilidad_Abierta = true;
+                per.per_Activo = false;
+                context.Persona.Update(per);
+                context.SaveChanges();
+
+                int tipoDeCambio = 0;
+                if (per.per_Bautizado) { tipoDeCambio = bcd.CambioOtroDistrito ? 11004 : 11003; }
+                else { tipoDeCambio = bcd.CambioOtroDistrito ? 12004 : 12003; }
+
+                PersonaController personaController = new PersonaController(context);
+                personaController.RestructuraJerarquiasBaja(per.per_Id_Persona);
+
+                RegistroHistorico(per.per_Id_Persona, per.sec_Id_Sector, tipoDeCambio, "BAJA POR CAMBIO DE DOMICILIO", bcd.fecha, bcd.idUsuario);
+
+                return Ok(new
+                {
+                    status = "seccess"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    error = ex.Message
                 });
             }
         }

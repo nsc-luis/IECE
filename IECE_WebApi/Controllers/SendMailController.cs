@@ -85,6 +85,7 @@ namespace IECE_WebApi.Controllers
                         password = "[EMAIL_PASSWORD]",
                         encriptacion = true,
                         formato = false,
+                        //destinatario = "nsc_luis@nscco.com.mx",
                         destinatario = "nsc_luis@nscco.com.mx;jacinto.molina@yahoo.com",
                         asunto = "IECE WebApp, Solicitud de cambio de contraseña.",
                         //mensaje = "http://localhost:3000/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
