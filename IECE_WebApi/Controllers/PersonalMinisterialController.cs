@@ -269,6 +269,9 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                var consultaObispo = context.Distrito.FirstOrDefault(d => d.pem_Id_Obispo == idMinistro && d.dis_Id_Distrito == idDistrito);
+                bool obispo = consultaObispo == null ? false : true;
+
                 var query = (from s in context.Sector
                              join d in context.Distrito
                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
@@ -286,7 +289,8 @@ namespace IECE_WebApi.Controllers
                 return Ok(new
                 {
                     status = "success",
-                    sectores = query
+                    sectores = query,
+                    obispo
                 });
             }
             catch (Exception ex)
@@ -335,6 +339,43 @@ namespace IECE_WebApi.Controllers
         {
             var ministro = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == pem_Id_Ministro);
             return ministro;
+        }
+
+        // GET: api/Personal_Ministerial
+        [Route("[action]/{idMinistro}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetDistritosByMinistro(int idMinistro)
+        {
+            try
+            {
+                List<Distrito> distritos = new List<Distrito>();
+                var d1 = (from d in context.Distrito
+                             where d.pem_Id_Obispo == idMinistro
+                             select d).ToList();
+
+                var d2 = (from s in context.Sector
+                          join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                          where s.pem_Id_Pastor == idMinistro
+                          select d).ToList();
+
+                distritos.AddRange(d1);
+                distritos.AddRange(d2);
+
+                return Ok(new
+                {
+                    status = "success",
+                    distritos = distritos.Distinct()
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
     }
 }

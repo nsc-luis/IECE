@@ -84,12 +84,21 @@ namespace IECE_WebApi.Controllers
                         remitente = "luis_gera_rdz@yahoo.com.mx",
                         password = "[EMAIL_PASSWORD]",
                         encriptacion = true,
-                        formato = false,
+                        formato = true,
                         //destinatario = "nsc_luis@nscco.com.mx",
-                        destinatario = "nsc_luis@nscco.com.mx;jacinto.molina@yahoo.com",
+                        destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
                         asunto = "IECE WebApp, Solicitud de cambio de contraseña.",
                         //mensaje = "http://localhost:3000/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
-                        mensaje = "http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
+                        mensaje = "<html><body>" +
+                        "Para proceder con el cambio de su contraseña para el acceso a la Aplicación " +
+                        "Web de Control de Membresía de la IECE, acceda al siguiente enlace: " +
+                        "<br /><br /><br />" +
+                        "http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena +
+                        "<br /><br /><br />" +
+                        "Cualquier problema con el cambio de su contraseña comuniquese al " +
+                        "Departamento de Soporte Técnico al siguiente correo: soporte.tecnico@iece.mx " +
+                        "<br /><br /> Dios le bendiga!" +
+                        "</body></html>"
                     };
 
                     EnviaCorreoDeRestablecimiento(datosEnvioCorreo);

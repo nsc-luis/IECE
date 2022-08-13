@@ -366,7 +366,8 @@ namespace IECE_WebApi.Controllers
                         query[0].ct_Grupo,
                         query[0].ct_Tipo,
                         query[0].ct_Subtipo,
-                        contador = query.Count()
+                        contador = query.Count(),
+                        detalles = query
                     };
 
                     return Ok(new
