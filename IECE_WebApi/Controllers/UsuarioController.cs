@@ -78,7 +78,7 @@ namespace IECE_WebApi.Controllers
                               {
                                   Id = u.Id,
                                   Email = u.Email,
-                                  PasswordHash = u.PasswordHash,
+                                  //PasswordHash = u.PasswordHash,
                                   mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
                                   mu_permiso = mu.mu_permiso,
                                   pem.pem_Id_Ministro,
@@ -88,14 +88,14 @@ namespace IECE_WebApi.Controllers
                                   pem_email_Personal = pem.pem_email_Personal,
                                   pem_Cel1 = pem.pem_Cel1,
                                   pem_Cel2 = pem.pem_Cel2,
-                                  dis_Id_Distrito = d.dis_Id_Distrito,
-                                  dis_Tipo_Distrito = d.dis_Tipo_Distrito,
-                                  dis_Numero = d.dis_Numero,
-                                  dis_Alias = d.dis_Alias,
-                                  sec_Id_Sector = s.sec_Id_Sector,
-                                  sec_Tipo_Sector = s.sec_Tipo_Sector,
-                                  sec_Numero = s.sec_Numero,
-                                  sec_Alias = s.sec_Alias
+                                  //dis_Id_Distrito = d.dis_Id_Distrito,
+                                  //dis_Tipo_Distrito = d.dis_Tipo_Distrito,
+                                  //dis_Numero = d.dis_Numero,
+                                  //dis_Alias = d.dis_Alias,
+                                  //sec_Id_Sector = s.sec_Id_Sector,
+                                  //sec_Tipo_Sector = s.sec_Tipo_Sector,
+                                  //sec_Numero = s.sec_Numero,
+                                  //sec_Alias = s.sec_Alias
                               }).ToList();
 
             var claims = new[]

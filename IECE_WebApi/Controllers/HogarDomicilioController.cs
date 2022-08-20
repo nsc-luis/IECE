@@ -25,6 +25,7 @@ namespace IECE_WebApi.Controllers
         {
             this.context = context;
         }
+        private DateTime fechayhora = DateTime.UtcNow;
 
         // GET: api/HogarDomicilio
         [HttpGet]
@@ -84,6 +85,11 @@ namespace IECE_WebApi.Controllers
                         hd.hd_Subdivision,
                         hd.hd_Localidad,
                         hd.hd_Municipio_Ciudad,
+                        hd.pais_Id_Pais,
+                        hd.est_Id_Estado,
+                        hd.hd_Activo,
+                        hd.dis_Id_Distrito,
+                        hd.sec_Id_Sector,
                         est.est_Nombre,
                         pais.pais_Nombre_Corto,
                         hd.hd_Telefono,
@@ -248,6 +254,7 @@ namespace IECE_WebApi.Controllers
         public ActionResult Put(int id, [FromBody] HogarDomicilio hogardomicilio)
         {
             try {
+                hogardomicilio.Fecha_Registro = fechayhora;
                 context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok(

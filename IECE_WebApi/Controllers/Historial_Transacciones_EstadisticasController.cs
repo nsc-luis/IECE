@@ -36,6 +36,14 @@ namespace IECE_WebApi.Controllers
             public int codigo { get; set; }
         }
 
+        // CLASE PARA METODOS DE CONSULTA DE HISTORIAL ESTADISTICO (2)
+        public class FechasSectorDistrito
+        {
+            public int idSectorDistrito { get; set; }
+            public DateTime fechaInicial { get; set; }
+            public DateTime fechaFinal { get; set; }
+        }
+
         // CLASE PARA CAMBIO DE ESTATUS DE VISIBILIDAD
         public class EstatusVisibilidad
         {
@@ -450,6 +458,96 @@ namespace IECE_WebApi.Controllers
                     });
                 }
 
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // METODO PARA COMPONENTES DE VICTOR
+        // Consulta tabla de Historial por Fechas y Distrito
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult HistorialPorFechaDistrito([FromBody] FechasSectorDistrito fsd)
+        {
+            try
+            {
+                var query = (from hte in context.Historial_Transacciones_Estadisticas
+                             join cte in context.Codigo_Transacciones_Estadisticas
+                             on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                             join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
+                             where hte.dis_Distrito_Id == fsd.idSectorDistrito
+                             && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
+                             select new
+                             {
+                                 hte.ct_Codigo_Transaccion,
+                                 cte.ct_Grupo,
+                                 cte.ct_Tipo,
+                                 cte.ct_Subtipo,
+                                 per.per_Nombre,
+                                 per.per_Apellido_Paterno,
+                                 per.per_Apellido_Materno,
+                                 hte.hte_Comentario,
+                                 hte.hte_Fecha_Transaccion
+                             }).ToList();
+
+
+                return Ok(new
+                {
+                    status = "success",
+                    datos = query
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // METODO PARA COMPONENTES DE VICTOR
+        // Consulta tabla de Historial por Fechas y Sector
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult HistorialPorFechaSector([FromBody] FechasSectorDistrito fsd)
+        {
+            try
+            {
+                var query = (from hte in context.Historial_Transacciones_Estadisticas
+                             join cte in context.Codigo_Transacciones_Estadisticas
+                             on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                             join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
+                             where hte.sec_Sector_Id == fsd.idSectorDistrito
+                             && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
+                             select new
+                             {
+                                 hte.ct_Codigo_Transaccion,
+                                 cte.ct_Grupo,
+                                 cte.ct_Tipo,
+                                 cte.ct_Subtipo,
+                                 per.per_Nombre,
+                                 per.per_Apellido_Paterno,
+                                 per.per_Apellido_Materno,
+                                 hte.hte_Comentario,
+                                 hte.hte_Fecha_Transaccion
+                             }).ToList();
+
+                return Ok(new
+                {
+                    status = "success",
+                    datos = query
+                });
             }
             catch (Exception ex)
             {
