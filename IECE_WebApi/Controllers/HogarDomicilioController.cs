@@ -254,9 +254,18 @@ namespace IECE_WebApi.Controllers
         public ActionResult Put(int id, [FromBody] HogarDomicilio hogardomicilio)
         {
             try {
+                // Guarda cambios en el domicilio
                 hogardomicilio.Fecha_Registro = fechayhora;
                 context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
+
+                // Guarda registro historico
+                Hogar_Persona hp = context.Hogar_Persona.FirstOrDefault(
+                    h => h.hd_Id_Hogar == hogardomicilio.hd_Id_Hogar
+                    && h.hp_Jerarquia == 1);
+                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
+                hte.RegistroHistorico(hp.per_Id_Persona, hogardomicilio.sec_Id_Sector, 31203, "EDICION DE DOMICILIO", fechayhora, hogardomicilio.usu_Id_Usuario);
+
                 return Ok(
                     new
                     {

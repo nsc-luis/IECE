@@ -200,7 +200,12 @@ namespace IECE_WebApi.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(usuario.Email, usuario.Password, isPersistent: false, lockoutOnFailure: false);
-                if (result.Succeeded)
+                var ministroActivo = (from u in context.Usuario
+                             join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
+                             join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                             where u.Email == usuario.Email && pm.pem_Activo == true
+                             select pm.pem_Activo).ToList();
+                if (result.Succeeded && ministroActivo[0])
                 {
                     return BuildToken(usuario);
                 }
