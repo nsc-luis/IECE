@@ -135,9 +135,9 @@ namespace IECE_WebApi.Controllers
                                   join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
                                   join est in context.Estado on hd.est_Id_Estado equals est.est_Id_Estado
                                   join sub in (from hp in context.Hogar_Persona
-                                        join p in context.Persona
-                                        on hp.hp_Id_Hogar_Persona equals p.per_Id_Persona
-                                        where hp.hp_Jerarquia == 1
+                                        join p in context.Persona on hp.per_Id_Persona equals p.per_Id_Persona
+                                        join d in context.HogarDomicilio on hp.hd_Id_Hogar equals d.hd_Id_Hogar
+                                        where hp.hp_Jerarquia == 1 && d.hd_Activo == true
                                         select new {
                                             hp.hp_Id_Hogar_Persona,
                                             hp.hp_Jerarquia,
