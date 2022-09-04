@@ -261,5 +261,64 @@ namespace IECE_WebApi.Controllers
                     });
             }
         }
+
+        // POST /api/EnviarSolicitudNvaProfesion/{descProf}/{usu_Id_Usuario}
+        [HttpPost]
+        [Route("[action]/{descNvaProf}/{usu_Id_Usuario}")]
+        [EnableCors("AllowOrign")]
+        public IActionResult EnviarSolicitudNvaProfesion(string descNvaProf, int usu_Id_Usuario)
+        {
+            try
+            {
+                var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
+                datos datosEnvioCorreo = new datos
+                {
+                    smtpServer = "smtp.mail.yahoo.com",
+                    puerto = 587,
+                    remitente = "luis_gera_rdz@yahoo.com.mx",
+                    password = "[EMAIL_PASSWORD]",
+                    encriptacion = true,
+                    formato = true,
+                    //destinatario = "nsc_luis@nscco.com.mx",
+                    destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                    asunto = "IECE WebApp. Solicitud de nueva profesion.",
+                    mensaje = "<html><body>Paz de Dios. <br />" +
+                        $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado a una persona con " +
+                        "una profesion nueva, la cual es: " +
+                        $"<ul><li><strong>{descNvaProf}</strong></li></ul>" +
+                        "Se añade registro de la solicitud a la base de datos para seguimiento." +
+                        "<br />Dios bendiga!" +
+                        "</body></html>"
+                };
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = datosEnvioCorreo.smtpServer;
+                smtp.Port = datosEnvioCorreo.puerto;
+                smtp.EnableSsl = datosEnvioCorreo.encriptacion;
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress(datosEnvioCorreo.remitente);
+                message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
+                //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
+                // message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                message.Subject = datosEnvioCorreo.asunto;
+                message.IsBodyHtml = datosEnvioCorreo.formato;
+                message.Body = datosEnvioCorreo.mensaje;
+                smtp.Send(message);
+                return Ok(new
+                {
+                    status = "success",
+                    mensaje = message
+                });
+            }
+            catch (Exception ex) {
+                return Ok(new
+                {
+                    status = "errro",
+                    mensaje = ex.Message
+                });
+            }
+        }
     }
 }
