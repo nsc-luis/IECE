@@ -52,6 +52,8 @@ namespace IECE_WebApi.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        string emailPassword = "[EMAIL_PASSWORD]";
+
         // POST api/<controller>
         [HttpPost]
         [Route("[action]")]
@@ -82,7 +84,7 @@ namespace IECE_WebApi.Controllers
                         smtpServer = "smtp.mail.yahoo.com",
                         puerto = 587,
                         remitente = "luis_gera_rdz@yahoo.com.mx",
-                        password = "[EMAIL_PASSWORD]",
+                        password = emailPassword,
                         encriptacion = true,
                         formato = true,
                         //destinatario = "nsc_luis@nscco.com.mx",
@@ -276,7 +278,7 @@ namespace IECE_WebApi.Controllers
                     smtpServer = "smtp.mail.yahoo.com",
                     puerto = 587,
                     remitente = "luis_gera_rdz@yahoo.com.mx",
-                    password = "[EMAIL_PASSWORD]",
+                    password = emailPassword,
                     encriptacion = true,
                     formato = true,
                     //destinatario = "nsc_luis@nscco.com.mx",

@@ -44,13 +44,6 @@ namespace IECE_WebApi.Controllers
             public DateTime fechaFinal { get; set; }
         }
 
-        // CLASE PARA CAMBIO DE ESTATUS DE VISIBILIDAD
-        public class EstatusVisibilidad
-        {
-            public int idPersona { get; set; }
-            public bool visibilidad { get; set; }
-        }
-
         // CLASE PARA BAJA POR CAMBIO DE DOMICILIO
         public class objBajaCambioDomicilio
         {
@@ -600,21 +593,21 @@ namespace IECE_WebApi.Controllers
         // METODO PARA COMPONENTES DE VICTOR
         // Cambiar estatus de visibilidad
         [HttpPost]
-        [Route("[action]")]
+        [Route("[action]/{idPersona}/{idUsuario}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult CambiarVisibilidad([FromBody] EstatusVisibilidad ev)
+        public IActionResult CambiarVisibilidad(int idPersona, int idUsuario)
         {
             try
             {
-                var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == ev.idPersona);
-                persona.per_Visibilidad_Abierta = ev.visibilidad;
+                // CAMBIA ESTATUS DE LA PERSONA
+                var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == idPersona);
+                persona.per_Visibilidad_Abierta = true;
                 context.Persona.Update(persona);
                 context.SaveChanges();
 
                 return Ok(new
                 {
-                    status = "success",
-                    estatus = persona
+                    status = "success"
                 });
             }
             catch (Exception ex)
