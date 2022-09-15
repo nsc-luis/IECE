@@ -32,11 +32,14 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                return Ok(context.Pais.ToList());
+                var query = (from p in context.Pais
+                             orderby p.pais_Nombre
+                             select p).ToList();
+                return Ok(query);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return Ok(ex);
             }
         }
 

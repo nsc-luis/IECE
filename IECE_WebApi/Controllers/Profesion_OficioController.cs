@@ -29,11 +29,14 @@ namespace IECE_WebApi.Controllers
             Profesion_Oficio profesion_oficio = new Profesion_Oficio();
             try
             {
-                return Ok(context.Profesion_Oficio.ToList());
+                var query = (from po in context.Profesion_Oficio
+                             orderby po.pro_Categoria, po.pro_Sub_Categoria
+                             select po).ToList();
+                return Ok(query);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return Ok(ex);
             }
         }
 
