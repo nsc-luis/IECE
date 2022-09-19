@@ -279,9 +279,9 @@ namespace IECE_WebApi.Controllers
         {
             // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
             List<Hogar_Persona> miembrosDelHogar = (from hp in context.Hogar_Persona
-                                    where hp.hd_Id_Hogar == hd_Id_Hogar
-                                    orderby hp.hp_Jerarquia
-                                    select hp).ToList();
+                                                    where hp.hd_Id_Hogar == hd_Id_Hogar
+                                                    orderby hp.hp_Jerarquia
+                                                    select hp).ToList();
             int i = 1;
             foreach (Hogar_Persona m in miembrosDelHogar)
             {
@@ -374,7 +374,8 @@ namespace IECE_WebApi.Controllers
                 //WHERE per_Categoria LIKE 'NIÑ%' 
                 //  AND per_Id_Persona NOT IN (SELECT per_Id_Persona FROM Presentacion_Nino)
                 var query = (from p in context.Persona
-                             where (p.per_Categoria.Contains("NIÑ") && p.sec_Id_Sector == sec_Id_Sector)
+                             where (p.per_Categoria.Contains("NIÑ") && p.sec_Id_Sector == sec_Id_Sector) 
+                             && p.per_Activo
                              && !(from pdn in context.Presentacion_Nino select pdn.per_Id_Persona).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -1118,7 +1119,7 @@ namespace IECE_WebApi.Controllers
                              join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                              join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                              where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
-                             && (p.per_Bautizado == bautizado && p.per_Activo)
+                             && (p.per_Bautizado == bautizado && !p.per_Activo)
                              select new
                              {
                                  p.per_Id_Persona,
@@ -1437,7 +1438,7 @@ namespace IECE_WebApi.Controllers
                     // ASEGURA JERARQUIAS CORRECTAS
                     AseguraJerarquias(hp.hd_Id_Hogar);
                 }
-                
+
                 return Ok(new
                 {
                     status = "success",
@@ -1736,7 +1737,7 @@ namespace IECE_WebApi.Controllers
                 {
                     if (mbpcd.tipoDestino == "INTERNO")
                     {
-                        p.per_Visibilidad_Abierta = false;
+                        p.per_Visibilidad_Abierta = true;
                         codigoTransaccion = 11104;
                     }
                     else
@@ -1749,7 +1750,7 @@ namespace IECE_WebApi.Controllers
                 {
                     if (mbpcd.tipoDestino == "INTERNO")
                     {
-                        p.per_Visibilidad_Abierta = false;
+                        p.per_Visibilidad_Abierta = true;
                         codigoTransaccion = 12103;
                     }
                     else
@@ -1772,7 +1773,7 @@ namespace IECE_WebApi.Controllers
                     // ASEGURA JERARQUIAS CORRECTAS
                     AseguraJerarquias(hp.hd_Id_Hogar);
                 }
-                else if(bautizados == 1)
+                else if (bautizados == 1)
                 {
                     foreach (var p1 in miembrosDelHogar)
                     {
@@ -1952,6 +1953,14 @@ namespace IECE_WebApi.Controllers
                     hte_Fecha_Transaccion,
                     p.usu_Id_Usuario
                 );
+                hte.RegistroHistorico(
+                    p.per_Id_Persona,
+                    p.sec_Id_Sector,
+                    31001,
+                    "",
+                    hte_Fecha_Transaccion,
+                    p.usu_Id_Usuario
+                );
 
                 return Ok
                 (
@@ -2095,13 +2104,13 @@ namespace IECE_WebApi.Controllers
 
                     // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
                     var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
-                                            where hp1.hd_Id_Hogar == hdInicial
+                                             where hp1.hd_Id_Hogar == hdInicial
                                              select new
-                                            {
-                                                per_Id_Persona = hp1.per_Id_Persona,
-                                                hp_Id_Hogar_Persona = hp1.hp_Jerarquia
-                                            }).ToList();
-                    
+                                             {
+                                                 per_Id_Persona = hp1.per_Id_Persona,
+                                                 hp_Id_Hogar_Persona = hp1.hp_Jerarquia
+                                             }).ToList();
+
                     foreach (var p in miembrosDelHogar2)
                     {
                         // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
@@ -2257,12 +2266,12 @@ namespace IECE_WebApi.Controllers
                     {
                         // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
                         var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
-                                                where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
-                                                select new
-                                                {
-                                                    per_Id_Persona = hp1.per_Id_Persona,
-                                                    hp_Id_Hogar_Persona = hp1.hp_Id_Hogar_Persona
-                                                }).ToList();
+                                                 where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                                                 select new
+                                                 {
+                                                     per_Id_Persona = hp1.per_Id_Persona,
+                                                     hp_Id_Hogar_Persona = hp1.hp_Id_Hogar_Persona
+                                                 }).ToList();
 
                         // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
                         var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);

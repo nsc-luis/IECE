@@ -184,7 +184,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where p.per_Categoria == "ADULTO_MUJER"
-                             && p.sec_Id_Sector == idSector
+                             && (p.sec_Id_Sector == idSector && p.per_Activo == true)
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -225,7 +225,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_MUJER" || p.per_Categoria == "ADULTO_MUJER")
-                             && p.sec_Id_Sector == idSector
+                             && p.sec_Id_Sector == idSector && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -266,7 +266,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where p.per_Categoria == "ADULTO_HOMBRE"
-                             && p.sec_Id_Sector == idSector
+                             && (p.sec_Id_Sector == idSector && p.per_Activo == true)
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -307,7 +307,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_HOMBRE" || p.per_Categoria == "ADULTO_HOMBRE")
-                             && p.sec_Id_Sector == idSector
+                             && p.sec_Id_Sector == idSector && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -345,49 +345,85 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                int ct = matLegal.mat_Tipo_Enlace == "MATRIMONIO" ? 21001 : 21102;
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-                var perHombre = (from p1 in context.Persona
-                                 where p1.per_Id_Persona == matLegal.per_Id_Persona_Hombre
-                                 select p1).ToList();
-                foreach (Persona p in perHombre)
+                // VALIDACION INICIAL
+                if (matLegal.mat_Nombre_Contrayente_Hombre_Foraneo == null
+                    && matLegal.mat_Nombre_Contrayente_Mujer_Foraneo == null)
                 {
-                    p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
-                    p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
-                    p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
-                    p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
-                    p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
-                    p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
-                    p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
-                    p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "Uno de los 2 miembros del enlace matrimonial/legalización debe pertenecer al sector local."
+                    });
                 }
-                context.SaveChanges();
-                hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 21001, "Enlace matrimonial", fechayhora, 1);
-
-                var perMujer = (from p2 in context.Persona
-                                where p2.per_Id_Persona == matLegal.per_Id_Persona_Mujer
-                                select p2).ToList();
-                foreach (Persona p in perMujer)
+                else
                 {
-                    p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
-                    p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
-                    p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
-                    p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
-                    p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
-                    p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
-                    p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
-                    p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                    var perHombre = (from p1 in context.Persona
+                                     where p1.per_Id_Persona == matLegal.per_Id_Persona_Hombre
+                                     select p1).ToList();
+
+                    // GUARDA ESTATUS Y REGISTRO HISTORICO DEL HOMBRE
+                    foreach (Persona p in perHombre)
+                    {
+                        p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
+                        p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
+                        p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
+                        p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
+                        p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
+                        p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
+                        p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
+                        p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                        p.per_Estado_Civil = "CASADO(A)";
+                    }
+                    context.SaveChanges();
+                    hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 11201, "Enlace matrimonial", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+
+                    // GUARDA ESTATUS Y REGISTRO HISTORICO DE LA MUJER
+                    var perMujer = (from p2 in context.Persona
+                                    where p2.per_Id_Persona == matLegal.per_Id_Persona_Mujer
+                                    select p2).ToList();
+                    foreach (Persona p in perMujer)
+                    {
+                        p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
+                        p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
+                        p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
+                        p.per_Libro_Acta_Boda_Civil = matLegal.mat_Libro_Acta;
+                        p.per_Nombre_Hijos = matLegal.mat_Nombre_Hijos;
+                        p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
+                        p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
+                        p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                        p.per_Estado_Civil = "CASADO(A)";
+                    }
+                    context.SaveChanges();
+                    hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 11201, "Enlace matrimonial", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+
+                    // GUARDA REGISTRO EN TABLA MATRIMONIO_LEGALIZACION
+                    matLegal.Fecha_Registro = matLegal.mat_Fecha_Boda_Eclesiastica;
+                    context.Matrimonio_Legalizacion.Add(matLegal);
+                    context.SaveChanges();
+
+                    // GUARDA REGISTRO HISTORICO DE MATRIMONIO_LEGALIZACION
+                    if (matLegal.per_Id_Persona_Hombre == 0 && matLegal.per_Id_Persona_Mujer > 0)
+                    {
+                        hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, ct, "", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+                    }
+                    else if (matLegal.per_Id_Persona_Mujer == 0 && matLegal.per_Id_Persona_Hombre > 0)
+                    {
+                        hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, ct, "", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+                    }
+                    else
+                    {
+                        hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, ct, "", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+                    }
+
+                    return Ok(new
+                    {
+                        status = "success",
+                        nvoMatLegal = matLegal.mat_Id_MatrimonioLegalizacion
+                    });
                 }
-                context.SaveChanges();
-                hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 21001, "Enlace matrimonial", fechayhora, 1);
 
-                matLegal.Fecha_Registro = fechayhora;
-                context.Matrimonio_Legalizacion.Add(matLegal);
-                context.SaveChanges();
-                return Ok(new
-                {
-                    status = "success",
-                    nvoMatLegal = matLegal.mat_Id_MatrimonioLegalizacion
-                });
             }
             catch (Exception ex)
             {

@@ -82,17 +82,20 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                // GUARDA DATOS EN LA TABLA DE PRESENTACION
                 presentacion.Fecha_Registro = fechayhora;
+                presentacion.usu_Id_Usuario = mu_pem_Id_Pastor;
                 context.Presentacion_Nino.Add(presentacion);
                 context.SaveChanges();
 
+                // GUARDA DATOS EN EL REGISTRO HISTORICO
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 hte.RegistroHistorico(
                     presentacion.per_Id_Persona,
                     sec_Id_Sector,
                     23203,
-                    "Nueva presentacion",
-                    fechayhora,
+                    presentacion.pdn_Ministro_Oficiante,
+                    presentacion.pdn_Fecha_Presentacion.Value,
                     mu_pem_Id_Pastor
                 );
 
@@ -122,7 +125,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 presentacion.Fecha_Registro = fechayhora;
-                presentacion.usu_Id_Usuario = 1;
+                presentacion.usu_Id_Usuario = presentacion.usu_Id_Usuario;
                 context.Entry(presentacion).State = EntityState.Modified;
                 context.SaveChanges();
                 return Ok(new

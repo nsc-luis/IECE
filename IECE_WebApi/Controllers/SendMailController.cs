@@ -52,7 +52,7 @@ namespace IECE_WebApi.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        string emailPassword = "[EMAIL_PASSWORD]";
+        string emailPassword = "uqvycvbkxdxaypce";
 
         // POST api/<controller>
         [HttpPost]
