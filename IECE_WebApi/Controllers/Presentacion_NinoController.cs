@@ -155,6 +155,13 @@ namespace IECE_WebApi.Controllers
                 presentacion = context.Presentacion_Nino.FirstOrDefault(p => p.pdn_Id_Presentacion == id);
                 if (presentacion != null)
                 {
+                    //ELIMINA REGISTRO HISTORICO DE LA PRESENTACION
+                    Historial_Transacciones_Estadisticas registroHistorico = new Historial_Transacciones_Estadisticas();
+                    registroHistorico = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == presentacion.per_Id_Persona && rh.ct_Codigo_Transaccion == 23203);
+                    context.Historial_Transacciones_Estadisticas.Remove(registroHistorico);
+                    context.SaveChanges();
+
+                    //ELIMINA PRESENTACION DEL NIÑO
                     context.Presentacion_Nino.Remove(presentacion);
                     context.SaveChanges();
                 }

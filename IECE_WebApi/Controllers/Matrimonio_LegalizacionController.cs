@@ -38,6 +38,12 @@ namespace IECE_WebApi.Controllers
             public string sec_Alias { get; set; }
         }
 
+        public class MatrimonioLegalizacionDomicilio
+        {
+            public virtual Matrimonio_Legalizacion matLegalEntity { get; set; }
+            public virtual HogarDomicilio HogarDomicilioEntity { get; set; }
+        }
+
         // GET: api/Matrimonio_Legalizacion
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -338,13 +344,38 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST: api/Matrimonio_Legalizacion
+        // POST: api/Matrimonio_Legalizacion/AltaMatriminioLegalizacion/true/
+        [Route("[action]/{boolNvoDomicilio}/{nvoEstado}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult Post([FromBody] Matrimonio_Legalizacion matLegal)
+        public ActionResult AltaMatriminioLegalizacion([FromBody] MatrimonioLegalizacionDomicilio matLegalDom, bool boolNvoDomicilio, string nvoEstado = "")
         {
             try
             {
+                Matrimonio_Legalizacion matLegal = matLegalDom.matLegalEntity;
+                HogarDomicilio dom = matLegalDom.HogarDomicilioEntity;
+                PersonaController pc = new PersonaController(context);
+                int idNvoEstado = 0;
+
+                var estados = (from e in context.Estado
+                               where e.pais_Id_Pais == dom.pais_Id_Pais
+                               select e).ToList();
+
+                if (estados.Count < 1 && nvoEstado != "")
+                {
+                    var p = context.Pais.FirstOrDefault(pais => pais.pais_Id_Pais == dom.pais_Id_Pais);
+                    var est = new Estado
+                    {
+                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
+                        est_Nombre = nvoEstado,
+                        pais_Id_Pais = dom.pais_Id_Pais,
+                        est_Pais = p.pais_Nombre_Corto
+                    };
+                    context.Estado.Add(est);
+                    context.SaveChanges();
+                    idNvoEstado = est.est_Id_Estado;
+                }
+
                 int ct = matLegal.mat_Tipo_Enlace == "MATRIMONIO" ? 21001 : 21102;
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 // VALIDACION INICIAL
@@ -415,6 +446,41 @@ namespace IECE_WebApi.Controllers
                     else
                     {
                         hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, ct, "", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+                    }
+
+                    // AGREGAR NUEVO HOGAR
+                    if (boolNvoDomicilio)
+                    {
+                        // AGREGANDO HOGAR
+                        if (estados.Count < 1 && nvoEstado != "")
+                        {
+                            dom.est_Id_Estado = idNvoEstado;
+                        }
+
+                        context.HogarDomicilio.Add(dom);
+                        context.SaveChanges();
+
+                        // AGREGAR REGISTRO HISTORICO DEL NUEVO HOGAR
+                        hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 31001, "", fechayhora, dom.usu_Id_Usuario);
+
+                        // AGREGANDO PERSONAS AL NUEVO HOGAR
+                        var hph = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == perHombre[0].per_Id_Persona);
+                        hph.hp_Jerarquia = 1;
+                        hph.hd_Id_Hogar = dom.hd_Id_Hogar;
+                        context.Hogar_Persona.Update(hph);
+                        context.SaveChanges();
+
+                        // RESTRUCTURA JERARQUIAS DEL HOGAR ANTERIOR DEL HOMBRE
+                        pc.RestructuraJerarquiasBaja(perHombre[0].per_Id_Persona);
+
+                        var hpm = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == perMujer[0].per_Id_Persona);
+                        hpm.hp_Jerarquia = 2;
+                        hpm.hd_Id_Hogar = dom.hd_Id_Hogar;
+                        context.Hogar_Persona.Update(hpm);
+                        context.SaveChanges();
+
+                        // RESTRUCTURA JERARQUIAS DEL HOGAR ANTERIOR LA MUJER
+                        pc.RestructuraJerarquiasBaja(perMujer[0].per_Id_Persona);
                     }
 
                     return Ok(new
