@@ -231,7 +231,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_MUJER" || p.per_Categoria == "ADULTO_MUJER")
-                             && p.sec_Id_Sector == idSector && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
+                             && p.sec_Id_Sector == idSector // && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -313,7 +313,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_HOMBRE" || p.per_Categoria == "ADULTO_HOMBRE")
-                             && p.sec_Id_Sector == idSector && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
+                             && p.sec_Id_Sector == idSector //&& (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -344,11 +344,11 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST: api/Matrimonio_Legalizacion/AltaMatriminioLegalizacion/true/
-        [Route("[action]/{boolNvoDomicilio}/{nvoEstado}")]
+        // POST: api/Matrimonio_Legalizacion/AltaMatriminioLegalizacion/true/elNvoEstado
+        [Route("[action]/{boolNvoDomicilio}/{nvoEstado=}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult AltaMatriminioLegalizacion([FromBody] MatrimonioLegalizacionDomicilio matLegalDom, bool boolNvoDomicilio, string nvoEstado = "")
+        public ActionResult AltaMatriminioLegalizacion([FromBody] MatrimonioLegalizacionDomicilio matLegalDom, bool boolNvoDomicilio, string nvoEstado)
         {
             try
             {
@@ -361,7 +361,7 @@ namespace IECE_WebApi.Controllers
                                where e.pais_Id_Pais == dom.pais_Id_Pais
                                select e).ToList();
 
-                if (estados.Count < 1 && nvoEstado != "")
+                if (estados.Count < 1 && nvoEstado != null)
                 {
                     var p = context.Pais.FirstOrDefault(pais => pais.pais_Id_Pais == dom.pais_Id_Pais);
                     var est = new Estado

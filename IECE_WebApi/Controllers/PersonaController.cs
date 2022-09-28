@@ -1903,11 +1903,11 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST: api/Persona/AddPersonaDomicilioHogar
-        [Route("[action]")]
+        // POST: api/Persona/AddPersonaDomicilioHogar/prueba
         [HttpPost]
+        [Route("[action]/{nvoEstado=}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult AddPersonaDomicilioHogar([FromBody] PersonaDomicilio pd)
+        public IActionResult AddPersonaDomicilioHogar([FromBody] PersonaDomicilio pd, string nvoEstado)
         {
             try
             {
@@ -1919,7 +1919,28 @@ namespace IECE_WebApi.Controllers
 
                 HogarDomicilio hd = new HogarDomicilio();
                 hd = pd.HogarDomicilioEntity;
+                int idNvoEstado = 0;
+                var estados = (from e in context.Estado
+                               where e.pais_Id_Pais == hd.pais_Id_Pais
+                               select e).ToList();
+
+                if (estados.Count < 1 && nvoEstado != "")
+                {
+                    var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
+                    var est = new Estado
+                    {
+                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
+                        est_Nombre = nvoEstado,
+                        pais_Id_Pais = hd.pais_Id_Pais,
+                        est_Pais = pais.pais_Nombre_Corto
+                    };
+                    context.Estado.Add(est);
+                    context.SaveChanges();
+                    idNvoEstado = est.est_Id_Estado;
+                }
+
                 hd.Fecha_Registro = fechayhora;
+                hd.est_Id_Estado = nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
@@ -2152,14 +2173,34 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST: api/Persona/RevinculaPersonaNvoHogar/{per_Id_Persona}/{usu_Id_Usuario}
-        [Route("[action]/{per_Id_Persona}/{usu_Id_Usuario}")]
+        // POST: api/Persona/RevinculaPersonaNvoHogar/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado}
+        [Route("[action]/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado=}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult RevinculaPersonaNvoHogar([FromBody] HogarDomicilio hogarDomicilio, int per_Id_Persona, int usu_Id_Usuario)
+        public IActionResult RevinculaPersonaNvoHogar([FromBody] HogarDomicilio hogarDomicilio, int per_Id_Persona, int usu_Id_Usuario, string nvoEstado)
         {
             try
             {
+                int idNvoEstado = 0;
+                var estados = (from e in context.Estado
+                               where e.pais_Id_Pais == hogarDomicilio.pais_Id_Pais
+                               select e).ToList();
+
+                if (estados.Count < 1 && nvoEstado != "")
+                {
+                    var p = context.Pais.FirstOrDefault(pais => pais.pais_Id_Pais == hogarDomicilio.pais_Id_Pais);
+                    var est = new Estado
+                    {
+                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
+                        est_Nombre = nvoEstado,
+                        pais_Id_Pais = hogarDomicilio.pais_Id_Pais,
+                        est_Pais = p.pais_Nombre_Corto
+                    };
+                    context.Estado.Add(est);
+                    context.SaveChanges();
+                    idNvoEstado = est.est_Id_Estado;
+                }
+
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 // CONSULTA EL HOGAR AL QUE PERTENECE LA PERSONA
                 var objhp = (from hp1 in context.Hogar_Persona
@@ -2191,7 +2232,7 @@ namespace IECE_WebApi.Controllers
                 // AGREGA DOMICILIO NUEVO
                 var hd = new HogarDomicilio();
                 hd.dis_Id_Distrito = distrito[0].dis_Id_Distrito;
-                hd.est_Id_Estado = hogarDomicilio.est_Id_Estado;
+                hd.est_Id_Estado = nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
                 hd.Fecha_Registro = fechayhora;
                 hd.hd_Activo = true;
                 hd.hd_Calle = hogarDomicilio.hd_Calle;

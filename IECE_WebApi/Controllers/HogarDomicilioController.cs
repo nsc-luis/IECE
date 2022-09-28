@@ -166,6 +166,7 @@ namespace IECE_WebApi.Controllers
                                       pais.pais_Id_Pais,
                                       pais.pais_Nombre_Corto,
                                       hd.hd_Telefono,
+                                      hd.hd_Activo,
                                       dis.dis_Id_Distrito,
                                       dis.dis_Numero,
                                       dis.dis_Alias,
@@ -248,14 +249,47 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // PUT: api/HogarDomicilio/5
-        [HttpPut("{id}")]
+        // POST: api/HogarDomicilio/EditaDomicilio/5/true/nvoEstado
+        [Route("[action]/{id}/{nvoEstado=}")]
+        [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put(int id, [FromBody] HogarDomicilio hogardomicilio)
+        public ActionResult EditaDomicilio(int id, [FromBody] HogarDomicilio hogardomicilio, string nvoEstado)
         {
             try {
+                int idNvoEstado = 0;
+                var estados = (from e in context.Estado
+                               where e.pais_Id_Pais == hogardomicilio.pais_Id_Pais
+                               select e).ToList();
+
+                if (estados.Count < 1 && nvoEstado != "")
+                {
+                    var p = context.Pais.FirstOrDefault(pais => pais.pais_Id_Pais == hogardomicilio.pais_Id_Pais);
+                    var est = new Estado
+                    {
+                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
+                        est_Nombre = nvoEstado,
+                        pais_Id_Pais = hogardomicilio.pais_Id_Pais,
+                        est_Pais = p.pais_Nombre_Corto
+                    };
+                    context.Estado.Add(est);
+                    context.SaveChanges();
+                    idNvoEstado = est.est_Id_Estado;
+                }
+
                 // Guarda cambios en el domicilio
                 hogardomicilio.Fecha_Registro = fechayhora;
+                if (nvoEstado == "")
+                {
+                    hogardomicilio.est_Id_Estado = hogardomicilio.est_Id_Estado;
+                }
+                else if (nvoEstado == "undefined")
+                {
+                    hogardomicilio.est_Id_Estado = hogardomicilio.est_Id_Estado;
+                }
+                else
+                {
+                    hogardomicilio.est_Id_Estado = idNvoEstado;
+                }
                 context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
 
