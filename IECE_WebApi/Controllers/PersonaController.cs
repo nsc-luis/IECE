@@ -1940,7 +1940,7 @@ namespace IECE_WebApi.Controllers
                 }
 
                 hd.Fecha_Registro = fechayhora;
-                hd.est_Id_Estado = nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
+                hd.est_Id_Estado = nvoEstado != null ? idNvoEstado : hd.est_Id_Estado;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 

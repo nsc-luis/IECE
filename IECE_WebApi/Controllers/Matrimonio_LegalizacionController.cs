@@ -452,7 +452,7 @@ namespace IECE_WebApi.Controllers
                     if (boolNvoDomicilio)
                     {
                         // AGREGANDO HOGAR
-                        if (estados.Count < 1 && nvoEstado != "")
+                        if (estados.Count < 1 && nvoEstado != null)
                         {
                             dom.est_Id_Estado = idNvoEstado;
                         }

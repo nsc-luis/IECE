@@ -278,18 +278,7 @@ namespace IECE_WebApi.Controllers
 
                 // Guarda cambios en el domicilio
                 hogardomicilio.Fecha_Registro = fechayhora;
-                if (nvoEstado == "")
-                {
-                    hogardomicilio.est_Id_Estado = hogardomicilio.est_Id_Estado;
-                }
-                else if (nvoEstado == "undefined")
-                {
-                    hogardomicilio.est_Id_Estado = hogardomicilio.est_Id_Estado;
-                }
-                else
-                {
-                    hogardomicilio.est_Id_Estado = idNvoEstado;
-                }
+                hogardomicilio.est_Id_Estado = nvoEstado != null ? idNvoEstado : hogardomicilio.est_Id_Estado;
                 context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
 
