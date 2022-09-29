@@ -855,6 +855,7 @@ namespace IECE_WebApi.Controllers
                              where p.sec_Id_Sector == sec_Id_Sector
                              && p.per_Bautizado == false
                              && p.per_Vivo == true
+                             && p.per_Activo == true
                              select new
                              {
                                  p.per_Id_Persona,
@@ -1398,7 +1399,13 @@ namespace IECE_WebApi.Controllers
                     context.SaveChanges();
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, 31102, "", fechayhora, usu_Id_Usuario);
+                    hte.RegistroHistorico(
+                        p.per_Id_Persona, 
+                        p.sec_Id_Sector, 
+                        31102,
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
+                        fechayhora, 
+                        usu_Id_Usuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
                     var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == per_Id_Persona);
@@ -1518,7 +1525,13 @@ namespace IECE_WebApi.Controllers
                     context.SaveChanges();
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, 31102, "", fechayhora, usu_Id_Usuario);
+                    hte.RegistroHistorico(
+                        p.per_Id_Persona, 
+                        p.sec_Id_Sector, 
+                        31102,
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
+                        fechayhora, 
+                        usu_Id_Usuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
                     var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == per_Id_Persona);
@@ -1796,7 +1809,13 @@ namespace IECE_WebApi.Controllers
                     context.SaveChanges();
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, 31102, "", fechayhora, mbpcd.idUsuario);
+                    hte.RegistroHistorico(
+                        p.per_Id_Persona, 
+                        p.sec_Id_Sector, 
+                        31102,
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
+                        fechayhora, 
+                        mbpcd.idUsuario);
 
                     // AGREGA REGISTRO HISTORICO DEL CAMBIO DE ESTATUS DE LA PERSONA
                     hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, "BAJA POR CAMBIO DE DOMICILIO", mbpcd.fechaTransaccion, mbpcd.idUsuario);
@@ -1878,7 +1897,7 @@ namespace IECE_WebApi.Controllers
                 {
                     ct_Codigo_Transaccion = 12001;
                 }
-                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", hte_Fecha_Transaccion, persona.usu_Id_Usuario);
+                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", persona.per_Fecha_Bautismo, persona.usu_Id_Usuario);
 
                 return Ok
                 (
@@ -1911,12 +1930,14 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                // ALTA DE LA PERSONA
                 Persona p = new Persona();
                 p = pd.PersonaEntity;
                 p.Fecha_Registro = fechayhora;
                 context.Persona.Add(p);
                 context.SaveChanges();
 
+                // ALTA DE DOMICILIO
                 HogarDomicilio hd = new HogarDomicilio();
                 hd = pd.HogarDomicilioEntity;
                 int idNvoEstado = 0;
@@ -1944,6 +1965,7 @@ namespace IECE_WebApi.Controllers
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
+                // ALTA DEL HOGAR
                 Hogar_Persona hp = new Hogar_Persona();
                 hp.hp_Jerarquia = 1;
                 hp.per_Id_Persona = p.per_Id_Persona;
@@ -1966,6 +1988,8 @@ namespace IECE_WebApi.Controllers
                     ct_Codigo_Transaccion = 12001;
                     hte_Fecha_Transaccion = fechayhora;
                 }
+
+                // REGISTRO HISTORICO DE LA PERSONA
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
@@ -1974,12 +1998,14 @@ namespace IECE_WebApi.Controllers
                     hte_Fecha_Transaccion,
                     p.usu_Id_Usuario
                 );
+
+                // REGISTRO HISTORICO DEL HOGAR
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
                     31001,
-                    "",
-                    hte_Fecha_Transaccion,
+                    $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
+                    fechayhora,
                     p.usu_Id_Usuario
                 );
 
@@ -2156,7 +2182,14 @@ namespace IECE_WebApi.Controllers
                     context.SaveChanges();
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(datosPersona.per_Id_Persona, datosPersona.sec_Id_Sector, 31102, "", fechayhora, usu_Id_Usuario);
+                    hte.RegistroHistorico(
+                        datosPersona.per_Id_Persona, 
+                        datosPersona.sec_Id_Sector, 
+                        31102,
+                        $"{datosPersona.per_Nombre} {datosPersona.per_Apellido_Paterno} {datosPersona.per_Apellido_Materno}", 
+                        fechayhora, 
+                        usu_Id_Usuario
+                    );
                 }
                 return Ok(new
                 {
@@ -2331,7 +2364,14 @@ namespace IECE_WebApi.Controllers
                     context.SaveChanges();
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(datosPersona.per_Id_Persona, datosPersona.sec_Id_Sector, 31102, "", fechayhora, usu_Id_Usuario);
+                    hte.RegistroHistorico(
+                        datosPersona.per_Id_Persona, 
+                        datosPersona.sec_Id_Sector, 
+                        31102,
+                        $"{datosPersona.per_Nombre} {datosPersona.per_Apellido_Paterno} {datosPersona.per_Apellido_Materno}", 
+                        fechayhora, 
+                        usu_Id_Usuario
+                    );
                 }
                 return Ok(new
                 {

@@ -461,7 +461,14 @@ namespace IECE_WebApi.Controllers
                         context.SaveChanges();
 
                         // AGREGAR REGISTRO HISTORICO DEL NUEVO HOGAR
-                        hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 31001, "", fechayhora, dom.usu_Id_Usuario);
+                        hte.RegistroHistorico(
+                            perHombre[0].per_Id_Persona, 
+                            perHombre[0].sec_Id_Sector, 
+                            31001,
+                            $"{perHombre[0].per_Nombre} {perHombre[0].per_Apellido_Paterno} {perHombre[0].per_Apellido_Materno}",
+                            fechayhora, 
+                            dom.usu_Id_Usuario
+                        );
 
                         // AGREGANDO PERSONAS AL NUEVO HOGAR
                         var hph = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == perHombre[0].per_Id_Persona);
