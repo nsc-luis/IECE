@@ -1945,7 +1945,7 @@ namespace IECE_WebApi.Controllers
                                where e.pais_Id_Pais == hd.pais_Id_Pais
                                select e).ToList();
 
-                if (estados.Count < 1 && nvoEstado != "")
+                if (estados.Count < 1 && nvoEstado != null)
                 {
                     var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
                     var est = new Estado
@@ -1961,7 +1961,7 @@ namespace IECE_WebApi.Controllers
                 }
 
                 hd.Fecha_Registro = fechayhora;
-                hd.est_Id_Estado = nvoEstado != null ? idNvoEstado : hd.est_Id_Estado;
+                hd.est_Id_Estado = estados.Count < 1 && nvoEstado != null ? idNvoEstado : hd.est_Id_Estado;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
