@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -334,6 +332,138 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     mensaje = ex
+                });
+            }
+        }
+
+        // METODO PARA COMPONENTES DE VICTOR
+        [HttpPost]
+        [Route("[action]/{idPersona}/{idMinistro}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AltaReactivacionRestitucion_HogarActual(int idPersona, int idMinistro)
+        {
+            try
+            {
+                // OBTENER DATOS DE LA PERSONA
+                var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == idPersona);
+
+                // OBTENER DATOS DEL HOGAR
+                var h = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == idPersona);
+
+                // CUENTA PERSONAS BAUTIZADAS, VIVAS, EN COMUNION Y ACTIVAS DENTRO DEL HOGAR
+                int contador = 0;
+                var miembros = (from hp in context.Hogar_Persona
+                                join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                where hp.per_Id_Persona == idPersona
+                                && per.per_Bautizado == true
+                                && per.per_Activo == true
+                                && per.per_En_Comunion == true
+                                && per.per_Vivo == true
+                                select new
+                                {
+                                    per.per_Id_Persona,
+                                    per.per_Bautizado,
+                                    hp.hp_Jerarquia
+                                }).ToList();
+                foreach(var m in miembros)
+                {
+                    contador = m.per_Bautizado == true ? contador + 1 : contador + 0;
+                }
+
+                // CONDICION PRINCIPAL PARA TIPO DE MIEMBRO BAUTIZADO O NO BAUTIZADO
+                if (p.per_Bautizado == true) {
+
+                    // Esenario 1: en el hogar hay varias personas bautizadas activas
+                    p.per_Activo = true;
+                    p.per_En_Comunion = true;
+                    context.Persona.Update(p);
+                    context.SaveChanges();
+
+                    //  Genera registro historico
+                    RegistroHistorico(idPersona, p.sec_Id_Sector, 11002, "", fechayhora, idMinistro);
+
+                    if (contador == 0)
+                    {
+                        // Esenario 2: en el hogar hay varias personas no bautizadas o excomulgadas
+                        PersonaController pc = new PersonaController(context);
+                        pc.RestructuraJerarquiasAlta(idPersona, 1);
+
+                        // ACTIVACION DE HOGAR
+                        var d = context.HogarDomicilio.FirstOrDefault(dom => dom.hd_Id_Hogar == h.hd_Id_Hogar);
+                        d.hd_Activo = true;
+                        context.HogarDomicilio.Update(d);
+                        context.SaveChanges();
+
+                        // REGISTRO HISTORICO DEL HOGAR
+                        RegistroHistorico(idPersona, p.sec_Id_Sector, 31203, "", fechayhora, idMinistro);
+
+                        // OBTENER MIEMBROS DEL HOGAR
+                        var mh = (from hp in context.Hogar_Persona
+                                        join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                        where hp.per_Id_Persona == idPersona && per.per_Vivo == true
+                                        select new
+                                        {
+                                            per.per_Id_Persona,
+                                            per.per_Bautizado
+                                        }).ToList();
+
+                        // cambia estatus de personas no bautizadas a activas (ct: 12201)
+                        foreach (var m in mh)
+                        {
+                            if (!m.per_Bautizado)
+                            {
+                                var miembro = context.Persona.FirstOrDefault(miem => miem.per_Id_Persona == m.per_Id_Persona);
+                                miembro.per_Activo = true;
+                                context.Persona.Update(miembro);
+                                context.SaveChanges();
+
+                                // GENERA REGISTRO HISTORICO DE LA PERSONA REACTIVADA
+                                RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", fechayhora, idMinistro);
+                            }
+                        }
+
+                        return Ok(new
+                        {
+                            status = "success"
+                        });
+                    }
+                    return Ok(new
+                    {
+                        status = "success"
+                    });
+                }
+                else if (!p.per_Bautizado)
+                {
+                    // Esenario 3: en el hogar hay varias personas bautizadas activas
+                    p.per_Activo = true;
+                    p.per_En_Comunion = true;
+                    context.Persona.Update(p);
+                    context.SaveChanges();
+
+                    //  Genera registro historico
+                    RegistroHistorico(idPersona, p.sec_Id_Sector, 12004, "", fechayhora, idMinistro);
+
+                    return Ok(new
+                    {
+                        status = "success"
+                    });
+                }
+                else
+                {
+                    // Esenario 4: la persona no es bautizada y no hay mas miembros bautizados en el hogar
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "Error: No se puede reactivar a la persona en el mismo hogar ya debe haber al menos un miembro bautizado, en comunion, vivo y activo en el hogar."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
                 });
             }
         }

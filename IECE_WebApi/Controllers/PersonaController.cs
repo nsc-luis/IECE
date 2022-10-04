@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -1336,7 +1335,7 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Persona/BajaBautizadoExcomunion/per_Id_Persona
         [HttpPost]
-        [Route("[action]/{per_Id_Persona}/{tipoExcomunion}/{delitoExomunion}/{fechaExcomunion}")]
+        [Route("[action]/{per_Id_Persona}/{tipoExcomunion}/{delitoExomunion}/{fechaExcomunion}/{usu_Id_Usuario}")]
         [EnableCors("AllowOrigin")]
         public IActionResult BajaBautizadoExcomunion(
             int per_Id_Persona,
@@ -1463,7 +1462,7 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Persona/BajaBautizadoDefuncion/per_Id_Persona
         [HttpPost]
-        [Route("[action]/{per_Id_Persona}/{comentarioDefuncion}/{fechaDefuncion}")]
+        [Route("[action]/{per_Id_Persona}/{comentarioDefuncion}/{fechaDefuncion}/{usu_Id_Usuario}")]
         [EnableCors("AllowOrigin")]
         public IActionResult BajaBautizadoDefuncion(
             int per_Id_Persona,
@@ -1892,12 +1891,13 @@ namespace IECE_WebApi.Controllers
                 if (persona.per_Bautizado)
                 {
                     ct_Codigo_Transaccion = 11001;
+                    hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", persona.per_Fecha_Bautismo, persona.usu_Id_Usuario);
                 }
                 else
                 {
                     ct_Codigo_Transaccion = 12001;
+                    hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", fechayhora, persona.usu_Id_Usuario);
                 }
-                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", persona.per_Fecha_Bautismo, persona.usu_Id_Usuario);
 
                 return Ok
                 (
@@ -2005,7 +2005,7 @@ namespace IECE_WebApi.Controllers
                     p.sec_Id_Sector,
                     31001,
                     $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
-                    fechayhora,
+                    hte_Fecha_Transaccion,
                     p.usu_Id_Usuario
                 );
 
