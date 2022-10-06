@@ -390,13 +390,18 @@ namespace IECE_WebApi.Controllers
                 }
                 else
                 {
+                    // CONSULTA DATOS DE LA PAREJA
                     var perHombre = (from p1 in context.Persona
                                      where p1.per_Id_Persona == matLegal.per_Id_Persona_Hombre
                                      select p1).ToList();
+                    var perMujer = (from p2 in context.Persona
+                                    where p2.per_Id_Persona == matLegal.per_Id_Persona_Mujer
+                                    select p2).ToList();
 
                     // GUARDA ESTATUS Y REGISTRO HISTORICO DEL HOMBRE
                     foreach (Persona p in perHombre)
                     {
+                        p.per_Nombre_Conyuge = $"{perMujer[0].per_Nombre} {perMujer[0].per_Apellido_Paterno} {perMujer[0].per_Apellido_Materno}";
                         p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
                         p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
                         p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
@@ -411,11 +416,9 @@ namespace IECE_WebApi.Controllers
                     hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 11201, "Enlace matrimonial", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
 
                     // GUARDA ESTATUS Y REGISTRO HISTORICO DE LA MUJER
-                    var perMujer = (from p2 in context.Persona
-                                    where p2.per_Id_Persona == matLegal.per_Id_Persona_Mujer
-                                    select p2).ToList();
                     foreach (Persona p in perMujer)
                     {
+                        p.per_Nombre_Conyuge = $"{perHombre[0].per_Nombre} {perHombre[0].per_Apellido_Paterno} {perHombre[0].per_Apellido_Materno}";
                         p.per_Cantidad_Hijos = matLegal.mat_Cantidad_Hijos;
                         p.per_Fecha_Boda_Civil = matLegal.mat_Fecha_Boda_Civil;
                         p.per_Fecha_Boda_Eclesiastica = matLegal.mat_Fecha_Boda_Eclesiastica;
