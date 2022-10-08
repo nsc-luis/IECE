@@ -73,14 +73,14 @@ namespace IECE_WebApi.Controllers
 
         // METODO PARA ALTA DE REGISTRO HISTORICO
         [HttpPost]
-        [Route("[action]/{per_Id_Persona}/{sec_Id_Sector}/{ct_Codigo_Transaccion}/{hte_Comentario}/{hte_Fecha_Transaccion}/{Usu_Usuario_Id}")]
+        [Route("[action]/{per_Id_Persona}/{sec_Id_Sector}/{ct_Codigo_Transaccion}/{hte_Comentario}/{hte_Fecha_Transaccion=}/{Usu_Usuario_Id}")]
         [EnableCors("AllowOrigin")]
         public IActionResult RegistroHistorico(
             int per_Id_Persona,
             int sec_Id_Sector,
             int ct_Codigo_Transaccion,
             string hte_Comentario,
-            DateTime hte_Fecha_Transaccion,
+            DateTime? hte_Fecha_Transaccion,
             int Usu_Usuario_Id
         )
         {

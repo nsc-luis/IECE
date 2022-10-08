@@ -1891,7 +1891,13 @@ namespace IECE_WebApi.Controllers
                 if (persona.per_Bautizado)
                 {
                     ct_Codigo_Transaccion = 11001;
-                    hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", persona.per_Fecha_Bautismo, persona.usu_Id_Usuario);
+                    hte.RegistroHistorico(
+                        persona.per_Id_Persona, 
+                        persona.sec_Id_Sector, 
+                        ct_Codigo_Transaccion, 
+                        "", 
+                        persona.per_Fecha_Bautismo, 
+                        persona.usu_Id_Usuario);
                 }
                 else
                 {
@@ -1977,7 +1983,7 @@ namespace IECE_WebApi.Controllers
 
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
-                DateTime hte_Fecha_Transaccion = DateTime.Now;
+                DateTime? hte_Fecha_Transaccion = DateTime.Now;
                 if (p.per_Bautizado)
                 {
                     ct_Codigo_Transaccion = 11001;
@@ -2405,7 +2411,7 @@ namespace IECE_WebApi.Controllers
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 Persona persona = new Persona();
                 int ct_Codigo_Transaccion = 0;
-                DateTime hte_Fecha_Transaccion = DateTime.Now;
+                DateTime? hte_Fecha_Transaccion = DateTime.Now;
 
                 persona = objeto.PersonaEntity;
                 persona.Fecha_Registro = fechayhora;

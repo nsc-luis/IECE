@@ -18,7 +18,7 @@ namespace IECE_WebApi.Models
         public int ct_Codigo_Transaccion { get; set; }
         public int per_Persona_Id { get; set; }
         public string hte_Comentario { get; set; }
-        public DateTime hte_Fecha_Transaccion { get; set; }
+        public Nullable<DateTime> hte_Fecha_Transaccion { get; set; }
         public int Usu_Usuario_Id { get; set; }
     }
 }
