@@ -68,9 +68,7 @@ namespace IECE_WebApi.Models
         public int pro_Id_Profesion_Oficio2 { get; set; }
         public string per_Telefono_Movil { get; set; }
         public string per_Email_Personal { get; set; }
-        [Display(Name = "Foto")]
-        [DefaultValue("logo_signin.png")]
-        public string per_foto { get; set; }
+        public int idFoto { get; set; }
         [Required]
         [Display(Name = "Bautizado")]
         [DefaultValue(false)]
@@ -104,6 +102,5 @@ namespace IECE_WebApi.Models
         [Required]
         [DefaultValue("1890-01-01")]
         public DateTime Fecha_Registro { get; set; }
-        
     }
 }

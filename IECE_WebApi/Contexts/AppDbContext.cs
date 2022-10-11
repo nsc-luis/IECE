@@ -24,7 +24,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Persona> Persona { get; set; }
         public DbSet<Hogar_Persona> Hogar_Persona { get; set; }
         public DbSet<PersonaDomicilio> PersonaDomicilio { get; set; }
-        //  public DbSet<Foto> Foto { get; set; }
+        public DbSet<Foto> Foto { get; set; }
         public DbSet<Personal_Ministerial> Personal_Ministerial { get; set; }
         public DbSet<Ministro_Usuario> Ministro_Usuario { get; set; }
         public DbSet<Presentacion_Nino> Presentacion_Nino { get; set; }
