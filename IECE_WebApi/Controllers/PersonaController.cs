@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
+using ImageMagick;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -1046,6 +1047,7 @@ namespace IECE_WebApi.Controllers
                                  join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                                  where p.sec_Id_Sector == sec_Id_Sector
                                  && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
+                                 && !p.per_Activo
                                  select new
                                  {
                                      p.per_Id_Persona,
@@ -2471,7 +2473,7 @@ namespace IECE_WebApi.Controllers
                         extension = Path.GetExtension(image.FileName),
                         mimeType = image.ContentType,
                         size = int.Parse(image.Length.ToString()),
-                        path = "c:\\inetpub\\wwwroot\\" // define donde guardar la imagen
+                        path = "c:\\DoctosCompartidos\\FotosPersonal\\" // define donde guardar la imagen
                     };
 
                     // DEFINE EL NOMBRE DEL ARCHIVO PARA GUARDAR LA IMAGEN
@@ -2480,9 +2482,22 @@ namespace IECE_WebApi.Controllers
                     // GUARDAR IMAGEN EN DISCO
                     //string SavePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/img", ImageName);
                     string SavePath = Path.Combine(foto.path + foto.guid + foto.extension);
-                    using (var stream = new FileStream(SavePath, FileMode.Create))
+                    //using (var stream = new FileStream(SavePath, FileMode.Create))
+                    //{
+                    //    image.CopyTo(stream);
+                    //}
+
+                    using (MagickImage oMagickImage = new MagickImage(image.OpenReadStream()))
                     {
-                        image.CopyTo(stream);
+                        if (oMagickImage.Width >= oMagickImage.Height)
+                        {
+                            oMagickImage.Resize(120, 0);
+                        }
+                        else
+                        {
+                            oMagickImage.Resize(0, 120);
+                        }
+                        oMagickImage.Write(SavePath);
                     }
 
                     // AGREGA REGISTRO A LA BASE DE DATOS

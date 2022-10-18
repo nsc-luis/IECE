@@ -52,7 +52,7 @@ namespace IECE_WebApi.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        string emailPassword = "[EMAIL_PASSWORD]";
+        string emailPassword = "uqvycvbkxdxaypce";
 
         // POST api/<controller>
         [HttpPost]
@@ -266,9 +266,9 @@ namespace IECE_WebApi.Controllers
 
         // POST /api/EnviarSolicitudNvaProfesion/{descProf}/{usu_Id_Usuario}
         [HttpPost]
-        [Route("[action]/{descNvaProf}/{usu_Id_Usuario}")]
+        [Route("[action]/{usu_Id_Usuario}/{descNvaProf=}")]
         [EnableCors("AllowOrign")]
-        public IActionResult EnviarSolicitudNvaProfesion(string descNvaProf, int usu_Id_Usuario)
+        public IActionResult EnviarSolicitudNvaProfesion(int usu_Id_Usuario, string descNvaProf)
         {
             try
             {
@@ -302,7 +302,7 @@ namespace IECE_WebApi.Controllers
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress(datosEnvioCorreo.remitente);
                 message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
-                //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
+                message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
                 // message.ReplyToList.Add(new MailAddress(objeto.remitente));
                 message.Subject = datosEnvioCorreo.asunto;
                 message.IsBodyHtml = datosEnvioCorreo.formato;
@@ -314,7 +314,8 @@ namespace IECE_WebApi.Controllers
                     mensaje = message
                 });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return Ok(new
                 {
                     status = "errro",
@@ -325,54 +326,66 @@ namespace IECE_WebApi.Controllers
 
         // POST /api/EnviarSolicitudNvaProfesion/{descProf}/{usu_Id_Usuario}
         [HttpPost]
-        [Route("[action]/{nvoEstado}/{pais_Id_Pais}/{usu_Id_Usuario}")]
+        [Route("[action]/{pais_Id_Pais}/{usu_Id_Usuario}/{nvoEstado=}")]
         [EnableCors("AllowOrign")]
-        public IActionResult EnviarSolicitudNvoEstado(string nvoEstado, int pais_Id_Pais, int usu_Id_Usuario)
+        public IActionResult EnviarSolicitudNvoEstado(int pais_Id_Pais, int usu_Id_Usuario, string nvoEstado)
         {
+
             try
             {
-                var pais = context.Pais.FirstOrDefault(p => p.pais_Id_Pais == pais_Id_Pais);
-                var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
-                datos datosEnvioCorreo = new datos
+                if (nvoEstado != "" || nvoEstado != null)
                 {
-                    smtpServer = "smtp.mail.yahoo.com",
-                    puerto = 587,
-                    remitente = "luis_gera_rdz@yahoo.com.mx",
-                    password = emailPassword,
-                    encriptacion = true,
-                    formato = true,
-                    //destinatario = "nsc_luis@nscco.com.mx",
-                    destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
-                    asunto = "IECE WebApp. Solicitud de nuevo estado.",
-                    mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un nuevo estado " +
-                        $"para el pais {pais.pais_Nombre}, la cual es: " +
-                        $"<ul><li><strong>{nvoEstado}</strong></li></ul>" +
-                        "Se añade registro de la solicitud a la base de datos para seguimiento." +
-                        "<br />Dios bendiga!" +
-                        "</body></html>"
-                };
-                SmtpClient smtp = new SmtpClient();
-                smtp.Host = datosEnvioCorreo.smtpServer;
-                smtp.Port = datosEnvioCorreo.puerto;
-                smtp.EnableSsl = datosEnvioCorreo.encriptacion;
-                smtp.UseDefaultCredentials = false;
-                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
-                MailMessage message = new MailMessage();
-                message.From = new MailAddress(datosEnvioCorreo.remitente);
-                message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
-                //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
-                // message.ReplyToList.Add(new MailAddress(objeto.remitente));
-                message.Subject = datosEnvioCorreo.asunto;
-                message.IsBodyHtml = datosEnvioCorreo.formato;
-                message.Body = datosEnvioCorreo.mensaje;
-                smtp.Send(message);
-                return Ok(new
+                    var pais = context.Pais.FirstOrDefault(p => p.pais_Id_Pais == pais_Id_Pais);
+                    var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
+                    datos datosEnvioCorreo = new datos
+                    {
+                        smtpServer = "smtp.mail.yahoo.com",
+                        puerto = 587,
+                        remitente = "luis_gera_rdz@yahoo.com.mx",
+                        password = emailPassword,
+                        encriptacion = true,
+                        formato = true,
+                        //destinatario = "nsc_luis@nscco.com.mx",
+                        destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                        asunto = "IECE WebApp. Solicitud de nuevo estado.",
+                        mensaje = "<html><body>Paz de Dios. <br />" +
+                            $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un nuevo estado " +
+                            $"para el pais {pais.pais_Nombre}, la cual es: " +
+                            $"<ul><li><strong>{nvoEstado}</strong></li></ul>" +
+                            "Se añade registro de la solicitud a la base de datos para seguimiento." +
+                            "<br />Dios bendiga!" +
+                            "</body></html>"
+                    };
+                    SmtpClient smtp = new SmtpClient();
+                    smtp.Host = datosEnvioCorreo.smtpServer;
+                    smtp.Port = datosEnvioCorreo.puerto;
+                    smtp.EnableSsl = datosEnvioCorreo.encriptacion;
+                    smtp.UseDefaultCredentials = false;
+                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
+                    MailMessage message = new MailMessage();
+                    message.From = new MailAddress(datosEnvioCorreo.remitente);
+                    message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
+                    message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
+                    //message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                    message.Subject = datosEnvioCorreo.asunto;
+                    message.IsBodyHtml = datosEnvioCorreo.formato;
+                    message.Body = datosEnvioCorreo.mensaje;
+                    smtp.Send(message);
+                    return Ok(new
+                    {
+                        status = "success",
+                        mensaje = message
+                    });
+                }
+                else
                 {
-                    status = "success",
-                    mensaje = message
-                });
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No se ha ingresado ningun estado nuevo."
+                    });
+                }
             }
             catch (Exception ex)
             {

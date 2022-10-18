@@ -106,5 +106,28 @@ namespace IECE_WebApi.Controllers
                 });
             }
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult FotoDefault()
+        {
+            try
+            {
+                // CONSULTA IMAGEN DE LA FOTO
+                var foto = context.Foto.FirstOrDefault(f => f.idFoto == 1);
+                string path = Path.Combine($"{foto.path}{foto.guid}{foto.extension}");
+                byte[] imageByteData = System.IO.File.ReadAllBytes(path);
+                return File(imageByteData, foto.mimeType);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
     }
 }

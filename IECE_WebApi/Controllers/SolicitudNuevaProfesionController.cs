@@ -23,41 +23,50 @@ namespace IECE_WebApi.Controllers
         private DateTime fechayhora = DateTime.UtcNow;
 
         // POST: api/SolicitudNuevaProfesion
-        [Route("[action]/{nvaProfesion}/{usu_Id_Usuario}")]
+        [Route("[action]/{usu_Id_Usuario}/{nvaProfesion=}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult RegistroDeNvaSolicitud(string nvaProfesion, int usu_Id_Usuario)
+        public IActionResult RegistroDeNvaSolicitud(int usu_Id_Usuario, string nvaProfesion)
         {
             try
             {
-                var solicitud = new SolicitudNuevaProfesion
+                if (nvaProfesion != "" && nvaProfesion != "undefined")
                 {
-                    descNvaProfesion = nvaProfesion,
-                    solicitudAtendida = false,
-                    usu_Id_Usuario = usu_Id_Usuario,
-                    fechaSolicitud = fechayhora
-                };
-                context.SolicitudNuevaProfesion.Add(solicitud);
-                context.SaveChanges();
+                    var solicitud = new SolicitudNuevaProfesion
+                    {
+                        descNvaProfesion = nvaProfesion,
+                        solicitudAtendida = false,
+                        usu_Id_Usuario = usu_Id_Usuario,
+                        fechaSolicitud = fechayhora
+                    };
+                    context.SolicitudNuevaProfesion.Add(solicitud);
+                    context.SaveChanges();
 
-                SendMailController sendMail = new SendMailController(context);
-                sendMail.EnviarSolicitudNvaProfesion(nvaProfesion, usu_Id_Usuario);
+                    SendMailController sendMail = new SendMailController(context);
+                    sendMail.EnviarSolicitudNvaProfesion(usu_Id_Usuario, nvaProfesion);
 
-                return Ok(new
+                    return Ok(new
                     {
                         status = "success",
                         solicitud = solicitud
-                    }
-                );
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No se ha ingresado ninguna profesión nueva."
+                    });
+                }
             }
             catch (Exception ex)
             {
                 return Ok(new
-                    {
-                        status = "error",
-                        message = ex.Message
-                    }
-                );
+                {
+                    status = "error",
+                    message = ex.Message
+                });
             }
         }
     }
