@@ -910,7 +910,7 @@ namespace IECE_WebApi.Controllers
                              join dis in context.Distrito on hte.dis_Distrito_Id equals dis.dis_Id_Distrito
                              join cte in context.Codigo_Transacciones_Estadisticas on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
                              where hte.per_Persona_Id == per_Id_Persona
-                             orderby hte.hte_Fecha_Transaccion descending
+                             orderby hte.hte_Fecha_Transaccion ascending
                              select new
                              {
                                  hte.hte_Id_Transaccion,

@@ -555,6 +555,7 @@ namespace IECE_WebApi.Controllers
                               join p in context.Persona
                               on hp.per_Id_Persona equals p.per_Id_Persona
                               where hp.hd_Id_Hogar == query2.hd_Id_Hogar
+                              && p.per_Vivo && p.per_Activo
                               orderby (hp.hp_Jerarquia)
                               select new
                               {
@@ -1048,6 +1049,7 @@ namespace IECE_WebApi.Controllers
                                  where p.sec_Id_Sector == sec_Id_Sector
                                  && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
                                  && !p.per_Activo
+                                 && !p.per_Vivo
                                  select new
                                  {
                                      p.per_Id_Persona,
@@ -1124,6 +1126,7 @@ namespace IECE_WebApi.Controllers
                              join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                              where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
                              && (p.per_Bautizado == bautizado && !p.per_Activo)
+                             && p.per_Activo
                              select new
                              {
                                  p.per_Id_Persona,
@@ -1532,8 +1535,8 @@ namespace IECE_WebApi.Controllers
                         p.per_Id_Persona, 
                         p.sec_Id_Sector, 
                         31102,
-                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
-                        fechayhora, 
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
+                        fechaDefuncion, 
                         usu_Id_Usuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
@@ -1779,7 +1782,7 @@ namespace IECE_WebApi.Controllers
                 if (!p.per_Bautizado)
                 {
                     // AGREGA REGISTRO HISTORICO DEL CAMBIO DE ESTATUS DE LA PERSONA
-                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, "BAJA POR CAMBIO DE DOMICILIO", mbpcd.fechaTransaccion, mbpcd.idUsuario);
+                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, mbpcd.tipoDestino, mbpcd.fechaTransaccion, mbpcd.idUsuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
                     var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == mbpcd.idPersona);
@@ -1817,11 +1820,11 @@ namespace IECE_WebApi.Controllers
                         p.sec_Id_Sector, 
                         31102,
                         $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
-                        fechayhora, 
+                        mbpcd.fechaTransaccion, 
                         mbpcd.idUsuario);
 
                     // AGREGA REGISTRO HISTORICO DEL CAMBIO DE ESTATUS DE LA PERSONA
-                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, "BAJA POR CAMBIO DE DOMICILIO", mbpcd.fechaTransaccion, mbpcd.idUsuario);
+                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, mbpcd.tipoDestino, mbpcd.fechaTransaccion, mbpcd.idUsuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
                     var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == mbpcd.idPersona);
@@ -1834,7 +1837,7 @@ namespace IECE_WebApi.Controllers
                 else
                 {
                     // AGREGA REGISTRO HISTORICO DEL CAMBIO DE ESTATUS DE LA PERSONA
-                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, "BAJA POR CAMBIO DE DOMICILIO", mbpcd.fechaTransaccion, mbpcd.idUsuario);
+                    hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, mbpcd.tipoDestino, mbpcd.fechaTransaccion, mbpcd.idUsuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
                     var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == mbpcd.idPersona);

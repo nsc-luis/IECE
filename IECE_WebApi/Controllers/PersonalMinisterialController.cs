@@ -311,11 +311,39 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                var query = (from d in context.Distrito
-                             join pem in context.Personal_Ministerial on d.pem_Id_Secretario equals pem.pem_Id_Ministro
-                             where d.sec_Id_Sector_Base == idSector
+                var query = (from s in context.Sector
+                             join pem in context.Personal_Ministerial on s.pem_Id_Secretario equals pem.pem_Id_Ministro
+                             where s.sec_Id_Sector == idSector
                              select pem).ToList();
                     return Ok(new
+                {
+                    status = "success",
+                    infoSecretario = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET api/GetSecretarioByDistrito/idDistrito
+        [Route("[action]/{idDistrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetSecretarioByDistrito(int idDistrito)
+        {
+            try
+            {
+                var query = (from d in context.Distrito
+                             join pem in context.Personal_Ministerial on d.pem_Id_Secretario equals pem.pem_Id_Ministro
+                             where d.dis_Id_Distrito == idDistrito
+                             select pem).ToList();
+                return Ok(new
                 {
                     status = "success",
                     infoSecretario = query
@@ -375,6 +403,37 @@ namespace IECE_WebApi.Controllers
                     status = "error",
                     mensaje = ex.Message
                 });
+            }
+        }
+
+        // GET: /api/Sector/GetObispoByDistrito/idDistrito
+        [Route("[action]/{idDistrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetObispoByDistrito(int idDistrito)
+        {
+            try
+            {
+                var query = (from d in context.Distrito
+                             join pem in context.Personal_Ministerial
+                             on d.pem_Id_Obispo equals pem.pem_Id_Ministro
+                             where d.dis_Id_Distrito == idDistrito
+                             select pem).ToList();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        ministros = query
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
             }
         }
     }
