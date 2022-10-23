@@ -1547,6 +1547,7 @@ namespace IECE_WebApi.Controllers
 
                     // CAMBIO DE ESTATUS DE LA PERSONA
                     p.per_Activo = false;
+                    p.per_Vivo = false;
                     context.Persona.Update(p);
                     context.SaveChanges();
 
@@ -1563,6 +1564,7 @@ namespace IECE_WebApi.Controllers
 
                     // CAMBIO DE ESTATUS DE LA PERSONA
                     p.per_Activo = false;
+                    p.per_Vivo = false;
                     context.Persona.Update(p);
                     context.SaveChanges();
 
