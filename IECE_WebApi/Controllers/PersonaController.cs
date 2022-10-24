@@ -1126,7 +1126,6 @@ namespace IECE_WebApi.Controllers
                              join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                              where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
                              && (p.per_Bautizado == bautizado && !p.per_Activo)
-                             && p.per_Activo
                              select new
                              {
                                  p.per_Id_Persona,
