@@ -25,6 +25,13 @@ namespace IECE_WebApi.Controllers
             this.context = context;
         }
 
+        private class DatosDelHogarPorPersona
+        {
+            public object hogarPersona { get; set; }
+            public object domicilio { get; set; }
+            public object miembros { get; set; }
+            public int bautizadosVivos { get; set; }
+        }
         // GET: api/Hogar_Persona
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -46,15 +53,54 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult GetHogarByPersona(int per_Id_Persona)
         {
-            Hogar_Persona hogar_persona = new Hogar_Persona();
             try
             {
-                hogar_persona = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == per_Id_Persona);
-                return Ok(hogar_persona);
+                var hogarPersona = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == per_Id_Persona);
+                var hogarDomicilio = context.HogarDomicilio.FirstOrDefault(hd => hd.hd_Id_Hogar == hogarPersona.hd_Id_Hogar);
+                var miembros = (from hp in context.Hogar_Persona
+                                            join p in context.Persona
+                                            on hp.per_Id_Persona equals p.per_Id_Persona
+                                            where hp.hd_Id_Hogar == hogarDomicilio.hd_Id_Hogar
+                                orderby (hp.hp_Jerarquia)
+                                            select new
+                                            {
+                                                hp.hp_Id_Hogar_Persona,
+                                                hp.hd_Id_Hogar,
+                                                hp.hp_Jerarquia,
+                                                p.per_Id_Persona,
+                                                p.per_Nombre,
+                                                p.per_Apellido_Paterno,
+                                                p.per_Apellido_Materno
+                                            }).ToList();
+
+                int contadorBautizados = 0;
+                foreach (var m in miembros)
+                {
+                    var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == m.per_Id_Persona);
+                    if (persona.per_Bautizado && persona.per_Vivo) contadorBautizados = contadorBautizados + 1;
+                }
+
+                var datosDelHogarPorPersona = new DatosDelHogarPorPersona
+                {
+                    hogarPersona = hogarPersona,
+                    domicilio = hogarDomicilio,
+                    miembros = miembros,
+                    bautizadosVivos = contadorBautizados
+                };
+
+                return Ok(new
+                {
+                    status = "success",
+                    datosDelHogarPorPersona
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
 
@@ -139,27 +185,35 @@ namespace IECE_WebApi.Controllers
                              && hp.hp_Jerarquia == 1
                              select new
                              {
-                                 hd_Id_Hogar = hp.hd_Id_Hogar,
-                                 per_Id_Persona = p.per_Id_Persona,
-                                 per_Nombre = p.per_Nombre,
-                                 per_Apellido_Paterno = p.per_Apellido_Paterno,
-                                 per_Apellido_Materno = p.per_Apellido_Materno,
-                                 hd_Calle = hd.hd_Calle,
-                                 hd_Numero_Exterior = hd.hd_Numero_Exterior,
-                                 hd_Numero_Interior = hd.hd_Numero_Interior,
-                                 hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
-                                 hd_Subdivision = hd.hd_Subdivision,
-                                 hd_Localidad = hd.hd_Localidad,
-                                 hd_Municipio_Ciudad = hd.hd_Municipio_Ciudad,
-                                 est_Nombre = e.est_Nombre,
-                                 pais_Nombre_Corto = pais.pais_Nombre_Corto,
-                                 hd_Telefono = hd.hd_Telefono
+                                 hp.hd_Id_Hogar,
+                                 p.per_Id_Persona,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 hd.hd_Calle,
+                                 hd.hd_Numero_Exterior,
+                                 hd.hd_Numero_Interior,
+                                 hd.hd_Tipo_Subdivision,
+                                 hd.hd_Subdivision,
+                                 hd.hd_Localidad,
+                                 hd.hd_Municipio_Ciudad,
+                                 e.est_Nombre,
+                                 pais.pais_Nombre_Corto,
+                                 hd.hd_Telefono
                              }).ToList();
-                return Ok(query);
+                return Ok(new
+                {
+                    status = "success",
+                    miembros = query
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
 
@@ -178,13 +232,13 @@ namespace IECE_WebApi.Controllers
                              orderby (hp.hp_Jerarquia)
                              select new
                              {
-                                 hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
-                                 hd_Id_Hogar = hp.hd_Id_Hogar,
-                                 hp_Jerarquia = hp.hp_Jerarquia,
-                                 per_Id_Persona = p.per_Id_Persona,
-                                 per_Nombre = p.per_Nombre,
-                                 per_Apellido_Paterno = p.per_Apellido_Paterno,
-                                 per_Apellido_Materno = p.per_Apellido_Materno
+                                 hp.hp_Id_Hogar_Persona,
+                                 hp.hd_Id_Hogar,
+                                 hp.hp_Jerarquia,
+                                 p.per_Id_Persona,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno
                              }).ToList();
                 return Ok(query);
             }

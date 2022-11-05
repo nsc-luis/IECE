@@ -52,7 +52,7 @@ namespace IECE_WebApi.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        string emailPassword = "pass";
+        string emailPassword = "password";
 
         // POST api/<controller>
         [HttpPost]
@@ -345,8 +345,8 @@ namespace IECE_WebApi.Controllers
                         password = emailPassword,
                         encriptacion = true,
                         formato = true,
-                        //destinatario = "nsc_luis@nscco.com.mx",
-                        destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                        destinatario = "nsc_luis@nscco.com.mx",
+                        //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
                         asunto = "IECE WebApp. Solicitud de nuevo estado.",
                         mensaje = "<html><body>Paz de Dios. <br />" +
                             $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un nuevo estado " +

@@ -98,13 +98,25 @@ namespace IECE_WebApi.Controllers
                 context.SolicitudNvoEstado.Add(solicitud);
                 context.SaveChanges();
 
+                // AGREGAR NUEVO ESTADO
+                var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == pais_Id_Pais);
+                var est = new Estado
+                {
+                    est_Nombre_Corto = nvoEstado.Substring(0, 3),
+                    est_Nombre = nvoEstado,
+                    pais_Id_Pais = pais_Id_Pais,
+                    est_Pais = pais.pais_Nombre_Corto
+                };
+                context.Estado.Add(est);
+                context.SaveChanges();
+
                 SendMailController sendMail = new SendMailController(context);
                 sendMail.EnviarSolicitudNvoEstado(pais_Id_Pais, usu_Id_Usuario, nvoEstado);
 
                 return Ok(new
                 {
                     status = "success",
-                    solicitud = solicitud
+                    estado = est
                 });
             }
             catch (Exception ex)
