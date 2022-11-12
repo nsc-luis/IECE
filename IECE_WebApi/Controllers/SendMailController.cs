@@ -52,7 +52,12 @@ namespace IECE_WebApi.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        string emailPassword = "password";
+        string REMITENTE = "soporte@iece.mx";
+        string EMAILPASSWORD = "s0p0rt3$";
+        string SMTPSERVER = "mail.iece.mx";
+        int PUERTO = 587;
+        bool ENCRIPTACION = false;
+        bool FORMATO = true;
 
         // POST api/<controller>
         [HttpPost]
@@ -63,12 +68,32 @@ namespace IECE_WebApi.Controllers
             try
             {
                 DateTime caducidad = DateTime.Now.AddHours(24);
+                var emailIECE = context.Personal_Ministerial.FirstOrDefault(ep => ep.pem_emailIECE == correo);
+                var emailPersonal = context.Personal_Ministerial.FirstOrDefault(ep => ep.pem_email_Personal == correo);
+
+                bool ministroActivo = false;
+
+                if (emailIECE != null)
+                {
+                    if (emailIECE.pem_emailIECE == correo)
+                    {
+                        ministroActivo = emailIECE.pem_Activo;
+                    }
+                }
+
+                if (emailPersonal != null)
+                {
+                    if (emailPersonal.pem_email_Personal == correo)
+                    {
+                        ministroActivo = emailPersonal.pem_Activo;
+                    }
+                }
 
                 var validaCorreo = (from u in context.Usuario
                                     where u.Email == correo
                                     select u).ToList();
 
-                if (validaCorreo.Count > 0)
+                if (validaCorreo.Count > 0 && ministroActivo)
                 {
                     var datosParaCambio = new Valida_Cambio_Contrasena
                     {
@@ -81,14 +106,14 @@ namespace IECE_WebApi.Controllers
 
                     datos datosEnvioCorreo = new datos
                     {
-                        smtpServer = "smtp.mail.yahoo.com",
-                        puerto = 587,
-                        remitente = "luis_gera_rdz@yahoo.com.mx",
-                        password = emailPassword,
-                        encriptacion = true,
-                        formato = true,
-                        //destinatario = "nsc_luis@nscco.com.mx",
-                        destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                        smtpServer = SMTPSERVER,
+                        puerto = PUERTO,
+                        remitente = REMITENTE,
+                        password = EMAILPASSWORD,
+                        encriptacion = ENCRIPTACION,
+                        formato = FORMATO,
+                        destinatario = "nsc_luis@nscco.com.mx",
+                        //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
                         asunto = "IECE WebApp, Solicitud de cambio de contraseña.",
                         //mensaje = "http://localhost:3000/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
                         mensaje = "<html><body>" +
@@ -98,7 +123,7 @@ namespace IECE_WebApi.Controllers
                         "http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena +
                         "<br /><br /><br />" +
                         "Cualquier problema con el cambio de su contraseña comuniquese al " +
-                        "Departamento de Soporte Técnico al siguiente correo: soporte.tecnico@iece.mx " +
+                        "Departamento de Soporte Técnico al siguiente correo: soporte@iece.mx " +
                         "<br /><br /> Dios le bendiga!" +
                         "</body></html>"
                     };
@@ -115,7 +140,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = "Error: El correo ingresado NO esta registrado."
+                        mensaje = "Error: El correo ingresado NO esta registrado ó el usuario/ministro NO esta activo."
                     });
                 }
             }
@@ -275,12 +300,12 @@ namespace IECE_WebApi.Controllers
                 var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
                 datos datosEnvioCorreo = new datos
                 {
-                    smtpServer = "smtp.mail.yahoo.com",
-                    puerto = 587,
-                    remitente = "luis_gera_rdz@yahoo.com.mx",
-                    password = emailPassword,
-                    encriptacion = true,
-                    formato = true,
+                    smtpServer = SMTPSERVER,
+                    puerto = PUERTO,
+                    remitente = REMITENTE,
+                    password = EMAILPASSWORD,
+                    encriptacion = ENCRIPTACION,
+                    formato = FORMATO,
                     //destinatario = "nsc_luis@nscco.com.mx",
                     destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
                     asunto = "IECE WebApp. Solicitud de nueva profesion.",
@@ -302,7 +327,7 @@ namespace IECE_WebApi.Controllers
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress(datosEnvioCorreo.remitente);
                 message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
-                message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
+                //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
                 // message.ReplyToList.Add(new MailAddress(objeto.remitente));
                 message.Subject = datosEnvioCorreo.asunto;
                 message.IsBodyHtml = datosEnvioCorreo.formato;
@@ -339,12 +364,12 @@ namespace IECE_WebApi.Controllers
                     var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
                     datos datosEnvioCorreo = new datos
                     {
-                        smtpServer = "smtp.mail.yahoo.com",
-                        puerto = 587,
-                        remitente = "luis_gera_rdz@yahoo.com.mx",
-                        password = emailPassword,
-                        encriptacion = true,
-                        formato = true,
+                        smtpServer = SMTPSERVER,
+                        puerto = PUERTO,
+                        remitente = REMITENTE,
+                        password = EMAILPASSWORD,
+                        encriptacion = ENCRIPTACION,
+                        formato = FORMATO,
                         destinatario = "nsc_luis@nscco.com.mx",
                         //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
                         asunto = "IECE WebApp. Solicitud de nuevo estado.",
@@ -366,7 +391,7 @@ namespace IECE_WebApi.Controllers
                     MailMessage message = new MailMessage();
                     message.From = new MailAddress(datosEnvioCorreo.remitente);
                     message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
-                    message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
+                    //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
                     //message.ReplyToList.Add(new MailAddress(objeto.remitente));
                     message.Subject = datosEnvioCorreo.asunto;
                     message.IsBodyHtml = datosEnvioCorreo.formato;

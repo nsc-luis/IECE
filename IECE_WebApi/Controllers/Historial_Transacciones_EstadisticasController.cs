@@ -177,7 +177,7 @@ namespace IECE_WebApi.Controllers
                             persona[0].per_Id_Persona,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
-                            "Alta por restitución",
+                            "ALTA POR RESTITUCIÓN",
                             fechayhora,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
                         );
@@ -226,7 +226,7 @@ namespace IECE_WebApi.Controllers
                             p.per_Id_Persona,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
-                            "Alta por reactivación",
+                            "ALTA POR REACTIVACIÓN",
                             fechayhora,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
                         );

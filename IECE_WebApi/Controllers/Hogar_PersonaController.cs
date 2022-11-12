@@ -70,14 +70,22 @@ namespace IECE_WebApi.Controllers
                                                 p.per_Id_Persona,
                                                 p.per_Nombre,
                                                 p.per_Apellido_Paterno,
-                                                p.per_Apellido_Materno
+                                                p.per_Apellido_Materno,
+                                                p.per_Activo,
+                                                p.per_Bautizado,
+                                                p.per_Vivo,
+                                                p.per_En_Comunion
                                             }).ToList();
 
                 int contadorBautizados = 0;
                 foreach (var m in miembros)
                 {
                     var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == m.per_Id_Persona);
-                    if (persona.per_Bautizado && persona.per_Vivo) contadorBautizados = contadorBautizados + 1;
+                    if ((persona.per_Bautizado && persona.per_Vivo)
+                        && (persona.per_Activo && persona.per_En_Comunion))
+                    {
+                        contadorBautizados = contadorBautizados + 1;
+                    }
                 }
 
                 var datosDelHogarPorPersona = new DatosDelHogarPorPersona

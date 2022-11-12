@@ -38,7 +38,6 @@ namespace IECE_WebApi.Models
         [Required]
         [Display(Name = "Apellido paterno")]
         public string per_Apellido_Paterno { get; set; }
-        [Required]
         [Display(Name = "Apellido materno")]
         public string per_Apellido_Materno { get; set; }
         [Required]
