@@ -112,8 +112,9 @@ namespace IECE_WebApi.Controllers
                         password = EMAILPASSWORD,
                         encriptacion = ENCRIPTACION,
                         formato = FORMATO,
-                        destinatario = "nsc_luis@nscco.com.mx",
+                        //destinatario = "nsc_luis@nscco.com.mx",
                         //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                        destinatario = $"soporte@iece.mx;{correo}",
                         asunto = "IECE WebApp, Solicitud de cambio de contraseña.",
                         //mensaje = "http://localhost:3000/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena
                         mensaje = "<html><body>" +
@@ -307,7 +308,8 @@ namespace IECE_WebApi.Controllers
                     encriptacion = ENCRIPTACION,
                     formato = FORMATO,
                     //destinatario = "nsc_luis@nscco.com.mx",
-                    destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                    //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                    destinatario = "soporte@iece.mx",
                     asunto = "IECE WebApp. Solicitud de nueva profesion.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
                         $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado a una persona con " +
@@ -370,8 +372,9 @@ namespace IECE_WebApi.Controllers
                         password = EMAILPASSWORD,
                         encriptacion = ENCRIPTACION,
                         formato = FORMATO,
-                        destinatario = "nsc_luis@nscco.com.mx",
+                        //destinatario = "nsc_luis@nscco.com.mx",
                         //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
+                        destinatario = "soporte@iece.mx",
                         asunto = "IECE WebApp. Solicitud de nuevo estado.",
                         mensaje = "<html><body>Paz de Dios. <br />" +
                             $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un nuevo estado " +

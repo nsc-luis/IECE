@@ -1882,7 +1882,7 @@ namespace IECE_WebApi.Controllers
                     per_Id_Persona = persona.per_Id_Persona,
                     hd_Id_Hogar = hdId,
                     Fecha_Registro = fechayhora,
-                    usu_Id_Usuario = 1
+                    usu_Id_Usuario = persona.usu_Id_Usuario
                 };
                 context.Hogar_Persona.Add(hp);
                 context.SaveChanges();

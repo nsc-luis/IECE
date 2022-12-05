@@ -143,20 +143,31 @@ namespace IECE_WebApi.Controllers
                                where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.per_Id_Persona
                                select per).ToList();
 
+                // ALTA DEL NUEVO HOGAR
                 HogarDomicilio hd = new HogarDomicilio();
                 hd = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.HD;
                 hd.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                 hd.Fecha_Registro = fechayhora;
+                hd.hd_Activo = true;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
-                Hogar_Persona hp = new Hogar_Persona();
+                // REGISTRO HISTORICO DEL NUEVO HOGAR
+                RegistroHistorico(
+                    persona[0].per_Id_Persona,
+                    altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
+                    31001,
+                    "",
+                    fechayhora,
+                    altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
+                );
+
+                var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == persona[0].per_Id_Persona);
                 hp.hp_Jerarquia = 1;
-                hp.per_Id_Persona = persona[0].per_Id_Persona;
                 hp.hd_Id_Hogar = hd.hd_Id_Hogar;
                 hp.Fecha_Registro = fechayhora;
                 hp.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
-                context.Hogar_Persona.Add(hp);
+                context.Hogar_Persona.Update(hp);
                 context.SaveChanges();
 
                 Persona p = persona[0];
@@ -197,6 +208,7 @@ namespace IECE_WebApi.Controllers
                         }
                         p.per_Visibilidad_Abierta = false;
                         p.Fecha_Registro = fechayhora;
+                        p.per_Activo = true;
                         p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector;
                         p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                         // context.Persona.Add(p);
@@ -458,6 +470,7 @@ namespace IECE_WebApi.Controllers
 
                 // actualiza estatus de la persona
                 p.per_Activo = true;
+                p.per_Visibilidad_Abierta = false;
                 context.Persona.Update(p);
                 context.SaveChanges();
 
