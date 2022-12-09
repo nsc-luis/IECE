@@ -1406,7 +1406,7 @@ namespace IECE_WebApi.Controllers
                         p.sec_Id_Sector, 
                         31102,
                         $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
-                        fechayhora, 
+                        fechaExcomunion, 
                         usu_Id_Usuario);
 
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR

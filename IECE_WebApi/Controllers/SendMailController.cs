@@ -372,9 +372,9 @@ namespace IECE_WebApi.Controllers
                         password = EMAILPASSWORD,
                         encriptacion = ENCRIPTACION,
                         formato = FORMATO,
-                        //destinatario = "nsc_luis@nscco.com.mx",
+                        destinatario = "nsc_luis@nscco.com.mx",
                         //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
-                        destinatario = "soporte@iece.mx",
+                        //destinatario = "soporte@iece.mx",
                         asunto = "IECE WebApp. Solicitud de nuevo estado.",
                         mensaje = "<html><body>Paz de Dios. <br />" +
                             $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un nuevo estado " +
