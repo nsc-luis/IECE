@@ -158,14 +158,14 @@ namespace IECE_WebApi.Controllers
                     altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                     31001,
                     "",
-                    fechayhora,
+                    altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Fecha_Transaccion,
                     altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
                 );
 
                 var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == persona[0].per_Id_Persona);
                 hp.hp_Jerarquia = 1;
                 hp.hd_Id_Hogar = hd.hd_Id_Hogar;
-                hp.Fecha_Registro = fechayhora;
+                hp.Fecha_Registro = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Fecha_Transaccion;
                 hp.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                 context.Hogar_Persona.Update(hp);
                 context.SaveChanges();
@@ -189,7 +189,7 @@ namespace IECE_WebApi.Controllers
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Comentario,
-                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Fecha_Transaccion,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
                         );
                         break;
@@ -220,7 +220,7 @@ namespace IECE_WebApi.Controllers
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                             codigoTransaccion,
                             comentario,
-                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Fecha_Transaccion,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
                         );
                         break;
@@ -239,7 +239,7 @@ namespace IECE_WebApi.Controllers
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.sec_Id_Sector,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Comentario,
-                            fechayhora,
+                            altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Fecha_Transaccion,
                             altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
                         );
                         break;
@@ -548,7 +548,7 @@ namespace IECE_WebApi.Controllers
                         context.SaveChanges();
 
                         // REGISTRO HISTORICO DEL HOGAR
-                        RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 31203, arrha.comentrario, fechayhora, arrha.idMinistro);
+                        RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 31203, arrha.comentrario, arrha.fecha, arrha.idMinistro);
 
                         // OBTENER MIEMBROS DEL HOGAR
                         var mh = (from hp in context.Hogar_Persona
@@ -571,7 +571,7 @@ namespace IECE_WebApi.Controllers
                                 context.SaveChanges();
 
                                 // GENERA REGISTRO HISTORICO DE LA PERSONA REACTIVADA
-                                RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", fechayhora, arrha.idMinistro);
+                                RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", arrha.fecha, arrha.idMinistro);
                             }
                         }
 

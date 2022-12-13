@@ -1732,7 +1732,7 @@ namespace IECE_WebApi.Controllers
                 foreach (var p0 in miembrosDelHogar)
                 {
                     var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p0.per_Id_Persona);
-                    if (persona.per_Bautizado && persona.per_Vivo)
+                    if (persona.per_Bautizado && persona.per_Vivo && persona.per_Activo && persona.per_En_Comunion)
                     {
                         bautizados = bautizados + 1;
                     }
