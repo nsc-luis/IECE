@@ -11,6 +11,7 @@ namespace IECE_WebApi.Models
         [Key]
         public int idNvaProfesion { get; set; }
         public string descNvaProfesion { get; set; }
+        public int per_Id_Persona { get; set; }
         public bool solicitudAtendida { get; set; }
         public int usu_Id_Usuario { get; set; }
         public DateTime fechaSolicitud { get; set; }

@@ -1865,29 +1865,36 @@ namespace IECE_WebApi.Controllers
         }
 
         // POST: api/Persona/AddPersonaHogar
-        [Route("[action]/{jerarquia}/{hdId}")]
+        [Route("[action]")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult AddPersonaHogar([FromBody] Persona persona, int jerarquia, int hdId)
+        public IActionResult AddPersonaHogar([FromBody] PersonaHogarExistente phe)
         {
             try
             {
+                // DEFINE OBJETO PERSONA
+                Persona persona = new Persona();
+                persona = phe.PersonaEntity;
+
+                // ALTA DE PERSONA
                 persona.Fecha_Registro = fechayhora;
                 context.Persona.Add(persona);
                 context.SaveChanges();
 
+                // ALTA DE PERSONA EN HOGAR
                 Hogar_Persona hp = new Hogar_Persona
                 {
                     hp_Jerarquia = 0,
                     per_Id_Persona = persona.per_Id_Persona,
-                    hd_Id_Hogar = hdId,
+                    hd_Id_Hogar = phe.hdId,
                     Fecha_Registro = fechayhora,
                     usu_Id_Usuario = persona.usu_Id_Usuario
                 };
                 context.Hogar_Persona.Add(hp);
                 context.SaveChanges();
-                RestructuraJerarquiasAlta(persona.per_Id_Persona, jerarquia);
+                RestructuraJerarquiasAlta(persona.per_Id_Persona, phe.jerarquia);
 
+                // GENERA HISTORIAL DE PERSONA
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime hte_Fecha_Transaccion = DateTime.Now;
@@ -1906,6 +1913,16 @@ namespace IECE_WebApi.Controllers
                 {
                     ct_Codigo_Transaccion = 12001;
                     hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", fechayhora, persona.usu_Id_Usuario);
+                }
+
+                // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
+                SolicitudNuevaProfesionController snpc = new SolicitudNuevaProfesionController(context);
+                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "") {
+                    snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio1);
+                }
+                if (persona.pro_Id_Profesion_Oficio2 == 1 && phe.nvaProfesionOficio2 != "")
+                {
+                    snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio2);
                 }
 
                 return Ok
@@ -1933,9 +1950,9 @@ namespace IECE_WebApi.Controllers
 
         // POST: api/Persona/AddPersonaDomicilioHogar/prueba
         [HttpPost]
-        [Route("[action]/{nvoEstado=}")]
+        [Route("[action]")]
         [EnableCors("AllowOrigin")]
-        public IActionResult AddPersonaDomicilioHogar([FromBody] PersonaDomicilio pd, string nvoEstado)
+        public IActionResult AddPersonaDomicilioHogar([FromBody] PersonaDomicilio pd)
         {
             try
             {
@@ -1954,23 +1971,28 @@ namespace IECE_WebApi.Controllers
                                where e.pais_Id_Pais == hd.pais_Id_Pais
                                select e).ToList();
 
-                if (estados.Count < 1 && nvoEstado != null)
+                // if (estados.Count < 1 && nvoEstado != null)
+                if (pd.nvoEstado != "")
                 {
                     var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
                     var est = new Estado
                     {
-                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
-                        est_Nombre = nvoEstado,
+                        est_Nombre_Corto = pd.nvoEstado.Substring(0, 3),
+                        est_Nombre = pd.nvoEstado,
                         pais_Id_Pais = hd.pais_Id_Pais,
-                        est_Pais = pais.pais_Nombre_Corto
+                        est_Pais = pais.pais_Nombre_Corto,
                     };
                     context.Estado.Add(est);
                     context.SaveChanges();
                     idNvoEstado = est.est_Id_Estado;
+
+                    SendMailController sendMail = new SendMailController(context);
+                    sendMail.EnviarSolicitudNvoEstado(pais.pais_Id_Pais, p.usu_Id_Usuario, p.per_Id_Persona, pd.nvoEstado);
                 }
 
                 hd.Fecha_Registro = fechayhora;
-                hd.est_Id_Estado = estados.Count < 1 && nvoEstado != null ? idNvoEstado : hd.est_Id_Estado;
+                hd.est_Id_Estado = estados.Count < 1 && pd.nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
+                hd.usu_Id_Usuario = p.usu_Id_Usuario;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
@@ -1980,7 +2002,7 @@ namespace IECE_WebApi.Controllers
                 hp.per_Id_Persona = p.per_Id_Persona;
                 hp.hd_Id_Hogar = hd.hd_Id_Hogar;
                 hp.Fecha_Registro = fechayhora;
-                hp.usu_Id_Usuario = 1;
+                hp.usu_Id_Usuario = p.usu_Id_Usuario;
                 context.Hogar_Persona.Add(hp);
                 context.SaveChanges();
 
@@ -2018,6 +2040,17 @@ namespace IECE_WebApi.Controllers
                     p.usu_Id_Usuario
                 );
 
+                // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
+                SolicitudNuevaProfesionController snpc = new SolicitudNuevaProfesionController(context);
+                if (p.pro_Id_Profesion_Oficio1 == 1 && pd.nvaProfesionOficio1 != "")
+                {
+                    snpc.RegistroDeNvaSolicitud(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio1);
+                }
+                if (p.pro_Id_Profesion_Oficio2 == 1 && pd.nvaProfesionOficio2 != "")
+                {
+                    snpc.RegistroDeNvaSolicitud(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio2);
+                }
+
                 return Ok
                 (
                     new
@@ -2036,7 +2069,7 @@ namespace IECE_WebApi.Controllers
                     new
                     {
                         status = "error",
-                        message = ex.Message
+                        message = ex
                     }
                 );
             }
@@ -2424,7 +2457,6 @@ namespace IECE_WebApi.Controllers
 
                 persona = objeto.PersonaEntity;
                 persona.Fecha_Registro = fechayhora;
-                persona.usu_Id_Usuario = 1;
 
                 if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
                 {
@@ -2443,6 +2475,18 @@ namespace IECE_WebApi.Controllers
                 // MODIFICACION DE REGISTRO DE PERSONA
                 context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
+
+                // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
+                SolicitudNuevaProfesionController snpc = new SolicitudNuevaProfesionController(context);
+                if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
+                {
+                    snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio1);
+                }
+                if (persona.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
+                {
+                    snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio2);
+                }
+
                 return Ok(
                     new
                     {

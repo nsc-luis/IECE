@@ -23,10 +23,10 @@ namespace IECE_WebApi.Controllers
         private DateTime fechayhora = DateTime.UtcNow;
 
         // POST: api/SolicitudNuevaProfesion
-        [Route("[action]/{usu_Id_Usuario}/{nvaProfesion=}")]
+        [Route("[action]/{usu_Id_Usuario}/{per_Id_Persona}/{nvaProfesion=}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult RegistroDeNvaSolicitud(int usu_Id_Usuario, string nvaProfesion)
+        public IActionResult RegistroDeNvaSolicitud(int usu_Id_Usuario, int per_Id_Persona, string nvaProfesion)
         {
             try
             {
@@ -37,13 +37,14 @@ namespace IECE_WebApi.Controllers
                         descNvaProfesion = nvaProfesion,
                         solicitudAtendida = false,
                         usu_Id_Usuario = usu_Id_Usuario,
+                        per_Id_Persona = per_Id_Persona,
                         fechaSolicitud = fechayhora
                     };
                     context.SolicitudNuevaProfesion.Add(solicitud);
                     context.SaveChanges();
 
                     SendMailController sendMail = new SendMailController(context);
-                    sendMail.EnviarSolicitudNvaProfesion(usu_Id_Usuario, nvaProfesion);
+                    sendMail.EnviarSolicitudNvaProfesion(usu_Id_Usuario, per_Id_Persona, nvaProfesion);
 
                     return Ok(new
                     {

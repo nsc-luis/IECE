@@ -111,7 +111,7 @@ namespace IECE_WebApi.Controllers
                 context.SaveChanges();
 
                 SendMailController sendMail = new SendMailController(context);
-                sendMail.EnviarSolicitudNvoEstado(pais_Id_Pais, usu_Id_Usuario, nvoEstado);
+                sendMail.EnviarSolicitudNvoEstado(pais_Id_Pais, usu_Id_Usuario, 1, nvoEstado);
 
                 return Ok(new
                 {

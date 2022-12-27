@@ -292,12 +292,13 @@ namespace IECE_WebApi.Controllers
 
         // POST /api/EnviarSolicitudNvaProfesion/{descProf}/{usu_Id_Usuario}
         [HttpPost]
-        [Route("[action]/{usu_Id_Usuario}/{descNvaProf=}")]
+        [Route("[action]/{usu_Id_Usuario}/{per_Id_Persona}/{descNvaProf=}")]
         [EnableCors("AllowOrign")]
-        public IActionResult EnviarSolicitudNvaProfesion(int usu_Id_Usuario, string descNvaProf)
+        public IActionResult EnviarSolicitudNvaProfesion(int usu_Id_Usuario, int per_Id_Persona, string descNvaProf)
         {
             try
             {
+                var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == per_Id_Persona);
                 var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
                 datos datosEnvioCorreo = new datos
                 {
@@ -312,7 +313,8 @@ namespace IECE_WebApi.Controllers
                     destinatario = "soporte@iece.mx",
                     asunto = "IECE WebApp. Solicitud de nueva profesion.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado a una persona con " +
+                        $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado/editador a la persona " +
+                        $"<strong>{persona.per_Nombre} {persona.per_Apellido_Paterno} (per_Id_Persona: {persona.per_Id_Persona})</strong> con " +
                         "una profesion nueva, la cual es: " +
                         $"<ul><li><strong>{descNvaProf}</strong></li></ul>" +
                         "Se añade registro de la solicitud a la base de datos para seguimiento." +
@@ -328,7 +330,8 @@ namespace IECE_WebApi.Controllers
                 smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress(datosEnvioCorreo.remitente);
-                message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
+                message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
+                message.Bcc.Add(new MailAddress("nsc_luis@nscco.com.mx"));
                 //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
                 // message.ReplyToList.Add(new MailAddress(objeto.remitente));
                 message.Subject = datosEnvioCorreo.asunto;
@@ -355,7 +358,11 @@ namespace IECE_WebApi.Controllers
         [HttpPost]
         [Route("[action]/{pais_Id_Pais}/{usu_Id_Usuario}/{nvoEstado=}")]
         [EnableCors("AllowOrign")]
-        public IActionResult EnviarSolicitudNvoEstado(int pais_Id_Pais, int usu_Id_Usuario, string nvoEstado)
+        public IActionResult EnviarSolicitudNvoEstado(
+            int pais_Id_Pais,
+            int usu_Id_Usuario,
+            int per_Id_Persona,
+            string nvoEstado)
         {
 
             try
@@ -364,6 +371,7 @@ namespace IECE_WebApi.Controllers
                 {
                     var pais = context.Pais.FirstOrDefault(p => p.pais_Id_Pais == pais_Id_Pais);
                     var ministro = context.Personal_Ministerial.FirstOrDefault(m => m.pem_Id_Ministro == usu_Id_Usuario);
+                    var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == per_Id_Persona);
                     datos datosEnvioCorreo = new datos
                     {
                         smtpServer = SMTPSERVER,
@@ -372,14 +380,15 @@ namespace IECE_WebApi.Controllers
                         password = EMAILPASSWORD,
                         encriptacion = ENCRIPTACION,
                         formato = FORMATO,
-                        destinatario = "nsc_luis@nscco.com.mx",
+                        //destinatario = "nsc_luis@nscco.com.mx",
                         //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
-                        //destinatario = "soporte@iece.mx",
+                        destinatario = "soporte@iece.mx",
                         asunto = "IECE WebApp. Solicitud de nuevo estado.",
                         mensaje = "<html><body>Paz de Dios. <br />" +
                             $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un nuevo estado " +
                             $"para el pais {pais.pais_Nombre}, la cual es: " +
-                            $"<ul><li><strong>{nvoEstado}</strong></li></ul>" +
+                            $"<ul><li><strong>{nvoEstado}</strong></li>" +
+                            $"<li>Para la persona: <strong>{persona.per_Nombre} {persona.per_Apellido_Paterno}</strong></li></ul>" +
                             "Se añade registro de la solicitud a la base de datos para seguimiento." +
                             "<br />Dios bendiga!" +
                             "</body></html>"
@@ -393,7 +402,8 @@ namespace IECE_WebApi.Controllers
                     smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
                     MailMessage message = new MailMessage();
                     message.From = new MailAddress(datosEnvioCorreo.remitente);
-                    message.To.Add(new MailAddress("nsc_luis@nscco.com.mx"));
+                    message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
+                    message.Bcc.Add(new MailAddress("nsc_luis@nscco.com.mx"));
                     //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
                     //message.ReplyToList.Add(new MailAddress(objeto.remitente));
                     message.Subject = datosEnvioCorreo.asunto;
