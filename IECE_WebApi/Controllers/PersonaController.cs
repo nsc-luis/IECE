@@ -1513,7 +1513,7 @@ namespace IECE_WebApi.Controllers
                             context.SaveChanges();
 
                             // SE GENERA REGISTRO DE BAJA POR PADRES
-                            hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, bnbad.idUsuario);
+                            hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", bnbad.fechaTransaccion, bnbad.idUsuario);
                         }
                     }
                     // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
