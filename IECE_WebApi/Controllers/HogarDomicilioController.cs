@@ -230,17 +230,18 @@ namespace IECE_WebApi.Controllers
                                       est.est_Nombre_Corto
                                   }).ToList();
                 var noExterior = hogardomicilio[0].hd_Numero_Exterior == null || hogardomicilio[0].hd_Numero_Exterior == "" ? "S/N" : hogardomicilio[0].hd_Numero_Exterior;
-                var noInterior = hogardomicilio[0].hd_Numero_Interior == null || hogardomicilio[0].hd_Numero_Interior == "" ? "" : "interior: " + hogardomicilio[0].hd_Numero_Interior;
-                var asentamiento = hogardomicilio[0].hd_Subdivision == null || hogardomicilio[0].hd_Subdivision == "" ? "" : hogardomicilio[0].hd_Subdivision;
-                var localidad = hogardomicilio[0].hd_Localidad == null || hogardomicilio[0].hd_Localidad == "" ? "" : hogardomicilio[0].hd_Localidad;
+                var noInterior = hogardomicilio[0].hd_Numero_Interior == null || hogardomicilio[0].hd_Numero_Interior == "" ? "" : " int. " + hogardomicilio[0].hd_Numero_Interior;
+                var tipoAsentamiento = hogardomicilio[0].hd_Tipo_Subdivision == null || hogardomicilio[0].hd_Tipo_Subdivision == "" ? "" : hogardomicilio[0].hd_Tipo_Subdivision;
+                var asentamiento = hogardomicilio[0].hd_Subdivision == null || hogardomicilio[0].hd_Subdivision == "" ? "" : $"{ tipoAsentamiento} {hogardomicilio[0].hd_Subdivision}";
+                var localidad = hogardomicilio[0].hd_Localidad == null || hogardomicilio[0].hd_Localidad == "" ? "" : $"{hogardomicilio[0].hd_Localidad},";
                 var direccion = "";
                 if (hogardomicilio[0].pais_Nombre_Corto == "USA" || hogardomicilio[0].pais_Nombre_Corto == "CAN")
                 {
-                    direccion = $"{noExterior} {hogardomicilio[0].hd_Calle} {noInterior} {asentamiento} {localidad} {hogardomicilio[0].hd_Municipio_Ciudad} {hogardomicilio[0].est_Nombre} {hogardomicilio[0].pais_Nombre}";
+                    direccion = $"{noExterior} {noInterior} {hogardomicilio[0].hd_Calle}, {asentamiento} {localidad} {hogardomicilio[0].hd_Municipio_Ciudad}, {hogardomicilio[0].est_Nombre}, {hogardomicilio[0].pais_Nombre_Corto}.";
                 }
                 else
                 {
-                    direccion = $"{hogardomicilio[0].hd_Calle} {noExterior} {noInterior} {asentamiento} {localidad} {hogardomicilio[0].hd_Municipio_Ciudad} {hogardomicilio[0].est_Nombre} {hogardomicilio[0].pais_Nombre}";
+                    direccion = $"{hogardomicilio[0].hd_Calle} {noExterior}{noInterior}, {asentamiento}, {localidad} {hogardomicilio[0].hd_Municipio_Ciudad}, {hogardomicilio[0].est_Nombre}, {hogardomicilio[0].pais_Nombre_Corto}.";
                 }
 
                 return Ok(new
