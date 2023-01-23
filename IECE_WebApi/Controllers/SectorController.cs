@@ -81,7 +81,6 @@ namespace IECE_WebApi.Controllers
                                  sec_Tipo_Sector = sec.sec_Tipo_Sector,
                                  sec_Numero = sec.sec_Numero,
                                  pem_Id_Pastor = sec.pem_Id_Pastor != null ? 0 : sec.pem_Id_Pastor
-
                              }).ToList();
                 return Ok(
                     new
