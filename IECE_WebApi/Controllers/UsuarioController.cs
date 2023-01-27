@@ -26,7 +26,7 @@ namespace IECE_WebApi.Controllers
         private readonly SignInManager<Usuario> _signInManager;
         private readonly DateTime fechayhora = DateTime.UtcNow;
         private readonly IConfiguration _configuration;
-        private readonly string superSecreto = Environment.GetEnvironmentVariable("LlaveAltaUsuario");
+        private readonly string superSecreto = global.LlaveAltaUsuario;
         // CLAVE PARA FASE 1 DE ALTA DE USUARIO, METODO DE VERIFICACION DE CORREO
         private readonly string cf1 = "1dc5cfa8-b770-43f4-ad11-51126df7f8ad";
         // CLAVE PARA FASE 2 DE ALTA DE USUARIO, METODO DE ALTA DE USUARIO
