@@ -18,7 +18,8 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "Llave_super_secreta": "E38shaGPv6xDgUHN4BffduCQx5fXSMRhyEY2r5tD",
+        "LlaveAltaUsuario": "9453bbb3-6aa9-4d3d-826d-85cf343ce59f",
+        "passEmail": "s0p0rt3$",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

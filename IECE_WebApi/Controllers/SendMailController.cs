@@ -53,7 +53,7 @@ namespace IECE_WebApi.Controllers
         }
 
         string REMITENTE = "soporte@iece.mx";
-        string EMAILPASSWORD = "s0p0rt3$";
+        string EMAILPASSWORD = Environment.GetEnvironmentVariable("emailPass");//"s0p0rt3$";
         string SMTPSERVER = "mail.iece.mx";
         int PUERTO = 587;
         bool ENCRIPTACION = false;
