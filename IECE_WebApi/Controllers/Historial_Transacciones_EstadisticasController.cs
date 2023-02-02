@@ -543,8 +543,6 @@ namespace IECE_WebApi.Controllers
                     if (contador == 0)
                     {
                         // Esenario 2: en el hogar hay varias personas no bautizadas o excomulgadas
-                        pc.RestructuraJerarquiasAlta(arrha.idPersona, 1);
-
                         // ACTIVACION DE HOGAR
                         var d = context.HogarDomicilio.FirstOrDefault(dom => dom.hd_Id_Hogar == h.hd_Id_Hogar);
                         d.hd_Activo = true;
@@ -557,7 +555,7 @@ namespace IECE_WebApi.Controllers
                         // OBTENER MIEMBROS DEL HOGAR
                         var mh = (from hp in context.Hogar_Persona
                                         join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
-                                        where hp.per_Id_Persona == arrha.idPersona && per.per_Vivo == true
+                                        where hp.hd_Id_Hogar == h.hd_Id_Hogar && per.per_Vivo == true
                                         select new
                                         {
                                             per.per_Id_Persona,
@@ -578,6 +576,8 @@ namespace IECE_WebApi.Controllers
                                 RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", arrha.fecha, arrha.idMinistro);
                             }
                         }
+                        // RESTRUCTURA JERARQUIAS
+                        pc.RestructuraJerarquiasAlta(arrha.idPersona, 1);
 
                         return Ok(new
                         {
