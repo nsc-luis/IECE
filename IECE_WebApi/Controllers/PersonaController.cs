@@ -1059,6 +1059,7 @@ namespace IECE_WebApi.Controllers
                                      p.per_Apellido_Paterno,
                                      p.per_Apellido_Materno,
                                      p.per_Bautizado,
+                                     p.per_Categoria,
                                      s.sec_Numero,
                                      s.sec_Tipo_Sector,
                                      s.sec_Alias,

@@ -437,6 +437,9 @@ namespace IECE_WebApi.Controllers
                         context.Hogar_Persona.Update(h);
                         context.SaveChanges();
 
+                        // y restructura de jerarquias
+                        pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
+
                         // se genera registro historico de la persona
                         RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
                     }
