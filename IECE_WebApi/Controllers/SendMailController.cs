@@ -52,9 +52,9 @@ namespace IECE_WebApi.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        string REMITENTE = "soporte@iece.mx";
-        string EMAILPASSWORD = "s0p0rt3$";
-        string SMTPSERVER = "mail.iece.mx";
+        string REMITENTE = global.remitenteEmail;
+        string EMAILPASSWORD = global.passEmail;
+        string SMTPSERVER = global.smtpEmail;
         int PUERTO = 587;
         bool ENCRIPTACION = false;
         bool FORMATO = true;
@@ -121,7 +121,7 @@ namespace IECE_WebApi.Controllers
                         "Para proceder con el cambio de su contraseña para el acceso a la Aplicación " +
                         "Web de Control de Membresía de la IECE, acceda al siguiente enlace: " +
                         "<br /><br /><br />" +
-                        "http://iece-tpr.ddns.net:81/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena +
+                        "http://iece-membresia.ddns.net/ValidaCambioDeContrasena?cadenaDeValidacion=" + datosParaCambio.vcc_Cadena +
                         "<br /><br /><br />" +
                         "Cualquier problema con el cambio de su contraseña comuniquese al " +
                         "Departamento de Soporte Técnico al siguiente correo: soporte@iece.mx " +

@@ -1059,6 +1059,7 @@ namespace IECE_WebApi.Controllers
                                      p.per_Apellido_Paterno,
                                      p.per_Apellido_Materno,
                                      p.per_Bautizado,
+                                     p.per_Categoria,
                                      s.sec_Numero,
                                      s.sec_Tipo_Sector,
                                      s.sec_Alias,
@@ -1380,35 +1381,6 @@ namespace IECE_WebApi.Controllers
 
                 if (bautizados == 1)
                 {
-                    foreach (var p1 in miembrosDelHogar)
-                    {
-                        if (p1.per_Id_Persona != per_Id_Persona)
-                        {
-                            // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
-                            var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p1.per_Id_Persona);
-                            persona.per_Activo = false;
-                            context.Persona.Update(persona);
-                            context.SaveChanges();
-
-                            // SE GENERA REGISTRO DE BAJA POR PADRES
-                            hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
-                        }
-                    }
-                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
-                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
-                    hdx.hd_Activo = false;
-                    context.HogarDomicilio.Update(hdx);
-                    context.SaveChanges();
-
-                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(
-                        p.per_Id_Persona, 
-                        p.sec_Id_Sector, 
-                        31102,
-                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}", 
-                        fechaExcomunion, 
-                        usu_Id_Usuario);
-
                     // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
                     var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == per_Id_Persona);
                     hp.hp_Jerarquia = 99;
@@ -1426,6 +1398,36 @@ namespace IECE_WebApi.Controllers
 
                     // ASEGURA JERARQUIAS CORRECTAS
                     AseguraJerarquias(hp.hd_Id_Hogar);
+
+                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
+                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
+                    hdx.hd_Activo = false;
+                    context.HogarDomicilio.Update(hdx);
+                    context.SaveChanges();
+
+                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
+                    hte.RegistroHistorico(
+                        p.per_Id_Persona,
+                        p.sec_Id_Sector,
+                        31102,
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
+                        fechaExcomunion,
+                        usu_Id_Usuario);
+
+                    foreach (var p1 in miembrosDelHogar)
+                    {
+                        if (p1.per_Id_Persona != per_Id_Persona)
+                        {
+                            // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
+                            var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p1.per_Id_Persona);
+                            persona.per_Activo = false;
+                            context.Persona.Update(persona);
+                            context.SaveChanges();
+
+                            // SE GENERA REGISTRO DE BAJA POR PADRES
+                            hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
+                        }
+                    }
                 }
                 else
                 {

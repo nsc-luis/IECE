@@ -59,6 +59,7 @@ namespace IECE_WebApi.Controllers
             public string comentrario { get; set; }
             public DateTime fecha { get; set; }
             public int idMinistro { get; set; }
+            public int jerarquia { get; set; }
         }
 
         public class AltaCamDomReactRest_HogarExistente
@@ -436,6 +437,9 @@ namespace IECE_WebApi.Controllers
                         context.Hogar_Persona.Update(h);
                         context.SaveChanges();
 
+                        // y restructura de jerarquias
+                        pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
+
                         // se genera registro historico de la persona
                         RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
                     }
@@ -498,6 +502,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 // OBTENER DATOS DE LA PERSONA
+                PersonaController pc = new PersonaController(context);
                 var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == arrha.idPersona);
 
                 // OBTENER DATOS DEL HOGAR
@@ -532,15 +537,15 @@ namespace IECE_WebApi.Controllers
                     context.Persona.Update(p);
                     context.SaveChanges();
 
+                    // Restructura de jerarquias
+                    pc.RestructuraJerarquiasAlta(arrha.idPersona, arrha.jerarquia);
+
                     //  Genera registro historico
                     RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 11002, arrha.comentrario, arrha.fecha, arrha.idMinistro);
 
                     if (contador == 0)
                     {
                         // Esenario 2: en el hogar hay varias personas no bautizadas o excomulgadas
-                        PersonaController pc = new PersonaController(context);
-                        pc.RestructuraJerarquiasAlta(arrha.idPersona, 1);
-
                         // ACTIVACION DE HOGAR
                         var d = context.HogarDomicilio.FirstOrDefault(dom => dom.hd_Id_Hogar == h.hd_Id_Hogar);
                         d.hd_Activo = true;
@@ -553,7 +558,7 @@ namespace IECE_WebApi.Controllers
                         // OBTENER MIEMBROS DEL HOGAR
                         var mh = (from hp in context.Hogar_Persona
                                         join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
-                                        where hp.per_Id_Persona == arrha.idPersona && per.per_Vivo == true
+                                        where hp.hd_Id_Hogar == h.hd_Id_Hogar && per.per_Vivo == true
                                         select new
                                         {
                                             per.per_Id_Persona,
@@ -574,6 +579,8 @@ namespace IECE_WebApi.Controllers
                                 RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", arrha.fecha, arrha.idMinistro);
                             }
                         }
+                        // RESTRUCTURA JERARQUIAS
+                        pc.RestructuraJerarquiasAlta(arrha.idPersona, 1);
 
                         return Ok(new
                         {
@@ -592,6 +599,9 @@ namespace IECE_WebApi.Controllers
                     p.per_En_Comunion = true;
                     context.Persona.Update(p);
                     context.SaveChanges();
+
+                    // Restructura de jerarquias
+                    pc.RestructuraJerarquiasAlta(arrha.idPersona, arrha.jerarquia);
 
                     //  Genera registro historico
                     RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 12004, arrha.comentrario, arrha.fecha, arrha.idMinistro);
