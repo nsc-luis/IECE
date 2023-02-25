@@ -381,6 +381,13 @@ namespace IECE_WebApi.Controllers
                 // OBTENER DATOS DE LA PERSONA
                 var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == acdrr_he.idPersona);
 
+                // OBTENER DATOS DE LOS MINISTROS
+                var ministroForaneo = (from p0 in context.Persona
+                                       join m0 in context.Personal_Ministerial on p0.sec_Id_Sector equals m0.sec_Id_Congregacion
+                                       where p0.per_Id_Persona == acdrr_he.idPersona
+                                       select m0).ToList();
+                var ministroLocal = context.Personal_Ministerial.FirstOrDefault(m1 => m1.pem_Id_Ministro == acdrr_he.idMinistro);
+
                 // OBTENER DATOS DEL HOGAR
                 var h = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == acdrr_he.idPersona);
 
@@ -407,71 +414,100 @@ namespace IECE_WebApi.Controllers
                 // inicializa codigo de transaccion
                 int ct = 0;
 
-                // CONDICION PRINCIPAL
-                if (p.per_Bautizado == true)
+                // CONDICION PRINCIPAL PARA CAMBIO DE DOMICILIO
+                if (acdrr_he.idMinistro != ministroForaneo[0].pem_Id_Ministro)
                 {
-                    // cambios en comun
-                    p.per_En_Comunion = true;
-                    ct = 11002;
-
-                    // si el hogar seleccionado es diferente al que pretenecia la persona
-                    if (acdrr_he.idDomicilio != h.hd_Id_Hogar)
-                    {
-                        // baja en el hogar anterior
-                        pc.RestructuraJerarquiasBaja(acdrr_he.idPersona);
-                        // alta en el nuevo 
-                        h.hd_Id_Hogar = acdrr_he.idDomicilio;
-                        h.hp_Jerarquia = acdrr_he.jerarquia;
-                        context.Hogar_Persona.Update(h);
-                        context.SaveChanges();
-                        // y restructura de jerarquias
-                        pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
-
-                        // se genera registro historico de la persona
-                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
-                    }
-                    else
-                    {
-                        // la persona se restituyo en el mismo hogar
-                        h.hp_Jerarquia = acdrr_he.jerarquia;
-                        context.Hogar_Persona.Update(h);
-                        context.SaveChanges();
-
-                        // se genera registro historico de la persona
-                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
-                    }
-                }
-                // la persona no es bautizada y se reactiva en el mismo hogar
-                else if (h.hd_Id_Hogar == acdrr_he.idDomicilio)
-                {
+                    // baja en el hogar anterior
+                    pc.RestructuraJerarquiasBaja(acdrr_he.idPersona);
+                    // alta en el nuevo 
+                    h.hd_Id_Hogar = acdrr_he.idDomicilio;
                     h.hp_Jerarquia = acdrr_he.jerarquia;
+                    h.usu_Id_Usuario = acdrr_he.idMinistro;
                     context.Hogar_Persona.Update(h);
                     context.SaveChanges();
-                    // restructura jerarquias
+                    // y restructura de jerarquias
                     pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
-                    ct = 12004;
+
+                    p.sec_Id_Sector = ministroLocal.sec_Id_Congregacion;
+                    ct = p.per_Bautizado ? 11004 : 12003;
                     // se genera registro historico de la persona
                     RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
                 }
                 else
                 {
-                    // baja del hogar anterior
-                    pc.RestructuraJerarquiasBaja(acdrr_he.idPersona);
-                    // alta en el hogar nuevo
-                    h.hd_Id_Hogar = acdrr_he.idDomicilio;
-                    h.hp_Jerarquia = acdrr_he.jerarquia;
-                    context.Hogar_Persona.Update(h);
-                    context.SaveChanges();
-                    // restructura jerarquias en el nuevo hogar
-                    pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
-                    ct = 12004;
-                    // genera registro historico de la persona
-                    RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
-                }
+                    // CONDICION PRINCIPAL PARA RESTITUCION/ACTIVACION 
+                    if (p.per_Bautizado == true)
+                    {
+                        // cambios en comun
+                        p.per_En_Comunion = true;
+                        ct = 11002;
 
+                        // si el hogar seleccionado es diferente al que pretenecia la persona
+                        if (acdrr_he.idDomicilio != h.hd_Id_Hogar)
+                        {
+                            // baja en el hogar anterior
+                            pc.RestructuraJerarquiasBaja(acdrr_he.idPersona);
+                            // alta en el nuevo 
+                            h.hd_Id_Hogar = acdrr_he.idDomicilio;
+                            h.hp_Jerarquia = acdrr_he.jerarquia;
+                            h.usu_Id_Usuario = acdrr_he.idMinistro;
+                            context.Hogar_Persona.Update(h);
+                            context.SaveChanges();
+                            // y restructura de jerarquias
+                            pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
+
+                            // se genera registro historico de la persona
+                            RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                        }
+                        else
+                        {
+                            // la persona se restituyo en el mismo hogar
+                            h.hp_Jerarquia = acdrr_he.jerarquia;
+                            h.usu_Id_Usuario = acdrr_he.idMinistro;
+                            context.Hogar_Persona.Update(h);
+                            context.SaveChanges();
+
+                            // y restructura de jerarquias
+                            pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
+
+                            // se genera registro historico de la persona
+                            RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                        }
+                    }
+                    // la persona no es bautizada y se reactiva en el mismo hogar
+                    else if (h.hd_Id_Hogar == acdrr_he.idDomicilio)
+                    {
+                        h.hp_Jerarquia = acdrr_he.jerarquia;
+                        h.usu_Id_Usuario = acdrr_he.idMinistro;
+                        context.Hogar_Persona.Update(h);
+                        context.SaveChanges();
+                        // restructura jerarquias
+                        pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
+                        ct = 12004;
+                        // se genera registro historico de la persona
+                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                    }
+                    else
+                    {
+                        // baja del hogar anterior
+                        pc.RestructuraJerarquiasBaja(acdrr_he.idPersona);
+                        // alta en el hogar nuevo
+                        h.hd_Id_Hogar = acdrr_he.idDomicilio;
+                        h.hp_Jerarquia = acdrr_he.jerarquia;
+                        h.usu_Id_Usuario = acdrr_he.idMinistro;
+                        context.Hogar_Persona.Update(h);
+                        context.SaveChanges();
+                        // restructura jerarquias en el nuevo hogar
+                        pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
+                        ct = 12004;
+                        // genera registro historico de la persona
+                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                    }
+                }
                 // actualiza estatus de la persona
                 p.per_Activo = true;
                 p.per_Visibilidad_Abierta = false;
+                p.usu_Id_Usuario = acdrr_he.idMinistro;
                 context.Persona.Update(p);
                 context.SaveChanges();
 
@@ -520,13 +556,14 @@ namespace IECE_WebApi.Controllers
                                     per.per_Bautizado,
                                     hp.hp_Jerarquia
                                 }).ToList();
-                foreach(var m in miembros)
+                foreach (var m in miembros)
                 {
                     contador = m.per_Bautizado == true ? contador + 1 : contador + 0;
                 }
 
                 // CONDICION PRINCIPAL PARA TIPO DE MIEMBRO BAUTIZADO O NO BAUTIZADO
-                if (p.per_Bautizado == true) {
+                if (p.per_Bautizado == true)
+                {
 
                     // Esenario 1: en el hogar hay varias personas bautizadas activas
                     p.per_Activo = true;
@@ -554,13 +591,13 @@ namespace IECE_WebApi.Controllers
 
                         // OBTENER MIEMBROS DEL HOGAR
                         var mh = (from hp in context.Hogar_Persona
-                                        join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
-                                        where hp.hd_Id_Hogar == h.hd_Id_Hogar && per.per_Vivo == true
-                                        select new
-                                        {
-                                            per.per_Id_Persona,
-                                            per.per_Bautizado
-                                        }).ToList();
+                                  join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                  where hp.hd_Id_Hogar == h.hd_Id_Hogar && per.per_Vivo == true
+                                  select new
+                                  {
+                                      per.per_Id_Persona,
+                                      per.per_Bautizado
+                                  }).ToList();
 
                         // cambia estatus de personas no bautizadas a activas (ct: 12201)
                         foreach (var m in mh)

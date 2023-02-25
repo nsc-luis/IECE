@@ -1059,6 +1059,7 @@ namespace IECE_WebApi.Controllers
                                      p.per_Apellido_Paterno,
                                      p.per_Apellido_Materno,
                                      p.per_Bautizado,
+                                     p.per_Categoria,
                                      s.sec_Numero,
                                      s.sec_Tipo_Sector,
                                      s.sec_Alias,
@@ -1290,6 +1291,49 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "success",
                     personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Persona/GetPersonasVisibilidadAbierta
+        [Route("[action]/{per_Bautizado}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonasVisibilidadAbierta(bool per_Bautizado)
+        {
+            try
+            {
+                var personas = (from p in context.Persona
+                                join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                                join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                where p.per_Bautizado == per_Bautizado && p.per_Visibilidad_Abierta
+                                select new
+                                {
+                                    p.per_Id_Persona,
+                                    p.per_Nombre,
+                                    p.per_Apellido_Paterno,
+                                    p.per_Apellido_Materno,
+                                    p.sec_Id_Sector,
+                                    s.sec_Numero,
+                                    s.sec_Tipo_Sector,
+                                    s.sec_Alias,
+                                    d.dis_Id_Distrito,
+                                    d.dis_Tipo_Distrito,
+                                    d.dis_Numero,
+                                    d.dis_Alias
+                                }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas
                 });
             }
             catch (Exception ex)
@@ -1847,6 +1891,7 @@ namespace IECE_WebApi.Controllers
 
                 // SE CAMBIA ESTATUS DE LA VISIBILIDAD DE LA PERSONA Y A ESTATUS INACTIVO
                 p.per_Activo = false;
+                p.per_Visibilidad_Abierta = true;
                 context.Persona.Update(p);
                 context.SaveChanges();
 
