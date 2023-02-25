@@ -14,7 +14,7 @@ namespace IECE_WebApi.Models
         public Nullable<int> per_Id_Miembro { get; set; }
         public string pem_Nombre { get; set; }
         public Nullable<DateTime> pem_Fecha_Nacimiento { get; set; }
-        public Nullable<int> sec_Id_Congregacion { get; set; }
+        public int sec_Id_Congregacion { get; set; }
         public string pem_Grado_Ministerial { get; set; }
         public Nullable<DateTime> pem_Fecha_Prueba_Diaconado { get; set; }
         public Nullable<DateTime> pem_Fecha_Ordenacion_Diacono { get; set; }
