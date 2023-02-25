@@ -199,7 +199,7 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from pem in context.Personal_Ministerial
                               where pem.pem_Activo == true && pem.pem_Grado_Ministerial == "ANCIANO"
-                              && (from s in context.Sector where s.dis_Id_Distrito == idDistrito select s.sec_Id_Sector).AsQueryable().Contains(pem.sec_Id_Congregacion.Value)
+                              && (from s in context.Sector where s.dis_Id_Distrito == idDistrito select s.sec_Id_Sector).AsQueryable().Contains(pem.sec_Id_Congregacion)
                               select new
                               {
                                   pem.pem_Id_Ministro,
