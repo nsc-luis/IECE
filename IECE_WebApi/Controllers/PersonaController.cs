@@ -1834,6 +1834,7 @@ namespace IECE_WebApi.Controllers
                             // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
                             var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p1.per_Id_Persona);
                             persona.per_Activo = false;
+                            persona.per_Visibilidad_Abierta = true;
                             context.Persona.Update(persona);
                             context.SaveChanges();
 
