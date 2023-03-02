@@ -630,7 +630,7 @@ namespace IECE_WebApi.Controllers
                 {
                     // Esenario 3: en el hogar hay varias personas bautizadas activas
                     p.per_Activo = true;
-                    p.per_En_Comunion = true;
+                    p.per_En_Comunion = false;
                     context.Persona.Update(p);
                     context.SaveChanges();
 

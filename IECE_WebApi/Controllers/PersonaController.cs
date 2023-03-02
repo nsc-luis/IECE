@@ -631,8 +631,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from p in context.Persona
-                             join s in context.Sector
-                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                              where p.sec_Id_Sector == sec_Id_Sector
                              //&& p.per_Bautizado == true
                              && p.per_En_Comunion == true
@@ -1043,6 +1042,7 @@ namespace IECE_WebApi.Controllers
                 var delSector = (from p in context.Persona
                                  join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                                  join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                 join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
                                  where (p.sec_Id_Sector == sec_Id_Sector && p.per_Bautizado == bautizado)
                                  && !p.per_En_Comunion
                                  && !p.per_Activo
@@ -1064,7 +1064,8 @@ namespace IECE_WebApi.Controllers
                                      s.sec_Tipo_Sector,
                                      s.sec_Alias,
                                      d.dis_Id_Distrito,
-                                     d.dis_Alias
+                                     d.dis_Alias,
+                                     hp.hd_Id_Hogar
                                  }).ToList();
 
                 var otroSector = (from p in context.Persona
