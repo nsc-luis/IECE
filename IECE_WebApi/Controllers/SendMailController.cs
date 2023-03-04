@@ -255,12 +255,12 @@ namespace IECE_WebApi.Controllers
             try
             {
                 SmtpClient smtp = new SmtpClient();
-                smtp.Host = objeto.smtpServer;
-                smtp.Port = objeto.puerto;
-                smtp.EnableSsl = objeto.encriptacion;
+                smtp.Host = SMTPSERVER;
+                smtp.Port = PUERTO;
+                smtp.EnableSsl = ENCRIPTACION;
                 smtp.UseDefaultCredentials = false;
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.Credentials = new NetworkCredential(objeto.remitente, objeto.password);
+                smtp.Credentials = new NetworkCredential(REMITENTE, EMAILPASSWORD);
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress(objeto.remitente);
                 foreach (string destinatario in destinatarios)
@@ -269,7 +269,7 @@ namespace IECE_WebApi.Controllers
                 }
                 // message.ReplyToList.Add(new MailAddress(objeto.remitente));
                 message.Subject = objeto.asunto;
-                message.IsBodyHtml = objeto.formato;
+                message.IsBodyHtml = FORMATO;
                 message.Body = objeto.mensaje;
                 smtp.Send(message);
                 return Ok(
