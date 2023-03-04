@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +39,87 @@ namespace IECE_WebApi.Controllers
         {
             public virtual Matrimonio_Legalizacion matLegalEntity { get; set; }
             public virtual HogarDomicilio HogarDomicilioEntity { get; set; }
+            public bool boolNvoDomicilio { get; set; }
+            public string nvoEstado { get; set; }
+            public string sectorAlias { get; set; }
+        }
+
+        // MIEMBROS DEL MATRIMONIO / LEGALIZACION
+        private void MiembrosDelMatLegal(int per_Id_Persona, int hd_Id_Hogar, int sec_Id_Sector, DateTime fecha, int usu_Id_Usuario)
+        {
+           // instancia historial controller
+           Historial_Transacciones_EstadisticasController hc = new Historial_Transacciones_EstadisticasController(context);
+           // instancia persona controller
+           PersonaController pc = new PersonaController(context);
+
+            // obtener id de hogar desde id de persona
+            var hpersona = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == per_Id_Persona);
+
+            // obtener miembros del hogar
+            var miembros = (from hp in context.Hogar_Persona
+                            join p in context.Persona on hp.per_Id_Persona equals p.per_Id_Persona
+                            where hp.hd_Id_Hogar == hpersona.hd_Id_Hogar
+                            select p).ToList();
+
+            // cuenta bautizado
+            int contador = 0;
+            foreach (var m in miembros)
+            {
+                var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == m.per_Id_Persona);
+                contador = persona.per_Bautizado ? contador + 1 : contador + 0;
+            }
+
+            // condicion principal
+            if (contador == 1)
+            {
+                // se actualiza registro de las pesonas no bautizadas para registro en el nuevo hogar
+                foreach (var m in miembros)
+                {
+                    if (m.per_Id_Persona != per_Id_Persona) {
+                        var qp = context.Hogar_Persona.FirstOrDefault(p => p.per_Id_Persona == m.per_Id_Persona);
+                        qp.hd_Id_Hogar = hd_Id_Hogar;
+                        context.Hogar_Persona.Update(qp);
+                        context.SaveChanges();
+
+                        // se genera registro historio como cambio de domicilio
+                        hc.RegistroHistorico(qp.per_Id_Persona, sec_Id_Sector, 12103, "", fecha, usu_Id_Usuario);
+
+                        // restructura jerarquias
+                        pc.RestructuraJerarquiasAlta(qp.per_Id_Persona, 3);
+                    }
+                }
+                // se genera registro historio de baja el hogar anterior
+                var hd = context.HogarDomicilio.FirstOrDefault(h => h.hd_Id_Hogar == hpersona.hd_Id_Hogar);
+                hd.hd_Activo = false;
+                context.HogarDomicilio.Update(hd);
+                context.SaveChanges();
+
+                // se genera registro historico de la baja del hogar
+                hc.RegistroHistorico(per_Id_Persona, sec_Id_Sector, 31102, "", fecha, usu_Id_Usuario);
+            }
+            else
+            {
+                // solo baja de la persona del hogar anterior
+                pc.RestructuraJerarquiasBaja(per_Id_Persona);
+            }
+        }
+
+        // ASEGURA JERARQUIAS
+        private void AseguraJerarquias(int hd_Id_Hogar)
+        {
+            // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
+            List<Hogar_Persona> miembrosDelHogar = (from hp in context.Hogar_Persona
+                                                    where hp.hd_Id_Hogar == hd_Id_Hogar
+                                                    orderby hp.hp_Jerarquia
+                                                    select hp).ToList();
+            int i = 1;
+            foreach (Hogar_Persona m in miembrosDelHogar)
+            {
+                m.hp_Jerarquia = i;
+                context.Hogar_Persona.Update(m);
+                context.SaveChanges();
+                i = i + 1;
+            }
         }
 
         // GET: api/Matrimonio_Legalizacion
@@ -189,7 +267,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from p in context.Persona
-                             where p.per_Categoria == "ADULTO_MUJER"
+                             where p.per_Categoria == "ADULTO_MUJER" && p.per_Bautizado
                              && (p.sec_Id_Sector == idSector && p.per_Activo == true)
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
@@ -231,7 +309,8 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_MUJER" || p.per_Categoria == "ADULTO_MUJER")
-                             && p.sec_Id_Sector == idSector // && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
+                             && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
+                             && p.sec_Id_Sector == idSector && p.per_Bautizado 
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Mujer).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -271,7 +350,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from p in context.Persona
-                             where p.per_Categoria == "ADULTO_HOMBRE"
+                             where p.per_Categoria == "ADULTO_HOMBRE" && p.per_Bautizado
                              && (p.sec_Id_Sector == idSector && p.per_Activo == true)
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
@@ -313,7 +392,8 @@ namespace IECE_WebApi.Controllers
             {
                 var query = (from p in context.Persona
                              where (p.per_Categoria == "JOVEN_HOMBRE" || p.per_Categoria == "ADULTO_HOMBRE")
-                             && p.sec_Id_Sector == idSector //&& (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
+                             && (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
+                             && p.sec_Id_Sector == idSector && p.per_Bautizado //&& (p.per_Activo == true && !p.per_Estado_Civil.Contains("CASAD"))
                              // && !(from mat in context.Matrimonio_Legalizacion select mat.per_Id_Persona_Hombre).Contains(p.per_Id_Persona)
                              select new
                              {
@@ -345,29 +425,28 @@ namespace IECE_WebApi.Controllers
         }
 
         // POST: api/Matrimonio_Legalizacion/AltaMatriminioLegalizacion/true/elNvoEstado
-        [Route("[action]/{boolNvoDomicilio}/{nvoEstado=}")]
+        [Route("[action]")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public ActionResult AltaMatriminioLegalizacion([FromBody] MatrimonioLegalizacionDomicilio matLegalDom, bool boolNvoDomicilio, string nvoEstado)
+        public ActionResult AltaMatriminioLegalizacion([FromBody] MatrimonioLegalizacionDomicilio matLegalDom)
         {
+            Matrimonio_Legalizacion matLegal = matLegalDom.matLegalEntity;
+            HogarDomicilio dom = matLegalDom.HogarDomicilioEntity;
+            PersonaController pc = new PersonaController(context);
+            int idNvoEstado = 0;
             try
             {
-                Matrimonio_Legalizacion matLegal = matLegalDom.matLegalEntity;
-                HogarDomicilio dom = matLegalDom.HogarDomicilioEntity;
-                PersonaController pc = new PersonaController(context);
-                int idNvoEstado = 0;
-
                 var estados = (from e in context.Estado
                                where e.pais_Id_Pais == dom.pais_Id_Pais
                                select e).ToList();
-
-                if (estados.Count < 1 && nvoEstado != null)
-                {
+                
+                if (matLegalDom.nvoEstado != "" && dom.est_Id_Estado == 0)
+                    {
                     var p = context.Pais.FirstOrDefault(pais => pais.pais_Id_Pais == dom.pais_Id_Pais);
                     var est = new Estado
                     {
-                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
-                        est_Nombre = nvoEstado,
+                        est_Nombre_Corto = matLegalDom.nvoEstado.Substring(0, 3),
+                        est_Nombre = matLegalDom.nvoEstado,
                         pais_Id_Pais = dom.pais_Id_Pais,
                         est_Pais = p.pais_Nombre_Corto
                     };
@@ -410,10 +489,11 @@ namespace IECE_WebApi.Controllers
                         p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
                         p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
                         p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                        p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
                         p.per_Estado_Civil = "CASADO(A)";
                     }
                     context.SaveChanges();
-                    hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 11201, "Enlace matrimonial", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+                    hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 11201, "", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
 
                     // GUARDA ESTATUS Y REGISTRO HISTORICO DE LA MUJER
                     foreach (Persona p in perMujer)
@@ -427,10 +507,11 @@ namespace IECE_WebApi.Controllers
                         p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
                         p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
                         p.per_Registro_Civil = matLegal.mat_Registro_Civil;
+                        p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
                         p.per_Estado_Civil = "CASADO(A)";
                     }
                     context.SaveChanges();
-                    hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 11201, "Enlace matrimonial", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+                    hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 11201, "", matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
 
                     // GUARDA REGISTRO EN TABLA MATRIMONIO_LEGALIZACION
                     matLegal.Fecha_Registro = matLegal.mat_Fecha_Boda_Eclesiastica;
@@ -452,14 +533,14 @@ namespace IECE_WebApi.Controllers
                     }
 
                     // AGREGAR NUEVO HOGAR
-                    if (boolNvoDomicilio)
+                    if (matLegalDom.boolNvoDomicilio)
                     {
                         // AGREGANDO HOGAR
-                        if (estados.Count < 1 && nvoEstado != null)
+                        if (estados.Count < 1 && matLegalDom.nvoEstado != null)
                         {
                             dom.est_Id_Estado = idNvoEstado;
                         }
-
+                        dom.hd_Activo = true;
                         context.HogarDomicilio.Add(dom);
                         context.SaveChanges();
 
@@ -469,28 +550,32 @@ namespace IECE_WebApi.Controllers
                             perHombre[0].sec_Id_Sector, 
                             31001,
                             $"{perHombre[0].per_Nombre} {perHombre[0].per_Apellido_Paterno} {perHombre[0].per_Apellido_Materno}",
-                            fechayhora, 
+                            matLegal.mat_Fecha_Boda_Eclesiastica, 
                             dom.usu_Id_Usuario
                         );
 
-                        // AGREGANDO PERSONAS AL NUEVO HOGAR
+                        // MANEJO DE LOS MIEMBROS DEL HOGAR DEL HOMBRE QUE SE CASA
+                        MiembrosDelMatLegal(perHombre[0].per_Id_Persona, dom.hd_Id_Hogar, matLegal.sec_Id_Sector, matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
+
+                        // AGREGANDO HOMBRE CASADO AL NUEVO HOGAR
                         var hph = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == perHombre[0].per_Id_Persona);
                         hph.hp_Jerarquia = 1;
                         hph.hd_Id_Hogar = dom.hd_Id_Hogar;
                         context.Hogar_Persona.Update(hph);
                         context.SaveChanges();
 
-                        // RESTRUCTURA JERARQUIAS DEL HOGAR ANTERIOR DEL HOMBRE
-                        pc.RestructuraJerarquiasBaja(perHombre[0].per_Id_Persona);
+                        // MANEJO DE LOS MIEMBROS DEL HOGAR DE LA MUJER QUE SE CASA
+                        MiembrosDelMatLegal(perMujer[0].per_Id_Persona, dom.hd_Id_Hogar, matLegal.sec_Id_Sector, matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
 
+                        // AGREGANDO MUJER CASADA AL NUEVO HOGAR
                         var hpm = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == perMujer[0].per_Id_Persona);
                         hpm.hp_Jerarquia = 2;
                         hpm.hd_Id_Hogar = dom.hd_Id_Hogar;
                         context.Hogar_Persona.Update(hpm);
                         context.SaveChanges();
 
-                        // RESTRUCTURA JERARQUIAS DEL HOGAR ANTERIOR LA MUJER
-                        pc.RestructuraJerarquiasBaja(perMujer[0].per_Id_Persona);
+                        // ASEGURANDO JERARQUIAS
+                        AseguraJerarquias(dom.hd_Id_Hogar);
                     }
 
                     return Ok(new
@@ -506,8 +591,7 @@ namespace IECE_WebApi.Controllers
                 return Ok(new
                 {
                     status = "error",
-
-                    message = ex.Message
+                    message = ex
                 });
             }
         }
