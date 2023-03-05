@@ -1,13 +1,5 @@
-<<<<<<< HEAD
 IECE_WebApi/appsettings.json
 IECE_WebApi/Migrations/*
 IECE_WebApi/.vs/*
 IECE_WebApi/bin/*
 IECE_WebApi/obj/*
-=======
-/IECE_WebApi/appsettings.json
-/IECE_WebApi/Migrations
-/IECE_WebApi/.vs
-/IECE_WebApi/bin
-/IECE_WebApi/obj
->>>>>>> solo_api
