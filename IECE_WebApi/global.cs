@@ -13,3 +13,4 @@ namespace IECE_WebApi
         public static string smtpEmail = "mail.iece.mx";
     }
 }
+

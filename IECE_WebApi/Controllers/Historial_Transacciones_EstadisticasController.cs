@@ -263,113 +263,6 @@ namespace IECE_WebApi.Controllers
 
         // METODO PARA COMPONENTES DE VICTOR
         // Parametros segun modelo AltaCambioDomicilioReactivacionRestitucion_HogarExistente
-        //[HttpPost]
-        //[Route("[action]")]
-        //[EnableCors("AllowOrigin")]
-        //public IActionResult AltaCambioDomicilioReactivacionRestitucion_HogarExistente([FromBody] AltaCambioDomicilioRestitucionReactivacion_HogarExistente altaCambioDomicilioRestitucionReactivacion_hogarExistente)
-        //{
-        //    try
-        //    {
-        //        var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_hogarExistente.per_Id_Persona);
-
-        //        // RESTRUCTURA TODAS LAS JERARQUIAS EN LOS MIEMBROS DE HOGAR
-        //        PersonaController personaController = new PersonaController(context);
-        //        personaController.RestructuraJerarquiasAlta(p.per_Id_Persona, altaCambioDomicilioRestitucionReactivacion_hogarExistente.jerarquia);
-
-        //        // ACTUALIZA ESTADO DE LA PERSONA EN CAMPOS: per_En_Comunion, per_Activo
-        //        switch (altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion)
-        //        {
-        //            case 11002: // Restitución Bautizado
-        //                p.per_En_Comunion = true;
-        //                p.per_Visibilidad_Abierta = false;
-        //                p.per_Activo = true;
-        //                p.Fecha_Registro = fechayhora;
-        //                p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector;
-        //                p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-        //                // context.Persona.Add(p);
-        //                //context.Entry(p).State = EntityState.Modified;
-        //                //context.SaveChanges();
-
-        //                RegistroHistorico(
-        //                    p.per_Id_Persona,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion,
-        //                    "Alta por restitución",
-        //                    fechayhora,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
-        //                );
-        //                break;
-        //            default: // Cambio de domicilio bautizado y no bautizado.
-        //                int codigoTransaccion = 0;
-        //                string comentario = "";
-        //                if (p.per_Bautizado)
-        //                {
-        //                    codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 11003 ? 11003 : 11004;
-        //                    comentario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 11003 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
-        //                }
-        //                else
-        //                {
-        //                    codigoTransaccion = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 12002 ? 12002 : 12003;
-        //                    comentario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion == 12002 ? "Cambio de domicilio interno" : "Cambio de domicilio externo";
-        //                }
-        //                p.per_Visibilidad_Abierta = false;
-        //                p.Fecha_Registro = fechayhora;
-        //                p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector;
-        //                p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-        //                // context.Persona.Add(p);
-        //                //context.Entry(p).State = EntityState.Modified;
-        //                //context.SaveChanges();
-
-        //                RegistroHistorico(
-        //                    p.per_Id_Persona,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
-        //                    codigoTransaccion,
-        //                    comentario,
-        //                    fechayhora,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
-        //                );
-        //                break;
-        //            case 12004: // Reactivacion No Bautizado
-        //                p.per_Activo = true;
-        //                p.per_Visibilidad_Abierta = false;
-        //                p.Fecha_Registro = fechayhora;
-        //                p.sec_Id_Sector = altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector;
-        //                p.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id;
-        //                // context.Persona.Add(p);
-        //                //context.Entry(p).State = EntityState.Modified;
-        //                //context.SaveChanges();
-
-        //                RegistroHistorico(
-        //                    p.per_Id_Persona,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.sec_Id_Sector,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.ct_Codigo_Transaccion,
-        //                    "Alta por reactivación",
-        //                    fechayhora,
-        //                    altaCambioDomicilioRestitucionReactivacion_hogarExistente.Usu_Usuario_Id
-        //                );
-        //                break;
-        //        }
-        //        context.Persona.Update(p);
-        //        context.SaveChanges();
-
-        //        return Ok(new
-        //        {
-        //            status = "success",
-        //            persona = p
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(new
-        //        {
-        //            status = "error",
-        //            mensaje = ex
-        //        });
-        //    }
-        //}
-
-        // METODO PARA COMPONENTES DE VICTOR
-        // Parametros segun modelo AltaCambioDomicilioReactivacionRestitucion_HogarExistente
         [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
@@ -848,10 +741,12 @@ namespace IECE_WebApi.Controllers
                              join cte in context.Codigo_Transacciones_Estadisticas
                              on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
                              join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
-                             where hte.sec_Sector_Id == fsd.idSectorDistrito
+                             where hte.sec_Sector_Id == fsd.idSectorDistrito && per.per_Vivo && per.per_Activo
                              && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
+                             orderby cte.ct_Tipo ascending
                              select new
                              {
+                                 hte.hte_Id_Transaccion,
                                  hte.ct_Codigo_Transaccion,
                                  cte.ct_Grupo,
                                  cte.ct_Tipo,
@@ -859,8 +754,11 @@ namespace IECE_WebApi.Controllers
                                  per.per_Nombre,
                                  per.per_Apellido_Paterno,
                                  per.per_Apellido_Materno,
+                                 per.per_Bautizado,
+                                 per.per_Categoria,
                                  hte.hte_Comentario,
-                                 hte.hte_Fecha_Transaccion
+                                 hte.hte_Fecha_Transaccion,
+                                 hte.sec_Sector_Alias
                              }).ToList();
 
                 return Ok(new
