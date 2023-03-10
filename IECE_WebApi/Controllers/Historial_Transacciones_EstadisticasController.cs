@@ -743,7 +743,7 @@ namespace IECE_WebApi.Controllers
                              join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
                              where hte.sec_Sector_Id == fsd.idSectorDistrito && per.per_Vivo && per.per_Activo
                              && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
-                             orderby cte.ct_Grupo descending
+                             orderby cte.ct_Tipo ascending
                              select new
                              {
                                  hte.hte_Id_Transaccion,
