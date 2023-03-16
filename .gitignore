@@ -12,4 +12,8 @@ IECE_WebApi/Migrations/
 IECE_WebApi/.vs/
 IECE_WebApi/bin/
 IECE_WebApi/obj/
+<<<<<<< HEAD
+.vs/
+=======
 >>>>>>> solo_api
+>>>>>>> respaldo_de_emergencia

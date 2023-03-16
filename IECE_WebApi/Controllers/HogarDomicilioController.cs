@@ -267,35 +267,6 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/HogarDomicilio/getListaHogaresBySector/IdSector
-        [Route("[action]/{sec_Id_Sector}")]
-        [HttpGet]
-        [EnableCors("AllowOrigin")]
-        public ActionResult getListaHogaresBySector(int sec_Id_Sector)
-        {
-            try
-            {
-                //Instancia de clase Hogares para usar el Método que trae la Lista de Hogares y sus integrantes
-                var hogares = new Hogares(context);
-                var listaHogares = hogares.ListaHogaresBySector(sec_Id_Sector);
-
-                return Ok(new
-                {
-                    status = true,
-                    listahogares = listaHogares
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    status = "success",
-                    mensaje = ex.Message
-                });
-            }
-        }
-
-
         // POST: api/HogarDomicilio
         [HttpPost]
         [EnableCors("AllowOrigin")]
