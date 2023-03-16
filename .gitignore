@@ -4,3 +4,10 @@ IECE_WebApi/Migrations/
 IECE_WebApi/.vs/
 IECE_WebApi/bin/
 IECE_WebApi/obj/
+IECE_WebApi.vs/IECEMembresia/config/applicationhost.config
+IECE_WebApi/bin/Debug/netcoreapp2.2/IECE_WebApi.runtimeconfig.dev.json
+IECE_WebApi/bin/Debug/netcoreapp2.2/IECE_WebApi.runtimeconfig.json
+IECE_WebApi/obj/Debug/netcoreapp2.2/IECE_WebApi.csproj.CoreCompileInputs.cache
+IECE_WebApi/obj/IECE_WebApi.csproj.nuget.dgspec.json
+IECE_WebApi/obj/IECE_WebApi.csproj.nuget.g.props
+
