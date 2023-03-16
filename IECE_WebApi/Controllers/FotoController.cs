@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IECE_WebApi.Controllers
 {
+    //Comentario solo para commit
+
     [Route("api/[controller]")]
     [ApiController]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -119,6 +121,32 @@ namespace IECE_WebApi.Controllers
                 string path = Path.Combine($"{foto.path}{foto.guid}{foto.extension}");
                 byte[] imageByteData = System.IO.File.ReadAllBytes(path);
                 return File(imageByteData, foto.mimeType);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+        [HttpGet]
+        [Route("[action]/{pem_Id_Ministro}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult FotoMinistro(int pem_Id_Ministro)
+        {
+            try
+            {
+                // CONSULTA IMAGEN DE LA FOTO
+                var ministro = context.Personal_Ministerial.FirstOrDefault(f => f.pem_Id_Ministro == pem_Id_Ministro);
+
+                var fotoUrl = ministro.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos"); //Para Server
+                //var fotoUrl = ministro.pem_Foto_Ministro; //Para cuando está corriendo en Servidor Local
+                byte[] imageByteData = System.IO.File.ReadAllBytes(fotoUrl);
+                return File(imageByteData, "image/jpg");
             }
             catch (Exception ex)
             {
