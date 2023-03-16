@@ -56,7 +56,7 @@ namespace IECE_WebApi.Controllers
         public class altaReactivacionRestitucion_HogarActual
         {
             public int idPersona { get; set; }
-            public string comentrario { get; set; }
+            public string comentario { get; set; }
             public DateTime fecha { get; set; }
             public int idMinistro { get; set; }
             public int jerarquia { get; set; }
@@ -65,7 +65,7 @@ namespace IECE_WebApi.Controllers
         public class AltaCamDomReactRest_HogarExistente
         {
             public int idPersona { get; set; }
-            public string comentrario { get; set; }
+            public string comentario { get; set; }
             public DateTime fecha { get; set; }
             public int idMinistro { get; set; }
             public int idDomicilio { get; set; }
@@ -324,7 +324,7 @@ namespace IECE_WebApi.Controllers
                     p.sec_Id_Sector = ministroLocal.sec_Id_Congregacion;
                     ct = p.per_Bautizado ? 11004 : 12003;
                     // se genera registro historico de la persona
-                    RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                    RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentario, acdrr_he.fecha, acdrr_he.idMinistro);
                 }
                 else
                 {
@@ -350,7 +350,7 @@ namespace IECE_WebApi.Controllers
                             pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
 
                             // se genera registro historico de la persona
-                            RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                            RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentario, acdrr_he.fecha, acdrr_he.idMinistro);
                         }
                         else
                         {
@@ -364,7 +364,7 @@ namespace IECE_WebApi.Controllers
                             pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
 
                             // se genera registro historico de la persona
-                            RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                            RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentario, acdrr_he.fecha, acdrr_he.idMinistro);
                         }
                     }
                     // la persona no es bautizada y se reactiva en el mismo hogar
@@ -378,7 +378,7 @@ namespace IECE_WebApi.Controllers
                         pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
                         ct = 12004;
                         // se genera registro historico de la persona
-                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentario, acdrr_he.fecha, acdrr_he.idMinistro);
                     }
                     else
                     {
@@ -394,7 +394,7 @@ namespace IECE_WebApi.Controllers
                         pc.RestructuraJerarquiasAlta(acdrr_he.idPersona, acdrr_he.jerarquia);
                         ct = 12004;
                         // genera registro historico de la persona
-                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentrario, acdrr_he.fecha, acdrr_he.idMinistro);
+                        RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentario, acdrr_he.fecha, acdrr_he.idMinistro);
                     }
                 }
                 // actualiza estatus de la persona
@@ -468,7 +468,7 @@ namespace IECE_WebApi.Controllers
                     pc.RestructuraJerarquiasAlta(arrha.idPersona, arrha.jerarquia);
 
                     //  Genera registro historico
-                    RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 11002, arrha.comentrario, arrha.fecha, arrha.idMinistro);
+                    RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 11002, arrha.comentario, arrha.fecha, arrha.idMinistro);
 
                     if (contador == 0)
                     {
@@ -480,7 +480,7 @@ namespace IECE_WebApi.Controllers
                         context.SaveChanges();
 
                         // REGISTRO HISTORICO DEL HOGAR
-                        RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 31203, arrha.comentrario, arrha.fecha, arrha.idMinistro);
+                        RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 31203, (p.per_Nombre + " " + p.per_Apellido_Paterno + " " +p.per_Apellido_Materno), arrha.fecha, arrha.idMinistro);
 
                         // OBTENER MIEMBROS DEL HOGAR
                         var mh = (from hp in context.Hogar_Persona
@@ -492,22 +492,22 @@ namespace IECE_WebApi.Controllers
                                       per.per_Bautizado
                                   }).ToList();
 
-                        // cambia estatus de personas no bautizadas a activas (ct: 12201)
-                        foreach (var m in mh)
-                        {
-                            if (!m.per_Bautizado)
-                            {
-                                var miembro = context.Persona.FirstOrDefault(miem => miem.per_Id_Persona == m.per_Id_Persona);
-                                miembro.per_Activo = true;
-                                context.Persona.Update(miembro);
-                                context.SaveChanges();
+                        //// cambia estatus de personas no bautizadas a activas (ct: 12201)
+                        //foreach (var m in mh)
+                        //{
+                        //    if (!m.per_Bautizado)
+                        //    {
+                        //        var miembro = context.Persona.FirstOrDefault(miem => miem.per_Id_Persona == m.per_Id_Persona);
+                        //        miembro.per_Activo = true;
+                        //        context.Persona.Update(miembro);
+                        //        context.SaveChanges();
 
-                                // GENERA REGISTRO HISTORICO DE LA PERSONA REACTIVADA
-                                RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", arrha.fecha, arrha.idMinistro);
-                            }
-                        }
-                        // RESTRUCTURA JERARQUIAS
-                        pc.RestructuraJerarquiasAlta(arrha.idPersona, 1);
+                        //        // GENERA REGISTRO HISTORICO DE LA PERSONA REACTIVADA
+                        //        RegistroHistorico(m.per_Id_Persona, miembro.sec_Id_Sector, 12201, "", arrha.fecha, arrha.idMinistro);
+                        //    }
+                        //}
+                        //// RESTRUCTURA JERARQUIAS
+                        //pc.RestructuraJerarquiasAlta(arrha.idPersona, 1);
 
                         return Ok(new
                         {
@@ -531,7 +531,7 @@ namespace IECE_WebApi.Controllers
                     pc.RestructuraJerarquiasAlta(arrha.idPersona, arrha.jerarquia);
 
                     //  Genera registro historico
-                    RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 12004, arrha.comentrario, arrha.fecha, arrha.idMinistro);
+                    RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 12004, arrha.comentario, arrha.fecha, arrha.idMinistro);
 
                     return Ok(new
                     {
