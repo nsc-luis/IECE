@@ -244,6 +244,7 @@ namespace IECE_WebApi.Controllers
                                  hp.hd_Id_Hogar,
                                  hp.hp_Jerarquia,
                                  p.per_Id_Persona,
+                                 p.per_Activo,
                                  p.per_Nombre,
                                  p.per_Apellido_Paterno,
                                  p.per_Apellido_Materno
