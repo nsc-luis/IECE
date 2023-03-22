@@ -72,6 +72,7 @@ namespace IECE_WebApi.Controllers
                                     hp.hd_Id_Hogar,
                                     p.per_Id_Persona,
                                     p.per_Nombre,
+                                    p.per_Activo,
                                     p.per_Apellido_Paterno,
                                     p.per_Apellido_Materno
                                 }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
@@ -144,6 +145,7 @@ namespace IECE_WebApi.Controllers
                                             hp.hp_Jerarquia,
                                             hp.hd_Id_Hogar, 
 	                                        p.per_Id_Persona,
+                                            p.per_Activo,
                                             p.per_Nombre,
                                             p.per_Apellido_Paterno,
                                             p.per_Apellido_Materno,
