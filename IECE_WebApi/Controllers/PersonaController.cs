@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IECE_WebApi.Controllers
 {
+    //Comentario sin uso
+
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
