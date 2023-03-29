@@ -273,7 +273,7 @@ namespace IECE_WebApi.Controllers
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult getListaHogaresBySector(int sec_Id_Sector)
+        public ActionResult GetListaHogaresBySector(int sec_Id_Sector)
         {
             try
             {
