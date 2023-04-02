@@ -142,6 +142,8 @@ namespace IECE_WebApi.Controllers
                              where hp.per_Id_Persona == idPersona
                              select hp).FirstOrDefault();
 
+                var jerarquiaMaxima = 0;
+
                 // CONSULTA LOS MIEMBROS DEL HOGAR
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
                                         where hp.hd_Id_Hogar == objhp.hd_Id_Hogar
@@ -154,9 +156,13 @@ namespace IECE_WebApi.Controllers
                                             per_Id_Persona = hp.per_Id_Persona
                                         }).ToList();
 
-                // AUMENTA EL NIVEL DE LA JERARQUIA EN 1 EN TODOS LOS MIEMBROS DEL HOGAR (jerarquia - 1)
+                // DISMINUYE EN 1 LA JERARQUIA DE TODOS LOS MIEMBROS DEL HOGAR (jerarquia - 1)
                 foreach (var miembro in miembrosDelHogar)
                 {
+                    if (miembro.hp_Jerarquia > jerarquiaMaxima) { //Si la jerarquía del integrante es mayor que la que se consideraba jerarquiaMaxima, toma como valor máximo esta jerarquía mayor.
+                        jerarquiaMaxima = miembro.hp_Jerarquia;
+                     }
+
                     if (miembro.per_Id_Persona != idPersona
                         && miembro.hp_Jerarquia >= objhp.hp_Jerarquia)
                     {
@@ -165,7 +171,7 @@ namespace IECE_WebApi.Controllers
                             hp_Id_Hogar_Persona = miembro.hp_Id_Hogar_Persona,
                             hd_Id_Hogar = miembro.hd_Id_Hogar,
                             per_Id_Persona = miembro.per_Id_Persona,
-                            hp_Jerarquia = miembro.hp_Jerarquia - 1,
+                            hp_Jerarquia = miembro.hp_Jerarquia - 1, //Todos los integrantes del hogar se les recorre la Jerarquía
                             usu_Id_Usuario = 1,
                             Fecha_Registro = fechayhora
                         };
@@ -174,9 +180,13 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-                // ESTABLECE A LA PERSONA QUE SE DA DE BAJA COMO EL ULTIMO EN LA JERARQUIA DEL HOGAR
-                objhp.hp_Jerarquia = miembrosDelHogar.Count();
+                // ESTABLECE A LA PERSONA QUE SE DA DE BAJA COMO EL ULTIMO EN EL HOGAR
+                objhp.hp_Jerarquia = jerarquiaMaxima;
                 context.SaveChanges();
+
+                // ASEGURA JERARQUIAS CORRECTAS
+                AseguraJerarquias(objhp.hd_Id_Hogar);
+
                 return Ok(new
                 {
                     status = "success",
@@ -1405,8 +1415,9 @@ namespace IECE_WebApi.Controllers
                              select hp1).ToList();
 
                 // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
-                var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                var miembrosDelHogar = (from per in context.Persona
+                                        join hp in context.Hogar_Persona on per.per_Id_Persona equals hp.per_Id_Persona
+                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
                                         select new
                                         {
                                             per_Id_Persona = hp.per_Id_Persona,
@@ -1421,17 +1432,17 @@ namespace IECE_WebApi.Controllers
                 foreach (var p0 in miembrosDelHogar)
                 {
                     var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p0.per_Id_Persona);
-                    if (persona.per_Bautizado)
+                    if (persona.per_Bautizado &&persona.per_Vivo && persona.per_En_Comunion)
                     {
                         bautizados = bautizados + 1;
                     }
                 }
 
-                // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
-                var hp2 = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == per_Id_Persona);
-                hp2.hp_Jerarquia = 99;
-                context.Hogar_Persona.Update(hp2);
-                context.SaveChanges();
+                //// SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
+                //var hp2 = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == per_Id_Persona);
+                //hp2.hp_Jerarquia = 99;
+                //context.Hogar_Persona.Update(hp2);
+                //context.SaveChanges();
 
                 // CAMBIO DE ESTATUS DE LA PERSONA
                 p.per_En_Comunion = false;
@@ -1442,14 +1453,8 @@ namespace IECE_WebApi.Controllers
                 // SE REGISTRA HISTORIAL ESTADISTICO DE LA PERSONA
                 hte.RegistroHistorico(per_Id_Persona, p.sec_Id_Sector, tipoExcomunion, delitoExomunion, fechaExcomunion, usu_Id_Usuario);
 
-                // ASEGURA JERARQUIAS CORRECTAS
-                AseguraJerarquias(hp2.hd_Id_Hogar);
-
-
-                if (bautizados == 1) //Si hay solo 1 Bautizado indica que se debe de dar de Baja el Hogar
+                if (bautizados == 1) //Si era el Último Bautizado, se debe de dar de Baja el Hogar
                 {
-
-
                     // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
                     var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
                     hdx.hd_Activo = false;
@@ -1480,6 +1485,11 @@ namespace IECE_WebApi.Controllers
                         }
                     }
                 }
+                else
+                {
+                    // Restructura las Jerarquías y las arregla para que sean consecutivas dejando a la persona dada de baja al final en la jerarquía del Hogar.
+                    RestructuraJerarquiasBaja(per_Id_Persona);
+                }
 
                 return Ok(new
                 {
@@ -1505,14 +1515,15 @@ namespace IECE_WebApi.Controllers
             try
             {
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-                // CONSULTA EL HOGAR AL QUE PERTENECE LA PERSONA
+                // CONSULTA EL HOGAR AL QUE PERTENECE LA PERSONA, esto porque despues debe revisar si el Hogar se debe dar de baja
                 var objhp = (from hp1 in context.Hogar_Persona
                              where hp1.per_Id_Persona == bnbad.personaSeleccionada
                              select hp1).ToList();
 
-                // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
-                var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO que aun estén Activos
+                var miembrosDelHogar = (from per in context.Persona
+                                        join hp in context.Hogar_Persona on per.per_Id_Persona equals hp.per_Id_Persona
+                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
                                         select new
                                         {
                                             per_Id_Persona = hp.per_Id_Persona,
@@ -1522,85 +1533,63 @@ namespace IECE_WebApi.Controllers
                 // DATOS DE LA PERSONA
                 var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == bnbad.personaSeleccionada);
 
-                // CUENTA LAS PERSONAS BAUTIZADAS
+                // CUENTA LAS PERSONAS BAUTIZADAS que esten EN COMUNION para saber si despues debe dar de baja el Hogar si éste que falleció era el último bautizado en el hogar
                 int bautizados = 0;
                 foreach (var p0 in miembrosDelHogar)
                 {
                     var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p0.per_Id_Persona);
-                    if (persona.per_Bautizado)
+                    if (persona.per_Bautizado && persona.per_Vivo&& persona.per_En_Comunion)
                     {
                         bautizados = bautizados + 1;
                     }
                 }
 
+                // CAMBIO DE ESTATUS DE LA PERSONA para marcarla como fallecida
+                p.per_Activo = false;
+                p.per_Vivo = false;
+                context.Persona.Update(p);
+                context.SaveChanges();
+
+                // SE REGISTRA HISTORIAL ESTADISTICO DE LA defunción de la persona
+                hte.RegistroHistorico(bnbad.personaSeleccionada, p.sec_Id_Sector, 11101, "", bnbad.fechaTransaccion, bnbad.idUsuario);
+
+
+                //Si solo hay 1 bautizado significa que es el último bautizado en el hogar y se debe dar de baja el hogar y reacomodar a los integrantes y sus Jerarquias
                 if (bautizados == 1)
                 {
                     foreach (var p1 in miembrosDelHogar)
                     {
-                        if (p1.per_Id_Persona != bnbad.personaSeleccionada)
-                        {
-                            // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
+                        // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
+                        var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
+                        hdx.hd_Activo = false;
+                        context.HogarDomicilio.Update(hdx);
+                        context.SaveChanges();
+
+                        // SE GENERA REGISTRO DE BAJA DE DOMICILIO
+                        hte.RegistroHistorico(
+                            p.per_Id_Persona,
+                            p.sec_Id_Sector,
+                            31102,
+                            $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
+                            bnbad.fechaTransaccion,
+                            bnbad.idUsuario);
+
+                        if (p1.per_Id_Persona != bnbad.personaSeleccionada) // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
+                        {                            
                             var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p1.per_Id_Persona);
                             persona.per_Activo = false;
                             context.Persona.Update(persona);
                             context.SaveChanges();
 
                             // SE GENERA REGISTRO DE BAJA POR PADRES
-                            hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", bnbad.fechaTransaccion, bnbad.idUsuario);
+                            hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "POR BAJA DE PADRES", bnbad.fechaTransaccion, bnbad.idUsuario);
                         }
                     }
-                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
-                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
-                    hdx.hd_Activo = false;
-                    context.HogarDomicilio.Update(hdx);
-                    context.SaveChanges();
-
-                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(
-                        p.per_Id_Persona, 
-                        p.sec_Id_Sector, 
-                        31102,
-                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
-                        bnbad.fechaTransaccion,
-                        bnbad.idUsuario);
-
-                    // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
-                    var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == bnbad.personaSeleccionada);
-                    //hp.hp_Jerarquia = 1;
-                    context.Hogar_Persona.Update(hp);
-                    context.SaveChanges();
-
-                    // CAMBIO DE ESTATUS DE LA PERSONA
-                    p.per_Activo = false;
-                    p.per_Vivo = false;
-                    context.Persona.Update(p);
-                    context.SaveChanges();
-
-                    // SE REGISTRA HISTORIAL ESTADISTICO DE LA PERSONA
-                    hte.RegistroHistorico(bnbad.personaSeleccionada, p.sec_Id_Sector, 11101, "", bnbad.fechaTransaccion, bnbad.idUsuario);
-
-                    // ASEGURA JERARQUIAS CORRECTAS
-                    AseguraJerarquias(hp.hd_Id_Hogar);
                 }
-                else
+                else //Si No era el último Bautizado en el Hogar
                 {
-                    // SE REGISTRA HISTORIAL ESTADISTICO DE LA PERSONA
-                    hte.RegistroHistorico(bnbad.personaSeleccionada, p.sec_Id_Sector, 11101, "", bnbad.fechaTransaccion, bnbad.idUsuario);
-
-                    // CAMBIO DE ESTATUS DE LA PERSONA
-                    p.per_Activo = false;
-                    p.per_Vivo = false;
-                    context.Persona.Update(p);
-                    context.SaveChanges();
-
-                    // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
-                    var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == bnbad.personaSeleccionada);
-                    hp.hp_Jerarquia = 99;
-                    context.Hogar_Persona.Update(hp);
-                    context.SaveChanges();
-
-                    // ASEGURA JERARQUIAS CORRECTAS
-                    RestructuraJerarquiasBaja(hp.hd_Id_Hogar);
+                    // Restructura las Jerarquías y las arregla para que sean consecutivas dejando a la persona dada de baja al final en la jerarquía del Hogar.
+                    RestructuraJerarquiasBaja(bnbad.personaSeleccionada);
                 }
 
                 return Ok(new
@@ -1750,8 +1739,8 @@ namespace IECE_WebApi.Controllers
 
                 // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
                                         join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
                                         select new
                                         {
                                             per_Id_Persona = hp.per_Id_Persona,
@@ -1795,14 +1784,14 @@ namespace IECE_WebApi.Controllers
                 // AGREGA REGISTRO HISTORICO DEL CAMBIO DE ESTATUS DE LA PERSONA
                 hte.RegistroHistorico(p.per_Id_Persona, p.sec_Id_Sector, codigoTransaccion, "", mbpcd.fechaTransaccion, mbpcd.idUsuario);
 
-                // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
-                var hp2 = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == mbpcd.idPersona);
-                hp2.hp_Jerarquia = 99;
-                context.Hogar_Persona.Update(hp2);
-                context.SaveChanges();
+                //// SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
+                //var hp2 = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == mbpcd.idPersona);
+                //hp2.hp_Jerarquia = 99;
+                //context.Hogar_Persona.Update(hp2);
+                //context.SaveChanges();
 
-                 // ASEGURA JERARQUIAS CORRECTAS
-                 AseguraJerarquias(hp2.hd_Id_Hogar);
+                 //// ASEGURA JERARQUIAS CORRECTAS
+                 //AseguraJerarquias(hp2.hd_Id_Hogar);
 
 
 
@@ -1839,13 +1828,13 @@ namespace IECE_WebApi.Controllers
                                 context.Persona.Update(persona);
                                 context.SaveChanges();
 
-                                // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
-                                var hp1 = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == p1.per_Id_Persona);
-                                hp1.hp_Jerarquia = 99;
-                                context.Hogar_Persona.Update(hp1);
-                                context.SaveChanges();
+                                //// SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
+                                //var hp1 = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == p1.per_Id_Persona);
+                                //hp1.hp_Jerarquia = 99;
+                                //context.Hogar_Persona.Update(hp1);
+                                //context.SaveChanges();
                                 // ASEGURA JERARQUIAS CORRECTAS
-                                AseguraJerarquias(hp1.hd_Id_Hogar);
+                                AseguraJerarquias(objhp[0].hd_Id_Hogar);
 
                                 // SE GENERA REGISTRO DE BAJA POR CAMBIO DE DOMICILIO O POR BAJA DE PADRES SEGUN SE HAYA SELECCIONADO EN EL FRONT END
                                 int codTranBajaHijos = mbpcd.tipoDestino == "INTERNO" ? 12103 : 12104;
@@ -1859,7 +1848,11 @@ namespace IECE_WebApi.Controllers
                                 );
                             }
                         }
-
+                    }
+                    else
+                    {
+                        // Restructura las Jerarquías y las arregla para que sean consecutivas dejando a la persona dada de baja al final en la jerarquía del Hogar.
+                        RestructuraJerarquiasBaja(mbpcd.idPersona);
                     }
                 }
 
@@ -2107,9 +2100,10 @@ namespace IECE_WebApi.Controllers
                              where hp1.per_Id_Persona == per_Id_Persona
                              select hp1).ToList();
 
-                // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
+                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR CONSULTADO
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                                        join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
                                         select new
                                         {
                                             per_Id_Persona = hp.per_Id_Persona,
@@ -2302,9 +2296,10 @@ namespace IECE_WebApi.Controllers
                              where hp1.per_Id_Persona == per_Id_Persona
                              select hp1).ToList();
 
-                // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
+                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR CONSULTADO
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
-                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                                        join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                        where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
                                         select new
                                         {
                                             per_Id_Persona = hp.per_Id_Persona,
@@ -2402,7 +2397,8 @@ namespace IECE_WebApi.Controllers
                     {
                         // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
                         var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
-                                                 where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar
+                                                 join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
+                                                 where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
                                                  select new
                                                  {
                                                      per_Id_Persona = hp1.per_Id_Persona,

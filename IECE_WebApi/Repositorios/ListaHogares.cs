@@ -16,6 +16,7 @@ namespace IECE_WebApi.Repositorios
         public string est_Nombre_Corto { get; set; }
     }
 
+ 
     public class Homes
     {
         public int indice { get; set; }
@@ -75,7 +76,7 @@ namespace IECE_WebApi.Repositorios
             return (direccion);
         }
 
-        public List<Hogar> Address(int id)
+        public List<Hogar> Address(int id) //Trae los datos de un Hogar en base a su Id_Hogar
         {
             var hogardomicilio = (from hd in context.HogarDomicilio
                                   join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
@@ -103,7 +104,7 @@ namespace IECE_WebApi.Repositorios
 
         }
 
-        public string getDireccion(int id )
+        public string getDireccion(int id ) //Trae la Dirección de un Hogar en base a su Id_Hogar
         {
 
             var hogardomicilio = Address(id);
@@ -114,20 +115,25 @@ namespace IECE_WebApi.Repositorios
             return (direccion);
         }
 
+
+
+
         public List<Homes> ListaHogaresBySector(int sec_Id_Sector)
         {
             List<Homes> hogares = new List<Homes>();
 
-            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos.
+            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos. Ordenados por Apellido Paterno del Titular
             var query = (from p in context.Persona
                          join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                          where p.sec_Id_Sector == sec_Id_Sector && p.per_Activo == true
                          join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
-
+                         where hp.hp_Jerarquia==1
+                      
                          select new 
                          {
-                             hogarId = hp.hd_Id_Hogar
-                         }).Distinct().ToList();
+                             hogarId = hp.hd_Id_Hogar,
+                             titular = p.per_Apellido_Paterno
+                         }).Distinct().OrderBy(obj => obj.titular).ToList();
 
             //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
             int loop = 0;
@@ -145,6 +151,7 @@ namespace IECE_WebApi.Repositorios
                               on hp.per_Id_Persona equals p.per_Id_Persona
                               where hp.hd_Id_Hogar == hogar.hogarId
                               && hp.hp_Jerarquia == 1
+                              
                               select new Homes
                               {
                                   indice= loop,
@@ -181,23 +188,23 @@ namespace IECE_WebApi.Repositorios
         }
 
 
-
-
         public List<Homes> ListaHogaresByDistrito(int dis_Id_Distrito)
         {
             List<Homes> hogares = new List<Homes>();
 
-            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos.
+            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos. Ordenados por Apellido Paterno del Titular
             var query = (from p in context.Persona
                          join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                          join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                          where d.dis_Id_Distrito == dis_Id_Distrito && p.per_Activo == true
                          join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
+                         where hp.hp_Jerarquia == 1
 
                          select new
                          {
-                             hogarId = hp.hd_Id_Hogar
-                         }).Distinct().ToList();
+                             hogarId = hp.hd_Id_Hogar,
+                             titular = p.per_Apellido_Paterno
+                         }).Distinct().OrderBy(obj => obj.titular).ToList();
 
             //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
             int loop = 0;

@@ -277,7 +277,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                //Instancia de clase Hogares para usar el Método que trae la Lista de Hogares y sus integrantes
+                //Instancia de clase Hogares para usar el Método que sirve para traer la Lista de Hogares y sus integrantes
                 var hogares = new Hogares(context);
                 var listaHogares = hogares.ListaHogaresBySector(sec_Id_Sector);
 
