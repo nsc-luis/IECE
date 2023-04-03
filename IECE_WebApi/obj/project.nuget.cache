@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "iWUIOxFtdrekfOYV+djJ8veKIXjgH4JKd5Q0FJpLv+935+MtCqhGGxGjebivRMMV1z9MoNHNWKNH21qnuoGYgw==",
+  "dgSpecHash": "/UhTjaozVoNUoIg06DIedw8kMLkX+MOsDN6hdgiGxtzh7nOk4HEStIhfJdJ9jwLaJFXPraTpEd1Nna5OHRRydA==",
   "success": true,
   "projectFilePath": "D:\\Perfiles\\Dell\\Desktop\\IECEMembresia\\IECE_WebApi\\IECE_WebApi.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Dell\\.nuget\\packages\\magick.net-q16-anycpu\\12.2.0\\magick.net-q16-anycpu.12.2.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\magick.net.core\\12.2.0\\magick.net.core.12.2.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.aspnet.webapi.client\\5.2.6\\microsoft.aspnet.webapi.client.5.2.6.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.aspnetcore\\2.2.0\\microsoft.aspnetcore.2.2.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.aspnetcore.antiforgery\\2.2.0\\microsoft.aspnetcore.antiforgery.2.2.0.nupkg.sha512",
