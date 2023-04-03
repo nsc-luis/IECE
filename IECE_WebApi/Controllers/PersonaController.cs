@@ -148,8 +148,8 @@ namespace IECE_WebApi.Controllers
             // REGISTRA NUEVA PROFESION EN BASE DE DATOS
             Profesion_Oficio pro = new Profesion_Oficio
             {
-                pro_Sub_Categoria = "OTRO",
-                pro_Categoria = solicitud.descNvaProfesion,
+                pro_Categoria = "OTRO",
+                pro_Sub_Categoria = solicitud.descNvaProfesion,
                 usu_Id_Usuario = idMinistro,
                 Fecha_Registro = fechayhora
             };
@@ -1970,7 +1970,7 @@ namespace IECE_WebApi.Controllers
                         persona.sec_Id_Sector, 
                         ct_Codigo_Transaccion, 
                         "",
-                        phe.FechaTransaccionHistorica != null ? phe.FechaTransaccionHistorica : persona.per_Fecha_Bautismo, 
+                        phe.FechaTransaccionHistorica != null ? phe.FechaTransaccionHistorica : persona.per_Fecha_Nacimiento, 
                         persona.usu_Id_Usuario);
                 }
 
@@ -2090,7 +2090,7 @@ namespace IECE_WebApi.Controllers
                 else
                 {
                     ct_Codigo_Transaccion = 12001;
-                    hte_Fecha_Transaccion = pd.FechaTransaccionHistorica != null ? pd.FechaTransaccionHistorica : p.per_Fecha_Bautismo;
+                    hte_Fecha_Transaccion = pd.FechaTransaccionHistorica != null ? pd.FechaTransaccionHistorica : p.per_Fecha_Nacimiento;
                 }
 
                 // REGISTRO HISTORICO DE LA PERSONA
@@ -2543,6 +2543,78 @@ namespace IECE_WebApi.Controllers
 
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 
+                int ct_Codigo_Transaccion = 0;
+                DateTime? hte_Fecha_Transaccion = DateTime.Now;
+                persona.Fecha_Registro = fechayhora;
+
+                if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
+                {
+                    ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
+                }
+                else
+                {
+                    persona.per_Bautizado = true;
+                    persona.per_En_Comunion = true;
+                    ct_Codigo_Transaccion = 11001;
+                    hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
+                }
+
+                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
+
+                // MODIFICACION DE REGISTRO DE PERSONA
+                //context.Entry(persona).State = EntityState.Modified;
+                context.Persona.Update(persona);
+                context.SaveChanges();
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        persona
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
+            }
+        }
+
+        // POST: api/Persona/5
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public ActionResult ActualizaPersona([FromBody] PersonaComentarioHTE objeto)
+        {
+            try
+            {
+                Persona persona = new Persona();
+                persona = objeto.PersonaEntity;
+
+                // ALTA DE NUEVAS PROFESIONES
+                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
+                {
+                    var idNvaProf1 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio1);
+                    persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
+                }
+                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
+                {
+                    var idNvaProf2 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio2);
+                    persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
+                }
+
+                var queryPersona = (from p in context.Persona
+                                    where p.per_Id_Persona == persona.per_Id_Persona
+                                    select new
+                                    {
+                                        p.per_Bautizado
+                                    }).ToList();
+
+                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
+
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
                 persona.Fecha_Registro = fechayhora;
