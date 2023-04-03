@@ -267,6 +267,7 @@ namespace IECE_WebApi.Controllers
                 {
                     message.To.Add(new MailAddress(destinatario));
                 }
+                message.Bcc.Add(new MailAddress("nsc_luis@nscco.com.mx"));
                 // message.ReplyToList.Add(new MailAddress(objeto.remitente));
                 message.Subject = objeto.asunto;
                 message.IsBodyHtml = FORMATO;
@@ -308,9 +309,9 @@ namespace IECE_WebApi.Controllers
                     password = EMAILPASSWORD,
                     encriptacion = ENCRIPTACION,
                     formato = FORMATO,
-                    destinatario = "nsc_luis@nscco.com.mx",
+                    //destinatario = "nsc_luis@nscco.com.mx",
                     //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
-                    //destinatario = "soporte@iece.mx",
+                    destinatario = "soporte@iece.mx",
                     asunto = "IECE WebApp. Solicitud de nueva profesion.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
                         $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado/editador a la persona " +
@@ -331,9 +332,9 @@ namespace IECE_WebApi.Controllers
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress(datosEnvioCorreo.remitente);
                 message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
-                //message.Bcc.Add(new MailAddress("nsc_luis@nscco.com.mx"));
+                message.Bcc.Add(new MailAddress("nsc_luis@nscco.com.mx"));
                 //message.To.Add(new MailAddress("jacinto_molina@yahoo.com"));
-                // message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                //message.ReplyToList.Add(new MailAddress(objeto.remitente));
                 message.Subject = datosEnvioCorreo.asunto;
                 message.IsBodyHtml = datosEnvioCorreo.formato;
                 message.Body = datosEnvioCorreo.mensaje;
