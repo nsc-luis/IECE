@@ -1970,7 +1970,7 @@ namespace IECE_WebApi.Controllers
                         persona.sec_Id_Sector, 
                         ct_Codigo_Transaccion, 
                         "",
-                        phe.FechaTransaccionHistorica != null ? phe.FechaTransaccionHistorica : persona.per_Fecha_Nacimiento, 
+                        phe.FechaTransaccionHistorica == null ? persona.per_Fecha_Nacimiento : phe.FechaTransaccionHistorica, 
                         persona.usu_Id_Usuario);
                 }
 
@@ -2090,7 +2090,7 @@ namespace IECE_WebApi.Controllers
                 else
                 {
                     ct_Codigo_Transaccion = 12001;
-                    hte_Fecha_Transaccion = pd.FechaTransaccionHistorica != null ? pd.FechaTransaccionHistorica : p.per_Fecha_Nacimiento;
+                    hte_Fecha_Transaccion = pd.FechaTransaccionHistorica == null ? p.per_Fecha_Nacimiento : pd.FechaTransaccionHistorica;
                 }
 
                 // REGISTRO HISTORICO DE LA PERSONA
