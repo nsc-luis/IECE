@@ -943,7 +943,7 @@ namespace IECE_WebApi.Controllers
                              join cte in context.Codigo_Transacciones_Estadisticas
                              on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
                              join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
-                             where hte.sec_Sector_Id == fsd.idSectorDistrito && per.per_Vivo && per.per_Activo
+                             where hte.sec_Sector_Id == fsd.idSectorDistrito
                              && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
                              orderby cte.ct_Tipo ascending
                              select new
