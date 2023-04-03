@@ -1573,7 +1573,7 @@ namespace IECE_WebApi.Controllers
                 foreach (var p0 in miembrosDelHogar)
                 {
                     var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p0.per_Id_Persona);
-                    if (persona.per_Bautizado && persona.per_Vivo&& persona.per_En_Comunion)
+                    if (persona.per_Bautizado && persona.per_Vivo && persona.per_En_Comunion)
                     {
                         bautizados = bautizados + 1;
                     }
@@ -1610,7 +1610,7 @@ namespace IECE_WebApi.Controllers
                             bnbad.idUsuario);
 
                         if (p1.per_Id_Persona != bnbad.personaSeleccionada) // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
-                        {                            
+                        {
                             var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p1.per_Id_Persona);
                             persona.per_Activo = false;
                             context.Persona.Update(persona);
@@ -1620,41 +1620,6 @@ namespace IECE_WebApi.Controllers
                             hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "POR BAJA DE PADRES", bnbad.fechaTransaccion, bnbad.idUsuario);
                         }
                     }
-<<<<<<< HEAD
-                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
-                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
-                    hdx.hd_Activo = false;
-                    context.HogarDomicilio.Update(hdx);
-                    context.SaveChanges();
-
-                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(
-                        p.per_Id_Persona,
-                        p.sec_Id_Sector,
-                        31102,
-                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
-                        bnbad.fechaTransaccion,
-                        bnbad.idUsuario);
-
-                    // SE ESTABLECE LA JERARQUIA DE LA PERSONA A ULTIMO EN EL HOGAR
-                    var hp = context.Hogar_Persona.FirstOrDefault(h => h.per_Id_Persona == bnbad.personaSeleccionada);
-                    //hp.hp_Jerarquia = 1;
-                    context.Hogar_Persona.Update(hp);
-                    context.SaveChanges();
-
-                    // CAMBIO DE ESTATUS DE LA PERSONA
-                    p.per_Activo = false;
-                    p.per_Vivo = false;
-                    context.Persona.Update(p);
-                    context.SaveChanges();
-
-                    // SE REGISTRA HISTORIAL ESTADISTICO DE LA PERSONA
-                    hte.RegistroHistorico(bnbad.personaSeleccionada, p.sec_Id_Sector, 11101, "", bnbad.fechaTransaccion, bnbad.idUsuario);
-
-                    // ASEGURA JERARQUIAS CORRECTAS
-                    AseguraJerarquias(hp.hd_Id_Hogar);
-=======
->>>>>>> 68ecb7ec2438eacfe4b9d33edd4f0311f87c25de
                 }
                 else //Si No era el último Bautizado en el Hogar
                 {
@@ -1870,8 +1835,6 @@ namespace IECE_WebApi.Controllers
                 {
                     if (bautizados == 1) //Si es el último bautizad,o debe de darse de baja el Hogar
                     {
-
-<<<<<<< HEAD
                         // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
                         var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
                         hdx.hd_Activo = false;
@@ -1886,34 +1849,6 @@ namespace IECE_WebApi.Controllers
                             $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
                             mbpcd.fechaTransaccion,
                             mbpcd.idUsuario);
-=======
-                            // SE GENERA REGISTRO DE BAJA POR PADRES / BAJA POR CAMBIO DE DOMICILIO
-                            int codTranBajaHijos = mbpcd.tipoDestino == "INTERNO" ? 12103 : 12104;
-                            hte.RegistroHistorico(
-                                persona.per_Id_Persona,
-                                persona.sec_Id_Sector,
-                                mbpcd.bajaPorBajaDePadres == true ? 12106 : codTranBajaHijos, // define baja por padres o baja por cambio de domicilio interno o externo
-                                "",
-                                mbpcd.fechaTransaccion,
-                                mbpcd.idUsuario
-                            );
-                        }
-                    }
-                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
-                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
-                    hdx.hd_Activo = false;
-                    context.HogarDomicilio.Update(hdx);
-                    context.SaveChanges();
-
-                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                    hte.RegistroHistorico(
-                        p.per_Id_Persona,
-                        p.sec_Id_Sector,
-                        31102,
-                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
-                        mbpcd.fechaTransaccion,
-                        mbpcd.idUsuario);
->>>>>>> solo_api
 
 
                         foreach (var p1 in miembrosDelHogar) //Si es el último bautizado debe también dar de baja a los dependientes No Bautizados Activos.

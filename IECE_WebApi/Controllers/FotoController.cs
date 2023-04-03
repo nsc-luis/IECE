@@ -132,10 +132,6 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> solo_api
         [HttpGet]
         [Route("[action]/{pem_Id_Ministro}")]
         [EnableCors("AllowOrigin")]
