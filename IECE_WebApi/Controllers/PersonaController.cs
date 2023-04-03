@@ -131,6 +131,39 @@ namespace IECE_WebApi.Controllers
             return Ok(resumen);
         }
 
+        private int AltaDeProfesion(int idMinistro, int idPersona, string nombreProfesion)
+        {
+            // REGISTRA NUEVA SOLICITUD EN BASE DE DATOS
+            var solicitud = new SolicitudNuevaProfesion
+            {
+                descNvaProfesion = nombreProfesion,
+                solicitudAtendida = false,
+                usu_Id_Usuario = idMinistro,
+                per_Id_Persona = idPersona,
+                fechaSolicitud = fechayhora
+            };
+            context.SolicitudNuevaProfesion.Add(solicitud);
+            context.SaveChanges();
+
+            // REGISTRA NUEVA PROFESION EN BASE DE DATOS
+            Profesion_Oficio pro = new Profesion_Oficio
+            {
+                pro_Sub_Categoria = "OTRO",
+                pro_Categoria = solicitud.descNvaProfesion,
+                usu_Id_Usuario = idMinistro,
+                Fecha_Registro = fechayhora
+            };
+            context.Profesion_Oficio.Add(pro);
+            context.SaveChanges();
+
+            // ENVIA CORREO DE NUEVA SOLICITUD
+            SendMailController sendMail = new SendMailController(context);
+            sendMail.EnviarSolicitudNvaProfesion(idMinistro, idPersona, nombreProfesion);
+
+            // RETORNA ID DE LA NUEVA PROFESION
+            return pro.pro_Id_Profesion_Oficio;
+        }
+
         // METODO PRIVADO PARA RECALCULAR JERARQUIAS PARA BAJAS
         [HttpPost]
         [Route("[action]/{idPersona}")]
@@ -388,7 +421,7 @@ namespace IECE_WebApi.Controllers
                 //WHERE per_Categoria LIKE 'NIÑ%' 
                 //  AND per_Id_Persona NOT IN (SELECT per_Id_Persona FROM Presentacion_Nino)
                 var query = (from p in context.Persona
-                             where (p.per_Categoria.Contains("NIÑ") && p.sec_Id_Sector == sec_Id_Sector) 
+                             where (p.per_Categoria.Contains("NIÑ") && p.sec_Id_Sector == sec_Id_Sector)
                              && p.per_Activo
                              && !(from pdn in context.Presentacion_Nino select pdn.per_Id_Persona).Contains(p.per_Id_Persona)
                              select new
@@ -1502,7 +1535,7 @@ namespace IECE_WebApi.Controllers
         [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
-        public IActionResult BajaBautizadoDefuncion([FromBody] bnbad bnbad )
+        public IActionResult BajaBautizadoDefuncion([FromBody] bnbad bnbad)
         {
             try
             {
@@ -1559,8 +1592,8 @@ namespace IECE_WebApi.Controllers
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
                     hte.RegistroHistorico(
-                        p.per_Id_Persona, 
-                        p.sec_Id_Sector, 
+                        p.per_Id_Persona,
+                        p.sec_Id_Sector,
                         31102,
                         $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
                         bnbad.fechaTransaccion,
@@ -1814,6 +1847,7 @@ namespace IECE_WebApi.Controllers
                     if (bautizados == 1) //Si es el último bautizad,o debe de darse de baja el Hogar
                     {
 
+<<<<<<< HEAD
                         // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
                         var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
                         hdx.hd_Activo = false;
@@ -1828,6 +1862,34 @@ namespace IECE_WebApi.Controllers
                             $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
                             mbpcd.fechaTransaccion,
                             mbpcd.idUsuario);
+=======
+                            // SE GENERA REGISTRO DE BAJA POR PADRES / BAJA POR CAMBIO DE DOMICILIO
+                            int codTranBajaHijos = mbpcd.tipoDestino == "INTERNO" ? 12103 : 12104;
+                            hte.RegistroHistorico(
+                                persona.per_Id_Persona,
+                                persona.sec_Id_Sector,
+                                mbpcd.bajaPorBajaDePadres == true ? 12106 : codTranBajaHijos, // define baja por padres o baja por cambio de domicilio interno o externo
+                                "",
+                                mbpcd.fechaTransaccion,
+                                mbpcd.idUsuario
+                            );
+                        }
+                    }
+                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
+                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
+                    hdx.hd_Activo = false;
+                    context.HogarDomicilio.Update(hdx);
+                    context.SaveChanges();
+
+                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
+                    hte.RegistroHistorico(
+                        p.per_Id_Persona,
+                        p.sec_Id_Sector,
+                        31102,
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
+                        mbpcd.fechaTransaccion,
+                        mbpcd.idUsuario);
+>>>>>>> solo_api
 
 
                         foreach (var p1 in miembrosDelHogar) //Si es el último bautizado debe también dar de baja a los dependientes No Bautizados Activos.
@@ -1892,6 +1954,18 @@ namespace IECE_WebApi.Controllers
                 Persona persona = new Persona();
                 persona = phe.PersonaEntity;
 
+                // ALTA DE NUEVAS PROFESIONES
+                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "")
+                {
+                    var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio1);
+                    persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
+                }
+                if (persona.pro_Id_Profesion_Oficio2 == 1 && phe.nvaProfesionOficio2 != "")
+                {
+                    var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio2);
+                    persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
+                }
+
                 // ALTA DE PERSONA
                 persona.Fecha_Registro = fechayhora;
                 context.Persona.Add(persona);
@@ -1918,22 +1992,29 @@ namespace IECE_WebApi.Controllers
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte.RegistroHistorico(
-                        persona.per_Id_Persona, 
-                        persona.sec_Id_Sector, 
-                        ct_Codigo_Transaccion, 
-                        "", 
-                        persona.per_Fecha_Bautismo, 
+                        persona.per_Id_Persona,
+                        persona.sec_Id_Sector,
+                        ct_Codigo_Transaccion,
+                        "",
+                        persona.per_Fecha_Bautismo,
                         persona.usu_Id_Usuario);
                 }
                 else
                 {
                     ct_Codigo_Transaccion = 12001;
-                    hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, "", fechayhora, persona.usu_Id_Usuario);
+                    hte.RegistroHistorico(
+                        persona.per_Id_Persona, 
+                        persona.sec_Id_Sector, 
+                        ct_Codigo_Transaccion, 
+                        "",
+                        phe.FechaTransaccionHistorica != null ? phe.FechaTransaccionHistorica : persona.per_Fecha_Bautismo, 
+                        persona.usu_Id_Usuario);
                 }
 
                 // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
                 SolicitudNuevaProfesionController snpc = new SolicitudNuevaProfesionController(context);
-                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "") {
+                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "")
+                {
                     snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio1);
                 }
                 if (persona.pro_Id_Profesion_Oficio2 == 1 && phe.nvaProfesionOficio2 != "")
@@ -1975,6 +2056,19 @@ namespace IECE_WebApi.Controllers
                 // ALTA DE LA PERSONA
                 Persona p = new Persona();
                 p = pd.PersonaEntity;
+
+                // ALTA DE NUEVAS PROFESIONES
+                if (p.pro_Id_Profesion_Oficio1 == 1 && pd.nvaProfesionOficio1 != "")
+                {
+                    var idNvaProf1 = AltaDeProfesion(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio1);
+                    p.pro_Id_Profesion_Oficio1 = idNvaProf1;
+                }
+                if (p.pro_Id_Profesion_Oficio2 == 1 && pd.nvaProfesionOficio2 != "")
+                {
+                    var idNvaProf2 = AltaDeProfesion(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio2);
+                    p.pro_Id_Profesion_Oficio2 = idNvaProf2;
+                }
+
                 p.Fecha_Registro = fechayhora;
                 context.Persona.Add(p);
                 context.SaveChanges();
@@ -2033,7 +2127,7 @@ namespace IECE_WebApi.Controllers
                 else
                 {
                     ct_Codigo_Transaccion = 12001;
-                    hte_Fecha_Transaccion = fechayhora;
+                    hte_Fecha_Transaccion = pd.FechaTransaccionHistorica != null ? pd.FechaTransaccionHistorica : p.per_Fecha_Bautismo;
                 }
 
                 // REGISTRO HISTORICO DE LA PERSONA
@@ -2244,11 +2338,11 @@ namespace IECE_WebApi.Controllers
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
                     hte.RegistroHistorico(
-                        datosPersona.per_Id_Persona, 
-                        datosPersona.sec_Id_Sector, 
+                        datosPersona.per_Id_Persona,
+                        datosPersona.sec_Id_Sector,
                         31102,
-                        $"{datosPersona.per_Nombre} {datosPersona.per_Apellido_Paterno} {datosPersona.per_Apellido_Materno}", 
-                        fechayhora, 
+                        $"{datosPersona.per_Nombre} {datosPersona.per_Apellido_Paterno} {datosPersona.per_Apellido_Materno}",
+                        fechayhora,
                         usu_Id_Usuario
                     );
 
@@ -2429,11 +2523,11 @@ namespace IECE_WebApi.Controllers
 
                     // SE GENERA REGISTRO DE BAJA DE DOMICILIO
                     hte.RegistroHistorico(
-                        datosPersona.per_Id_Persona, 
-                        datosPersona.sec_Id_Sector, 
+                        datosPersona.per_Id_Persona,
+                        datosPersona.sec_Id_Sector,
                         31102,
-                        $"{datosPersona.per_Nombre} {datosPersona.per_Apellido_Paterno} {datosPersona.per_Apellido_Materno}", 
-                        fechayhora, 
+                        $"{datosPersona.per_Nombre} {datosPersona.per_Apellido_Paterno} {datosPersona.per_Apellido_Materno}",
+                        fechayhora,
                         usu_Id_Usuario
                     );
                 }
@@ -2459,6 +2553,21 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                Persona persona = new Persona();
+                persona = objeto.PersonaEntity;
+
+                // ALTA DE NUEVAS PROFESIONES
+                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
+                {
+                    var idNvaProf1 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio1);
+                    persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
+                }
+                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
+                {
+                    var idNvaProf2 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio2);
+                    persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
+                }
+
                 var queryPersona = (from p in context.Persona
                                     where p.per_Id_Persona == id
                                     select new
@@ -2467,11 +2576,9 @@ namespace IECE_WebApi.Controllers
                                     }).ToList();
 
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-                Persona persona = new Persona();
+                
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
-
-                persona = objeto.PersonaEntity;
                 persona.Fecha_Registro = fechayhora;
 
                 if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
@@ -2489,26 +2596,15 @@ namespace IECE_WebApi.Controllers
                 hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
 
                 // MODIFICACION DE REGISTRO DE PERSONA
-                context.Entry(persona).State = EntityState.Modified;
+                //context.Entry(persona).State = EntityState.Modified;
+                context.Persona.Update(persona);
                 context.SaveChanges();
-
-                // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
-                SolicitudNuevaProfesionController snpc = new SolicitudNuevaProfesionController(context);
-                if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
-                {
-                    snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio1);
-                }
-                if (persona.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
-                {
-                    snpc.RegistroDeNvaSolicitud(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio2);
-                }
 
                 return Ok(
                     new
                     {
                         status = "success",
-                        mensaje = "Datos guardados satisfactoriamente.",
-                        persona = persona
+                        persona
                     });
             }
             catch (Exception ex)
@@ -2517,7 +2613,7 @@ namespace IECE_WebApi.Controllers
                     new
                     {
                         status = "error",
-                        mensaje = ex
+                        mensaje = ex.Message
                     });
             }
         }
