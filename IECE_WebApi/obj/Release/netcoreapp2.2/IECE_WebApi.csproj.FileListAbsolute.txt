@@ -4,7 +4,6 @@ D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\bin\Release\netcoreapp2.2\IEC
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\bin\Release\netcoreapp2.2\IECE_WebApi.dll
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\bin\Release\netcoreapp2.2\IECE_WebApi.pdb
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\bin\Release\netcoreapp2.2\IECE_WebApi.xml
-D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.csprojAssemblyReference.cache
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.csproj.CoreCompileInputs.cache
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.RazorAssemblyInfo.cache
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.RazorAssemblyInfo.cs
@@ -14,3 +13,4 @@ D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IEC
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.dll
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.xml
 D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.pdb
+D:\Perfiles\Dell\Desktop\IECEMembresia\IECE_WebApi\obj\Release\netcoreapp2.2\IECE_WebApi.csprojAssemblyReference.cache

@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IECE_WebApi.Controllers
 {
+    //Comentario solo para commit
+
     [Route("api/[controller]")]
     [ApiController]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

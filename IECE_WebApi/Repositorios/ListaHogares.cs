@@ -16,6 +16,7 @@ namespace IECE_WebApi.Repositorios
         public string est_Nombre_Corto { get; set; }
     }
 
+ 
     public class Homes
     {
         public int indice { get; set; }
@@ -75,7 +76,7 @@ namespace IECE_WebApi.Repositorios
             return (direccion);
         }
 
-        public List<Hogar> Address(int id)
+        public List<Hogar> Address(int id) //Trae los datos de un Hogar en base a su Id_Hogar
         {
             var hogardomicilio = (from hd in context.HogarDomicilio
                                   join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
@@ -103,7 +104,7 @@ namespace IECE_WebApi.Repositorios
 
         }
 
-        public string getDireccion(int id )
+        public string getDireccion(int id ) //Trae la Dirección de un Hogar en base a su Id_Hogar
         {
 
             var hogardomicilio = Address(id);
@@ -114,20 +115,25 @@ namespace IECE_WebApi.Repositorios
             return (direccion);
         }
 
+
+
+
         public List<Homes> ListaHogaresBySector(int sec_Id_Sector)
         {
             List<Homes> hogares = new List<Homes>();
 
-            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos.
+            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos. Ordenados por Apellido Paterno del Titular
             var query = (from p in context.Persona
                          join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                          where p.sec_Id_Sector == sec_Id_Sector && p.per_Activo == true
                          join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
-
+                         where hp.hp_Jerarquia==1
+                      
                          select new 
                          {
-                             hogarId = hp.hd_Id_Hogar
-                         }).Distinct().ToList();
+                             hogarId = hp.hd_Id_Hogar,
+                             titular = p.per_Apellido_Paterno
+                         }).Distinct().OrderBy(obj => obj.titular).ToList();
 
             //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
             int loop = 0;
@@ -145,6 +151,7 @@ namespace IECE_WebApi.Repositorios
                               on hp.per_Id_Persona equals p.per_Id_Persona
                               where hp.hd_Id_Hogar == hogar.hogarId
                               && hp.hp_Jerarquia == 1
+                              
                               select new Homes
                               {
                                   indice= loop,
@@ -177,6 +184,76 @@ namespace IECE_WebApi.Repositorios
             }
 
             
+            return (hogares);
+        }
+
+
+        public List<Homes> ListaHogaresByDistrito(int dis_Id_Distrito)
+        {
+            List<Homes> hogares = new List<Homes>();
+
+            //Query que muestra todos los hogares que pertenecen a las personas de un sector, sin repetidos. Ordenados por Apellido Paterno del Titular
+            var query = (from p in context.Persona
+                         join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                         join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                         where d.dis_Id_Distrito == dis_Id_Distrito && p.per_Activo == true
+                         join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
+                         where hp.hp_Jerarquia == 1
+
+                         select new
+                         {
+                             hogarId = hp.hd_Id_Hogar,
+                             titular = p.per_Apellido_Paterno
+                         }).Distinct().OrderBy(obj => obj.titular).ToList();
+
+            //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
+            int loop = 0;
+            foreach (var hogar in query)
+            {
+                loop++;
+                var query2 = (from hp in context.Hogar_Persona
+                              join hd in context.HogarDomicilio
+                              on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
+                              join e in context.Estado on hd.est_Id_Estado equals e.est_Id_Estado into domicilioPais
+                              from state in domicilioPais.DefaultIfEmpty()
+                              join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais into domicilioEstado
+                              from country in domicilioEstado.DefaultIfEmpty()
+                              join p in context.Persona
+                              on hp.per_Id_Persona equals p.per_Id_Persona
+                              where hp.hd_Id_Hogar == hogar.hogarId
+                              && hp.hp_Jerarquia == 1
+                              select new Homes
+                              {
+                                  indice = loop,
+                                  direccion = getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, state.est_Nombre_Corto, country.pais_Nombre_Corto, ""),
+                                  tel = hd.hd_Telefono,
+                                  //Query que obiene los integrantes del Hogar en que está siendo analizado en el bucle foreach.
+                                  integrantes = (from hp in context.Hogar_Persona
+                                                 join p in context.Persona
+                                                 on hp.per_Id_Persona equals p.per_Id_Persona
+                                                 where hp.hd_Id_Hogar == hogar.hogarId && p.per_Activo == true
+                                                 orderby (hp.hp_Jerarquia)
+                                                 select new IntegrantesHogar
+                                                 {
+                                                     nombre = p.per_Nombre + " " + p.per_Apellido_Paterno + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : ""),
+                                                     cel = p.per_Telefono_Movil,
+                                                     nacimiento = p.per_Fecha_Nacimiento,
+                                                     edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
+                                                     grupo = p.per_Bautizado == true ? "B" : "NB"
+                                                 }).ToList()
+
+                              }).ToList();
+
+                hogares.Add(new Homes
+                {
+                    indice = query2[0].indice,
+                    direccion = query2[0].direccion,
+                    tel = query2[0].tel,
+                    integrantes = query2[0].integrantes
+                });
+            }
+
+
             return (hogares);
         }
 
