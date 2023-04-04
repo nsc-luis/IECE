@@ -194,9 +194,10 @@ namespace IECE_WebApi.Controllers
                 // DISMINUYE EN 1 LA JERARQUIA DE TODOS LOS MIEMBROS DEL HOGAR (jerarquia - 1)
                 foreach (var miembro in miembrosDelHogar)
                 {
-                    if (miembro.hp_Jerarquia > jerarquiaMaxima) { //Si la jerarquía del integrante es mayor que la que se consideraba jerarquiaMaxima, toma como valor máximo esta jerarquía mayor.
+                    if (miembro.hp_Jerarquia > jerarquiaMaxima)
+                    { //Si la jerarquía del integrante es mayor que la que se consideraba jerarquiaMaxima, toma como valor máximo esta jerarquía mayor.
                         jerarquiaMaxima = miembro.hp_Jerarquia;
-                     }
+                    }
 
                     if (miembro.per_Id_Persona != idPersona
                         && miembro.hp_Jerarquia >= objhp.hp_Jerarquia)
@@ -1467,7 +1468,7 @@ namespace IECE_WebApi.Controllers
                 foreach (var p0 in miembrosDelHogar)
                 {
                     var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p0.per_Id_Persona);
-                    if (persona.per_Bautizado &&persona.per_Vivo && persona.per_En_Comunion)
+                    if (persona.per_Bautizado && persona.per_Vivo && persona.per_En_Comunion)
                     {
                         bautizados = bautizados + 1;
                     }
@@ -1781,7 +1782,7 @@ namespace IECE_WebApi.Controllers
                                             per_Id_Persona = hp.per_Id_Persona,
                                             hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
                                             per_Activo = per.per_Activo
-                                            
+
                                         }).ToList();
 
                 // DATOS DE LA PERSONA
@@ -1809,7 +1810,7 @@ namespace IECE_WebApi.Controllers
                 {
                     codigoTransaccion = mbpcd.tipoDestino == "INTERNO" ? 12103 : 12104;
                 }
-                    
+
                 // SE CAMBIA ESTATUS DE LA VISIBILIDAD DE LA PERSONA Y A ESTATUS INACTIVO PARA AMBOS CASOS BAUTIZADOS Y NO BAUTIZADOS
                 p.per_Activo = false;
                 p.per_Visibilidad_Abierta = true;
@@ -1825,13 +1826,13 @@ namespace IECE_WebApi.Controllers
                 //context.Hogar_Persona.Update(hp2);
                 //context.SaveChanges();
 
-                 //// ASEGURA JERARQUIAS CORRECTAS
-                 //AseguraJerarquias(hp2.hd_Id_Hogar);
+                //// ASEGURA JERARQUIAS CORRECTAS
+                //AseguraJerarquias(hp2.hd_Id_Hogar);
 
 
 
                 //Si es BAUTIZADO revisa si debe dar de Baja el Hogar y otros integrantes No Bautizados
-                if (p.per_Bautizado) 
+                if (p.per_Bautizado)
                 {
                     if (bautizados == 1) //Si es el último bautizad,o debe de darse de baja el Hogar
                     {
@@ -1966,11 +1967,11 @@ namespace IECE_WebApi.Controllers
                 {
                     ct_Codigo_Transaccion = 12001;
                     hte.RegistroHistorico(
-                        persona.per_Id_Persona, 
-                        persona.sec_Id_Sector, 
-                        ct_Codigo_Transaccion, 
+                        persona.per_Id_Persona,
+                        persona.sec_Id_Sector,
+                        ct_Codigo_Transaccion,
                         "",
-                        phe.FechaTransaccionHistorica == null ? persona.per_Fecha_Nacimiento : phe.FechaTransaccionHistorica, 
+                        phe.FechaTransaccionHistorica == null ? persona.per_Fecha_Nacimiento : phe.FechaTransaccionHistorica,
                         persona.usu_Id_Usuario);
                 }
 
@@ -2515,39 +2516,30 @@ namespace IECE_WebApi.Controllers
         // PUT: api/Persona/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put([FromBody] PersonaComentarioHTE objeto, int id)
+        public IActionResult Put([FromBody] PersonaComentarioHTE objeto, int id)
         {
             try
             {
-                Persona persona = new Persona();
-                persona = objeto.PersonaEntity;
+                Persona persona = objeto.PersonaEntity;
 
                 // ALTA DE NUEVAS PROFESIONES
-                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
+                if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
                 {
-                    var idNvaProf1 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio1);
+                    var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio1);
                     persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
                 }
-                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
+                if (persona.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
                 {
-                    var idNvaProf2 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio2);
+                    var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio2);
                     persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
                 }
 
-                var queryPersona = (from p in context.Persona
-                                    where p.per_Id_Persona == id
-                                    select new
-                                    {
-                                        p.per_Bautizado
-                                    }).ToList();
-
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-                
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
                 persona.Fecha_Registro = fechayhora;
 
-                if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
+                if (persona.per_Bautizado == persona.per_Bautizado)
                 {
                     ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
                 }
@@ -2562,80 +2554,7 @@ namespace IECE_WebApi.Controllers
                 hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
 
                 // MODIFICACION DE REGISTRO DE PERSONA
-                //context.Entry(persona).State = EntityState.Modified;
-                context.Persona.Update(persona);
-                context.SaveChanges();
-
-                return Ok(
-                    new
-                    {
-                        status = "success",
-                        persona
-                    });
-            }
-            catch (Exception ex)
-            {
-                return Ok(
-                    new
-                    {
-                        status = "error",
-                        mensaje = ex.Message
-                    });
-            }
-        }
-
-        // POST: api/Persona/5
-        [HttpPost]
-        [EnableCors("AllowOrigin")]
-        public ActionResult ActualizaPersona([FromBody] PersonaComentarioHTE objeto)
-        {
-            try
-            {
-                Persona persona = new Persona();
-                persona = objeto.PersonaEntity;
-
-                // ALTA DE NUEVAS PROFESIONES
-                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
-                {
-                    var idNvaProf1 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio1);
-                    persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
-                }
-                if (objeto.PersonaEntity.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
-                {
-                    var idNvaProf2 = AltaDeProfesion(objeto.PersonaEntity.usu_Id_Usuario, objeto.PersonaEntity.per_Id_Persona, objeto.nvaProfesionOficio2);
-                    persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
-                }
-
-                var queryPersona = (from p in context.Persona
-                                    where p.per_Id_Persona == persona.per_Id_Persona
-                                    select new
-                                    {
-                                        p.per_Bautizado
-                                    }).ToList();
-
-                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-
-                int ct_Codigo_Transaccion = 0;
-                DateTime? hte_Fecha_Transaccion = DateTime.Now;
-                persona.Fecha_Registro = fechayhora;
-
-                if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
-                {
-                    ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
-                }
-                else
-                {
-                    persona.per_Bautizado = true;
-                    persona.per_En_Comunion = true;
-                    ct_Codigo_Transaccion = 11001;
-                    hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
-                }
-
-                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
-
-                // MODIFICACION DE REGISTRO DE PERSONA
-                //context.Entry(persona).State = EntityState.Modified;
-                context.Persona.Update(persona);
+                context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
 
                 return Ok(

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace IECE_WebApi.Controllers
 {
@@ -309,7 +310,6 @@ namespace IECE_WebApi.Controllers
                     password = EMAILPASSWORD,
                     encriptacion = ENCRIPTACION,
                     formato = FORMATO,
-                    //destinatario = "nsc_luis@nscco.com.mx",
                     //destinatario = "nsc_luis@nscco.com.mx;jacinto_molina@yahoo.com",
                     destinatario = "soporte@iece.mx",
                     asunto = "IECE WebApp. Solicitud de nueva profesion.",
@@ -339,6 +339,10 @@ namespace IECE_WebApi.Controllers
                 message.IsBodyHtml = datosEnvioCorreo.formato;
                 message.Body = datosEnvioCorreo.mensaje;
                 smtp.Send(message);
+
+                context.Entry(persona).State = EntityState.Detached;
+                context.Entry(ministro).State = EntityState.Detached;
+
                 return Ok(new
                 {
                     status = "success",
