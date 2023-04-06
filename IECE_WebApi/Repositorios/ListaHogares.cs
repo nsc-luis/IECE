@@ -32,6 +32,7 @@ namespace IECE_WebApi.Repositorios
         public string nombre { get; set; }
         public int edad { get; set; }
         public string cel { get; set; }
+        public DateTime? bautismo { get; set; }
     }
 
     
@@ -169,7 +170,8 @@ namespace IECE_WebApi.Repositorios
                                                     cel=p.per_Telefono_Movil,
                                                     nacimiento=p.per_Fecha_Nacimiento,
                                                     edad= (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
-                                                    grupo=p.per_Bautizado==true?"B":"NB"
+                                                    grupo=p.per_Bautizado==true?"B":"NB",
+                                                    bautismo=p.per_Fecha_Bautismo
                                                   }).ToList()
 
                               }).ToList();
@@ -239,7 +241,8 @@ namespace IECE_WebApi.Repositorios
                                                      cel = p.per_Telefono_Movil,
                                                      nacimiento = p.per_Fecha_Nacimiento,
                                                      edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
-                                                     grupo = p.per_Bautizado == true ? "B" : "NB"
+                                                     grupo = p.per_Bautizado == true ? "B" : "NB",
+                                                     bautismo = p.per_Fecha_Bautismo
                                                  }).ToList()
 
                               }).ToList();
