@@ -55,22 +55,26 @@ namespace IECE_WebApi.Repositorios
         private DateTime fechayhora = DateTime.UtcNow;
         public string getDireccion (string st, string n_ext, string n_int,string t_asent, string asent, string poblado, string municipio, string estado, string pais, string cp )
         {
-            var noExterior = (n_ext == null || n_ext == "") ? "S/N" : n_ext;
-            var noInterior = (n_int == null || n_int == "") ? "" : " Int. " + n_int;
-            var numero = noInterior != "" ? (noExterior + "," + noInterior): (noExterior);
             var tipoAsentamiento = (t_asent == null || t_asent == "") ? "" : t_asent;
             var asentamiento = (asent == null || asent == "") ? "" : $"{tipoAsentamiento} {asent}";
             var localidad = (poblado == null || poblado == "") ? "" : poblado;
             var ciudad = (localidad == municipio || localidad == "") ? municipio : (localidad + ", " + municipio);
             var direccion = "";
-            if (pais == "USA" || pais == "CAN")
+            if (pais == "USA" || pais == "CAN") //Configura la Dirección para USA y CANADA
             {
                 var calle = st;
-                direccion = $"{numero} {calle}, {asentamiento}, {ciudad}, {estado}, {pais}.";
+                var noExterior = (n_ext == null || n_ext == "") ? "" : n_ext;
+                var noInterior = (n_int == null || n_int == "") ? "" : "" + n_int;
+                var numero = noExterior;
+                direccion = $"{numero} {calle} {noInterior}, {ciudad}, {estado}, {pais}.";
             }
-            else
+            else //Configura la Dirección para cualquier otro País que no sean ni USA ni CANADA
             {
+
                 var calle = st != null || st != "" ? st : "DOMICILIO CONOCIDO";
+                var noExterior = (n_ext == null || n_ext == "") ? "S/N" : n_ext;
+                var noInterior = (n_int == null || n_int == "") ? "" : " Int. " + n_int;
+                var numero = noInterior != "" ? (noExterior + "," + noInterior) : (noExterior);
                 direccion = $"{calle} {numero}, {asentamiento}, {ciudad}, {estado}, {pais}.";
             }
 
