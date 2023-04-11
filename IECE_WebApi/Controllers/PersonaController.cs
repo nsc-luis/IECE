@@ -2039,14 +2039,14 @@ namespace IECE_WebApi.Controllers
 
                 // ALTA DE DOMICILIO
                 HogarDomicilio hd = new HogarDomicilio();
-                hd = pd.HogarDomicilioEntity;
+                hd = pd.HogarDomicilioEntity; //Los Datos del Domicilio los pone en la variable 'hd'
                 int idNvoEstado = 0;
-                var estados = (from e in context.Estado
+                var estados = (from e in context.Estado     //Trae los Estados/Provincias del País que trae el 'domicilio'
                                where e.pais_Id_Pais == hd.pais_Id_Pais
                                select e).ToList();
 
-                // if (estados.Count < 1 && nvoEstado != null)
-                if (pd.nvoEstado != "")
+                //Si el campo nvoEstado trae un nuevo Estado, lo agrega a la Tabla 'Estado' y envía el email de solicitud del Nuevo Estado a Soporte Técnico.
+                if (pd.nvoEstado != "") 
                 {
                     var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
                     var est = new Estado
@@ -2064,13 +2064,14 @@ namespace IECE_WebApi.Controllers
                     sendMail.EnviarSolicitudNvoEstado(pais.pais_Id_Pais, p.usu_Id_Usuario, p.per_Id_Persona, pd.nvoEstado);
                 }
 
+                //Graba el Nuevo Domicilio con el Estado/Provincia Seleccionado o con el Recien Creado
                 hd.Fecha_Registro = fechayhora;
-                hd.est_Id_Estado = estados.Count < 1 && pd.nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
+                hd.est_Id_Estado = pd.nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
                 hd.usu_Id_Usuario = p.usu_Id_Usuario;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
-                // ALTA DEL HOGAR
+                // ALTA DEL HOGAR-PERSONA
                 Hogar_Persona hp = new Hogar_Persona();
                 hp.hp_Jerarquia = 1;
                 hp.per_Id_Persona = p.per_Id_Persona;
@@ -2080,21 +2081,21 @@ namespace IECE_WebApi.Controllers
                 context.Hogar_Persona.Add(hp);
                 context.SaveChanges();
 
+                // REGISTRO HISTORICO DE LA ALTA DE LA PERSONA
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
-                if (p.per_Bautizado)
+                if (p.per_Bautizado) //Si la Alta es un Bautismo
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = p.per_Fecha_Bautismo;
                 }
-                else
+                else //Si la Alta es un Nuevo Ingreso de un No Bautiado
                 {
                     ct_Codigo_Transaccion = 12001;
                     hte_Fecha_Transaccion = pd.FechaTransaccionHistorica == null ? p.per_Fecha_Nacimiento : pd.FechaTransaccionHistorica;
                 }
-
-                // REGISTRO HISTORICO DE LA PERSONA
+                                
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
@@ -2104,7 +2105,7 @@ namespace IECE_WebApi.Controllers
                     p.usu_Id_Usuario
                 );
 
-                // REGISTRO HISTORICO DEL HOGAR
+                // REGISTRO HISTORICO DEL ALTA DEL HOGAR
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
