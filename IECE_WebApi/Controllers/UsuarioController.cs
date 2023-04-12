@@ -28,9 +28,9 @@ namespace IECE_WebApi.Controllers
         private readonly IConfiguration _configuration;
         private readonly string superSecreto = global.LlaveAltaUsuario;
         // CLAVE PARA FASE 1 DE ALTA DE USUARIO, METODO DE VERIFICACION DE CORREO
-        private readonly string cf1 = "1dc5cfa8-b770-43f4-ad11-51126df7f8ad";
+        //private readonly string cf1 = "1dc5cfa8-b770-43f4-ad11-51126df7f8ad";
         // CLAVE PARA FASE 2 DE ALTA DE USUARIO, METODO DE ALTA DE USUARIO
-        private readonly string cf2 = "d41a3311-1098-4639-9c55-e2dd88351fa9";
+        //private readonly string cf2 = "d41a3311-1098-4639-9c55-e2dd88351fa9";
 
         public object JwTRegistredClaimName { get; private set; }
 
