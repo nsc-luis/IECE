@@ -87,6 +87,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Graba los datos de la Solicitud en la Tabla 'SolicitudNvoEstado'.
                 var solicitud = new SolicitudNvoEstado
                 {
                     nombreNvoEstado = nvoEstado,
@@ -98,7 +99,7 @@ namespace IECE_WebApi.Controllers
                 context.SolicitudNvoEstado.Add(solicitud);
                 context.SaveChanges();
 
-                // AGREGAR NUEVO ESTADO
+                // AGREGA NUEVO ESTADO en la Tabla 'Estado'
                 var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == pais_Id_Pais);
                 var est = new Estado
                 {
@@ -110,6 +111,7 @@ namespace IECE_WebApi.Controllers
                 context.Estado.Add(est);
                 context.SaveChanges();
 
+                //Envía un Email a Soporte Tecnico para que ellos hagan los ajustes que crean pertinentes, como la Abreviación(Nombre Corto) del Nuevo Estado
                 SendMailController sendMail = new SendMailController(context);
                 sendMail.EnviarSolicitudNvoEstado(pais_Id_Pais, usu_Id_Usuario, 1, nvoEstado);
 

@@ -426,7 +426,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = "No se ha ingresado ningun estado nuevo."
+                        mensaje = "No se ha ingresado ningun Estado Nuevo."
                     });
                 }
             }

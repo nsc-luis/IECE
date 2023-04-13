@@ -30,6 +30,10 @@ namespace IECE_WebApi.Models
         public int est_Id_Estado { get; set; }
         [Display(Name = "Telefono")]
         public string hd_Telefono { get; set; }
+
+        [Display(Name = "Codigo Postal")]
+        public string hd_CP { get; set; }
+
         [Required]
         public int dis_Id_Distrito { get; set; }
         [Required]

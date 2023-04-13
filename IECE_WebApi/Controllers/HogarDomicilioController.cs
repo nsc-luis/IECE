@@ -95,6 +95,7 @@ namespace IECE_WebApi.Controllers
                         est.est_Nombre,
                         pais.pais_Nombre_Corto,
                         hd.hd_Telefono,
+                        hd.hd_CP,
                         dis.dis_Numero,
                         dis.dis_Alias,
                         sec.sec_Alias,
@@ -169,6 +170,7 @@ namespace IECE_WebApi.Controllers
                                       pais.pais_Id_Pais,
                                       pais.pais_Nombre_Corto,
                                       hd.hd_Telefono,
+                                      hd.hd_CP,
                                       hd.hd_Activo,
                                       dis.dis_Id_Distrito,
                                       dis.dis_Numero,
@@ -209,45 +211,8 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Get(int id)
         {
-
-
             try
             {
-                //var hogardomicilio = (from hd in context.HogarDomicilio
-                //                  join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
-                //                  join est in context.Estado on hd.est_Id_Estado equals est.est_Id_Estado
-                //                  where hd.hd_Id_Hogar == id
-                //                  select new
-                //                  {
-                //                      hd.hd_Activo,
-                //                      hd.hd_Calle,
-                //                      hd.hd_Id_Hogar,
-                //                      hd.hd_Localidad,
-                //                      hd.hd_Municipio_Ciudad,
-                //                      hd.hd_Numero_Exterior,
-                //                      hd.hd_Numero_Interior,
-                //                      hd.hd_Subdivision,
-                //                      hd.hd_Telefono,
-                //                      hd.hd_Tipo_Subdivision,
-                //                      pais.pais_Nombre,
-                //                      pais.pais_Nombre_Corto,
-                //                      est.est_Nombre,
-                //                      est.est_Nombre_Corto
-                //                  }).ToList();
-                //var noExterior = hogardomicilio[0].hd_Numero_Exterior == null || hogardomicilio[0].hd_Numero_Exterior == "" ? "S/N" : hogardomicilio[0].hd_Numero_Exterior;
-                //var noInterior = hogardomicilio[0].hd_Numero_Interior == null || hogardomicilio[0].hd_Numero_Interior == "" ? "" : " int. " + hogardomicilio[0].hd_Numero_Interior;
-                //var tipoAsentamiento = hogardomicilio[0].hd_Tipo_Subdivision == null || hogardomicilio[0].hd_Tipo_Subdivision == "" ? "" : hogardomicilio[0].hd_Tipo_Subdivision;
-                //var asentamiento = hogardomicilio[0].hd_Subdivision == null || hogardomicilio[0].hd_Subdivision == "" ? "" : $"{ tipoAsentamiento} {hogardomicilio[0].hd_Subdivision}";
-                //var localidad = hogardomicilio[0].hd_Localidad == null || hogardomicilio[0].hd_Localidad == "" ? "" : $"{hogardomicilio[0].hd_Localidad},";
-                //var direccion = "";
-                //if (hogardomicilio[0].pais_Nombre_Corto == "USA" || hogardomicilio[0].pais_Nombre_Corto == "CAN")
-                //{
-                //    direccion = $"{noExterior} {noInterior} {hogardomicilio[0].hd_Calle}, {asentamiento} {localidad} {hogardomicilio[0].hd_Municipio_Ciudad}, {hogardomicilio[0].est_Nombre}, {hogardomicilio[0].pais_Nombre_Corto}.";
-                //}
-                //else
-                //{
-                //    direccion = $"{hogardomicilio[0].hd_Calle} {noExterior}{noInterior}, {asentamiento}, {localidad} {hogardomicilio[0].hd_Municipio_Ciudad}, {hogardomicilio[0].est_Nombre}, {hogardomicilio[0].pais_Nombre_Corto}.";
-                //}
                 var hogares = new Hogares(context);
                 var hogardomicilio = hogares.Address(id);
                 var direccion = hogares.getDireccion(id);
@@ -386,21 +351,53 @@ namespace IECE_WebApi.Controllers
         //}
 
         // PUT: api/HogarDomicilio/EditaDomicilio/5
-        [HttpPut("{id}")]
+        [HttpPut("{id}/{nvoEstado?}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put([FromBody] HogarDomicilio hogardomicilio, int id)
+        public ActionResult Put([FromBody] HogarDomicilio hogardomicilio, int id, string nvoEstado="")
         {
             try {
-                
-                // Guarda cambios en el domicilio
-                hogardomicilio.Fecha_Registro = fechayhora;
+                // CONSULTA EL TITULAR DEL HOGAR
+                Hogar_Persona hp = context.Hogar_Persona.FirstOrDefault(
+                h => h.hd_Id_Hogar == hogardomicilio.hd_Id_Hogar
+                && h.hp_Jerarquia == 1);
+
+
+                // ALTA DE DOMICILIO
+                HogarDomicilio hd = new HogarDomicilio();
+                hd = hogardomicilio; //Los Datos del Domicilio los pone en la variable 'hd'
+                int idNvoEstado = 0;
+                var estados = (from e in context.Estado     //Trae los Estados/Provincias del País que trae el 'domicilio'
+                               where e.pais_Id_Pais == hd.pais_Id_Pais
+                               select e).ToList();
+
+                //Si el campo nvoEstado trae un nuevo Estado, lo agrega a la Tabla 'Estado' y envía el email de solicitud del Nuevo Estado a Soporte Técnico.
+                if (nvoEstado != "")
+                {
+                    var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
+                    var est = new Estado
+                    {
+                        est_Nombre_Corto = nvoEstado.Substring(0, 3),
+                        est_Nombre = nvoEstado,
+                        pais_Id_Pais = hd.pais_Id_Pais,
+                        est_Pais = pais.pais_Nombre_Corto,
+                    };
+                    context.Estado.Add(est);
+                    context.SaveChanges();
+                    idNvoEstado = est.est_Id_Estado;
+
+                    SendMailController sendMail = new SendMailController(context);
+                    sendMail.EnviarSolicitudNvoEstado(pais.pais_Id_Pais, hd.usu_Id_Usuario, hp.per_Id_Persona, nvoEstado);
+                }
+
+                // Guarda cambios en el domicilio con el Estado/Provincia Seleccionado o con el Recien Creado
+                hd.Fecha_Registro = fechayhora;
+                hd.est_Id_Estado = nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
+                hd.usu_Id_Usuario = hd.usu_Id_Usuario;
                 context.Entry(hogardomicilio).State = EntityState.Modified;
                 context.SaveChanges();
 
                 // Guarda registro historico
-                Hogar_Persona hp = context.Hogar_Persona.FirstOrDefault(
-                    h => h.hd_Id_Hogar == hogardomicilio.hd_Id_Hogar
-                    && h.hp_Jerarquia == 1);
+
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 hte.RegistroHistorico(hp.per_Id_Persona, hogardomicilio.sec_Id_Sector, 31203, "EDICION DE DOMICILIO", fechayhora, hogardomicilio.usu_Id_Usuario);
 
