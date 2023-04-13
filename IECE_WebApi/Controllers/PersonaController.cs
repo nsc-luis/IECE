@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace IECE_WebApi.Controllers
 {
     //Comentario sin uso
@@ -286,8 +287,7 @@ namespace IECE_WebApi.Controllers
                         }
                     }
                 }
-                // ESTABLECE (JERARQUIA + 1) A LOS MIEMBROS CON JERARQUIA IGUAL O MAYOR A LA SELECCIONADA
-                else
+                else // SI NuevaJERARQUIA ES MAYOR DE 1, ESTABLECE (JERARQUIA + 1) A LOS MIEMBROS CON JERARQUIA IGUAL O MAYOR A LA SELECCIONADA
                 {
                     foreach (var miembro in miembrosDelHogar)
                     {
@@ -2039,14 +2039,14 @@ namespace IECE_WebApi.Controllers
 
                 // ALTA DE DOMICILIO
                 HogarDomicilio hd = new HogarDomicilio();
-                hd = pd.HogarDomicilioEntity;
+                hd = pd.HogarDomicilioEntity; //Los Datos del Domicilio los pone en la variable 'hd'
                 int idNvoEstado = 0;
-                var estados = (from e in context.Estado
+                var estados = (from e in context.Estado     //Trae los Estados/Provincias del País que trae el 'domicilio'
                                where e.pais_Id_Pais == hd.pais_Id_Pais
                                select e).ToList();
 
-                // if (estados.Count < 1 && nvoEstado != null)
-                if (pd.nvoEstado != "")
+                //Si el campo nvoEstado trae un nuevo Estado, lo agrega a la Tabla 'Estado' y envía el email de solicitud del Nuevo Estado a Soporte Técnico.
+                if (pd.nvoEstado != "") 
                 {
                     var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
                     var est = new Estado
@@ -2064,13 +2064,14 @@ namespace IECE_WebApi.Controllers
                     sendMail.EnviarSolicitudNvoEstado(pais.pais_Id_Pais, p.usu_Id_Usuario, p.per_Id_Persona, pd.nvoEstado);
                 }
 
+                //Graba el Nuevo Domicilio con el Estado/Provincia Seleccionado o con el Recien Creado
                 hd.Fecha_Registro = fechayhora;
-                hd.est_Id_Estado = estados.Count < 1 && pd.nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
+                hd.est_Id_Estado = pd.nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
                 hd.usu_Id_Usuario = p.usu_Id_Usuario;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
 
-                // ALTA DEL HOGAR
+                // ALTA DEL HOGAR-PERSONA
                 Hogar_Persona hp = new Hogar_Persona();
                 hp.hp_Jerarquia = 1;
                 hp.per_Id_Persona = p.per_Id_Persona;
@@ -2080,21 +2081,21 @@ namespace IECE_WebApi.Controllers
                 context.Hogar_Persona.Add(hp);
                 context.SaveChanges();
 
+                // REGISTRO HISTORICO DE LA ALTA DE LA PERSONA
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
-                if (p.per_Bautizado)
+                if (p.per_Bautizado) //Si la Alta es un Bautismo
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = p.per_Fecha_Bautismo;
                 }
-                else
+                else //Si la Alta es un Nuevo Ingreso de un No Bautiado
                 {
                     ct_Codigo_Transaccion = 12001;
                     hte_Fecha_Transaccion = pd.FechaTransaccionHistorica == null ? p.per_Fecha_Nacimiento : pd.FechaTransaccionHistorica;
                 }
-
-                // REGISTRO HISTORICO DE LA PERSONA
+                                
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
@@ -2104,7 +2105,7 @@ namespace IECE_WebApi.Controllers
                     p.usu_Id_Usuario
                 );
 
-                // REGISTRO HISTORICO DEL HOGAR
+                // REGISTRO HISTORICO DEL ALTA DEL HOGAR
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
@@ -2167,7 +2168,10 @@ namespace IECE_WebApi.Controllers
                              where hp1.per_Id_Persona == per_Id_Persona
                              select hp1).ToList();
 
-                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR CONSULTADO
+                //Se guardan el Hogar Anterior en una Variable hdInicial
+                int hdInicial = objhp[0].hd_Id_Hogar;
+
+                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR ANTERIOR
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
                                         join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
                                         where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
@@ -2177,10 +2181,25 @@ namespace IECE_WebApi.Controllers
                                             hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona
                                         }).ToList();
 
-                // DATOS DE LA PERSONA
+                // CONSULTA LOS DATOS DE LA PERSONA QUE SE ESTA REVINCULANDO
                 var datosPersona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == per_Id_Persona);
 
-                // CUENTA LAS PERSONAS BAUTIZADAS
+                // Procede a Vincular LA PERSONA EN HOGAR EXISTENTE QUE ELIGIÓ
+                objhp[0].hd_Id_Hogar = hd_Id_Hogar;
+                objhp[0].hp_Jerarquia = hp_Jerarquia;
+                objhp[0].usu_Id_Usuario = usu_Id_Usuario;
+                objhp[0].Fecha_Registro = fechayhora;
+                context.Hogar_Persona.Update(objhp[0]);
+                context.SaveChanges();
+
+                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO RECEPTOR
+                RestructuraJerarquiasAlta(per_Id_Persona, hp_Jerarquia);
+
+                // GENERA REGISTRO HISTORICO DE LA EDICION DE LA PERSONA
+                int ct = datosPersona.per_Bautizado ? 11201 : 12201;
+                hte.RegistroHistorico(per_Id_Persona, datosPersona.sec_Id_Sector, ct, "REVINCULACION A OTRO HOGAR", fechayhora, usu_Id_Usuario);
+
+                // CUENTA LAS PERSONAS BAUTIZADAS EN EL HOGAR INICIAL
                 int bautizados = 0;
                 foreach (var p in miembrosDelHogar)
                 {
@@ -2191,117 +2210,54 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-                // DEFINE SI LA PERSONA SOLO SE ESTA CAMBIADO DE JERARQUIA O SI ESTA CAMBIANDO DE DOMICILIO
-                if (hd_Id_Hogar == objhp[0].hd_Id_Hogar)
+                if (bautizados == 1) //Si la persona era la última bautizada en el Hogar se debe de dar de Baja el Hogar y los NB que haya en él
                 {
-                    RestructuraJerarquiasAlta(per_Id_Persona, hp_Jerarquia);
-                }
-                // LA PERSONA ESTA CAMBIADO DE DOMICILIO PERO HAY MAS PERSONAS BAUTIZADAS EN EL DOMICILIO
-                else if ((hd_Id_Hogar != objhp[0].hd_Id_Hogar)
-                    && bautizados > 0)
-                {
-                    // REMUEVE PERSONA DE SU DOMICILIO ANTERIOR
-                    var objhpTemp = objhp;
-                    context.Hogar_Persona.Remove(objhpTemp[0]);
-                    context.SaveChanges();
-
-                    // INGRESA A LA PERSONA EN OTRO DOMICILIO EXISTENTE
-                    Hogar_Persona hp = new Hogar_Persona
-                    {
-                        hp_Jerarquia = 0,
-                        per_Id_Persona = per_Id_Persona,
-                        hd_Id_Hogar = hd_Id_Hogar,
-                        Fecha_Registro = fechayhora,
-                        usu_Id_Usuario = usu_Id_Usuario
-                    };
-                    context.Hogar_Persona.Add(hp);
-                    context.SaveChanges();
-
-                    // GENERA REGISTRO HISTORICO DE LA EDICION DE LA PERSONA
-                    int ct = datosPersona.per_Bautizado ? 11201 : 12201;
-                    hte.RegistroHistorico(per_Id_Persona, datosPersona.sec_Id_Sector, ct, "EDICION", fechayhora, usu_Id_Usuario);
-
-                    // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO RECEPTOR
-                    RestructuraJerarquiasAlta(per_Id_Persona, hp_Jerarquia);
-
-                    foreach (var p in miembrosDelHogar)
-                    {
-                        // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
-                        //var hogarPersona = context.Hogar_Persona.FirstOrDefault(hpx => hpx.hp_Id_Hogar_Persona == p.hp_Id_Hogar_Persona);
-                        //hogarPersona.hp_Jerarquia = hogarPersona.hp_Jerarquia - 1;
-                        //context.Hogar_Persona.Update(hogarPersona);
-                        //context.SaveChanges();
-
-                        // SE GENERA REGISTRO DE EDICION DE PERSONA
-                        var dp = context.Persona.FirstOrDefault(p1 => p1.per_Id_Persona == p.per_Id_Persona);
-                        int ct2 = datosPersona.per_Bautizado ? 11201 : 12201;
-                        hte.RegistroHistorico(p.per_Id_Persona, dp.sec_Id_Sector, ct2, "", fechayhora, 1);
-                    }
-
-                    // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
-                    AseguraJerarquias(objhp[0].hd_Id_Hogar);
-                }
-                else
-                {
-                    // LA PERSONA ESTA CAMBIANDO DE DOMICILIO PERO ES LA ULTIMA PERSONA BAUTIZADA EN EL DOMICILIO
-                    int hdInicial = objhp[0].hd_Id_Hogar;
-
-                    // REMUEVE PERSONA DE SU DOMICILIO ANTERIOR
-                    context.Hogar_Persona.Remove(objhp[0]);
-                    context.SaveChanges();
-
-                    // INGRESA A LA PERSONA EN OTRO DOMICILIO EXISTENTE
-                    Hogar_Persona hp = new Hogar_Persona
-                    {
-                        hp_Jerarquia = 0,
-                        per_Id_Persona = per_Id_Persona,
-                        hd_Id_Hogar = hd_Id_Hogar,
-                        Fecha_Registro = fechayhora,
-                        usu_Id_Usuario = usu_Id_Usuario
-                    };
-                    context.Hogar_Persona.Add(hp);
-                    context.SaveChanges();
-
-                    // GENERA REGISTRO HISTORICO DE LA EDICION DE LA PERSONA
-                    int ct = datosPersona.per_Bautizado ? 11201 : 12201;
-                    hte.RegistroHistorico(per_Id_Persona, datosPersona.sec_Id_Sector, ct, "EDICION", fechayhora, usu_Id_Usuario);
-
-                    // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO RECEPTOR
-                    RestructuraJerarquiasAlta(per_Id_Persona, hp_Jerarquia);
-
-                    // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
+                    // OBTIENE LOS MIEMBROS DEL HOGAR Anterior
                     var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
-                                             where hp1.hd_Id_Hogar == hdInicial
+                                             join per in context.Persona on hp1.per_Id_Persona equals per.per_Id_Persona
+                                             where hp1.hd_Id_Hogar == hdInicial && per.per_Activo == true
                                              select new
                                              {
                                                  per_Id_Persona = hp1.per_Id_Persona,
-                                                 hp_Id_Hogar_Persona = hp1.hp_Jerarquia
+                                                 hp_Id_Hogar_Persona = hp1.hp_Id_Hogar_Persona
                                              }).ToList();
 
                     foreach (var p in miembrosDelHogar2)
                     {
-                        // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
-                        //var hogarPersona = context.Hogar_Persona.FirstOrDefault(hpx => hpx.hp_Id_Hogar_Persona == p.hp_Id_Hogar_Persona);
-                        //hogarPersona.hp_Jerarquia = hogarPersona.hp_Jerarquia - 1;
-                        //context.Hogar_Persona.Update(hogarPersona);
+                        //// SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
+                        //var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);
+                        //persona.per_Activo = false;
+                        //context.Persona.Update(persona);
                         //context.SaveChanges();
 
-                        // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
-                        var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);
-                        persona.per_Activo = false;
-                        context.Persona.Update(persona);
+                        //// SE GENERA REGISTRO DE BAJA POR PADRES
+                        //hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
+
+                        // CONSULTA EL Registro HOGAR_PERSONA de cada NO Bautizado
+                        var objhp2 = (from hp1 in context.Hogar_Persona
+                                      where hp1.per_Id_Persona == p.per_Id_Persona
+                                      select hp1).ToList();
+
+                        // Vincula A LA PERSONA NO BAUTIZADA EN EL NUEVO DOMICILIO A DONDE SE REVINCULÓ AL PADRE?MADRE
+                        objhp2[0].hd_Id_Hogar = hd_Id_Hogar;
+                        objhp2[0].hp_Jerarquia = objhp2[0].hp_Jerarquia;
+                        objhp2[0].usu_Id_Usuario = usu_Id_Usuario;
+                        objhp2[0].Fecha_Registro = fechayhora;
+                        context.Hogar_Persona.Update(objhp2[0]);
                         context.SaveChanges();
 
-                        // SE GENERA REGISTRO DE BAJA POR PADRES
-                        hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
+                        // GENERA REGISTRO HISTORICO DE LA EDICION DE CADA NO BAUTIZADO QUE SE REVINCULA
+                        int ct2 = 12201;
+                        hte.RegistroHistorico(p.per_Id_Persona, datosPersona.sec_Id_Sector, ct2, "REVINCULACION A OTRO HOGAR", fechayhora, usu_Id_Usuario);
                     }
+
                     // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
                     var hd = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == hdInicial);
                     hd.hd_Activo = false;
                     context.HogarDomicilio.Update(hd);
                     context.SaveChanges();
 
-                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
+                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO 
                     hte.RegistroHistorico(
                         datosPersona.per_Id_Persona,
                         datosPersona.sec_Id_Sector,
@@ -2310,10 +2266,13 @@ namespace IECE_WebApi.Controllers
                         fechayhora,
                         usu_Id_Usuario
                     );
-
-                    // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
-                    AseguraJerarquias(hdInicial);
                 }
+                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
+                AseguraJerarquias(hdInicial);
+
+                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO NUEVO
+                AseguraJerarquias(hd_Id_Hogar);
+
                 return Ok(new
                 {
                     status = "success"
@@ -2329,11 +2288,11 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST: api/Persona/RevinculaPersonaNvoHogar/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado}
-        [Route("[action]/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado=}")]
+        //POST: api/Persona/RevinculaPersonaNvoHogar/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado}
+        [Route("[action]/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado?}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult RevinculaPersonaNvoHogar([FromBody] HogarDomicilio hogarDomicilio, int per_Id_Persona, int usu_Id_Usuario, string nvoEstado)
+        public IActionResult RevinculaPersonaNvoHogar([FromBody] HogarDomicilio hogarDomicilio, int per_Id_Persona, int usu_Id_Usuario, string nvoEstado="")
         {
             try
             {
@@ -2342,7 +2301,8 @@ namespace IECE_WebApi.Controllers
                                where e.pais_Id_Pais == hogarDomicilio.pais_Id_Pais
                                select e).ToList();
 
-                if (estados.Count < 1 && nvoEstado != "")
+                //Si el campo nvoEstado no viene vacío, sino que trae un nvoEstado, lo agrega a la Tabla 'Estado' y envía el email de solicitud del Nuevo Estado a Soporte Técnico.
+                if (nvoEstado != "")
                 {
                     var p = context.Pais.FirstOrDefault(pais => pais.pais_Id_Pais == hogarDomicilio.pais_Id_Pais);
                     var est = new Estado
@@ -2355,13 +2315,18 @@ namespace IECE_WebApi.Controllers
                     context.Estado.Add(est);
                     context.SaveChanges();
                     idNvoEstado = est.est_Id_Estado;
+
+                    SendMailController sendMail = new SendMailController(context);
+                    sendMail.EnviarSolicitudNvoEstado(p.pais_Id_Pais, usu_Id_Usuario, per_Id_Persona, nvoEstado);
                 }
 
-                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-                // CONSULTA EL HOGAR AL QUE PERTENECE LA PERSONA
+                // CONSULTA EL HOGAR_PERSONA ACTUAL AL QUE PERTENECE LA PERSONA
                 var objhp = (from hp1 in context.Hogar_Persona
                              where hp1.per_Id_Persona == per_Id_Persona
                              select hp1).ToList();
+
+                //Se guardan el Hogar Anterior
+                int hdInicial = objhp[0].hd_Id_Hogar;
 
                 // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR CONSULTADO
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
@@ -2373,7 +2338,7 @@ namespace IECE_WebApi.Controllers
                                             hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona
                                         }).ToList();
 
-                // DATOS DE LA PERSONA
+                // DATOS DE LA PERSONA QUE SE ESTA REVINCULANDO
                 var datosPersona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == per_Id_Persona);
 
                 // CONSULTA DATOS DEL DISTRITO
@@ -2382,14 +2347,13 @@ namespace IECE_WebApi.Controllers
                                 where s.sec_Id_Sector == datosPersona.sec_Id_Sector
                                 select d).ToList();
 
-                // GENERA REGISTRO HISTORICO DE LA EDICION DE LA PERSONA
-                int ct = datosPersona.per_Bautizado ? 11201 : 12201;
-                hte.RegistroHistorico(per_Id_Persona, datosPersona.sec_Id_Sector, ct, "EDICION", fechayhora, usu_Id_Usuario);
+                // INSTANCIA UN OBJETO PARA REGISTROS HISTORICOS
+                Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
 
                 // AGREGA DOMICILIO NUEVO
                 var hd = new HogarDomicilio();
                 hd.dis_Id_Distrito = distrito[0].dis_Id_Distrito;
-                hd.est_Id_Estado = nvoEstado != "" ? idNvoEstado : hd.est_Id_Estado;
+                hd.est_Id_Estado = nvoEstado != "" ? idNvoEstado : hogarDomicilio.est_Id_Estado;
                 hd.Fecha_Registro = fechayhora;
                 hd.hd_Activo = true;
                 hd.hd_Calle = hogarDomicilio.hd_Calle;
@@ -2402,93 +2366,94 @@ namespace IECE_WebApi.Controllers
                 hd.hd_Telefono = hogarDomicilio.hd_Telefono;
                 hd.pais_Id_Pais = hogarDomicilio.pais_Id_Pais;
                 hd.sec_Id_Sector = datosPersona.sec_Id_Sector;
+                hd.hd_CP = hogarDomicilio.hd_CP;
                 hd.usu_Id_Usuario = usu_Id_Usuario;
                 context.HogarDomicilio.Add(hd);
                 context.SaveChanges();
-                // ----SE AGREGA REGISTRO HISTORICO DEL NUEVO HOGAR---- //
 
-                // CUENTA LAS PERSONAS BAUTIZADAS
+                // REGISTRO HISTORICO DEL NUEVO HOGAR
+                hte.RegistroHistorico(
+                    per_Id_Persona,
+                    datosPersona.sec_Id_Sector,
+                    31001,
+                    (datosPersona.per_Nombre + " " + datosPersona.per_Apellido_Paterno + " " + datosPersona.per_Apellido_Materno),
+                    fechayhora,
+                    usu_Id_Usuario
+                );
+
+                // Vincula A LA PERSONA EN EL NUEVO DOMICILIO
+                objhp[0].hd_Id_Hogar = hd.hd_Id_Hogar;
+                objhp[0].hp_Jerarquia = 1;
+                objhp[0].usu_Id_Usuario = usu_Id_Usuario;
+                objhp[0].Fecha_Registro = fechayhora;
+                context.Hogar_Persona.Update(objhp[0]);
+                context.SaveChanges();
+
+                // GENERA REGISTRO HISTORICO DE LA EDICION DE LA PERSONA
+                int ct = datosPersona.per_Bautizado ? 11201 : 12201;
+                hte.RegistroHistorico(per_Id_Persona, datosPersona.sec_Id_Sector, ct, "REVINCULACION A OTRO HOGAR", fechayhora, usu_Id_Usuario);
+
+                // CUENTA LAS PERSONAS BAUTIZADAS del Hogar Anterior
                 int bautizados = 0;
                 foreach (var p in miembrosDelHogar)
                 {
                     var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);
-                    if (persona.per_Bautizado)
+                    if (persona.per_Bautizado && persona.per_Vivo && persona.per_Activo && persona.per_En_Comunion)
                     {
                         bautizados = bautizados + 1;
                     }
                 }
 
-                if (bautizados > 1)
-                {
-                    // REMUEVE PERSONA DE SU DOMICILIO ANTERIOR
-                    context.Hogar_Persona.Remove(objhp[0]);
-                    context.SaveChanges();
-
-                    // RESTRUCTURA JERARQUIAS
-                    AseguraJerarquias(objhp[0].hd_Id_Hogar);
-
-                    // INGRESA A LA PERSONA EN EL NUEVO DOMICILIO
-                    Hogar_Persona hp = new Hogar_Persona
-                    {
-                        hp_Jerarquia = 1,
-                        per_Id_Persona = per_Id_Persona,
-                        hd_Id_Hogar = hd.hd_Id_Hogar,
-                        Fecha_Registro = fechayhora,
-                        usu_Id_Usuario = usu_Id_Usuario
-                    };
-                    context.Hogar_Persona.Add(hp);
-                    context.SaveChanges();
-                }
-                else
+                if (bautizados == 1) 
                 { // LA PERSONA CREA UN NUEVO DOMICILIO PERO ES LA ULTIMA PERSONA BAUTIZADA EN EL DOMICILIO AL QUE PERTENECE
 
-                    // REMUEVE PERSONA DE SU DOMICILIO ANTERIOR
-                    context.Hogar_Persona.Remove(objhp[0]);
-                    context.SaveChanges();
+                    // OBTIENE LOS MIEMBROS DEL HOGAR que quedará solo
+                    var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
+                                             join per in context.Persona on hp1.per_Id_Persona equals per.per_Id_Persona
+                                             where hp1.hd_Id_Hogar == hdInicial && per.per_Activo == true
+                                             select new
+                                             {
+                                                 per_Id_Persona = hp1.per_Id_Persona,
+                                                 hp_Id_Hogar_Persona = hp1.hp_Id_Hogar_Persona
+                                             }).ToList();
 
-                    // INGRESA A LA PERSONA EN EL NUEVO DOMICILIO
-                    Hogar_Persona hp = new Hogar_Persona
+                    foreach (var p in miembrosDelHogar2)
                     {
-                        hp_Jerarquia = 1,
-                        per_Id_Persona = per_Id_Persona,
-                        hd_Id_Hogar = hd.hd_Id_Hogar,
-                        usu_Id_Usuario = usu_Id_Usuario
-                    };
-                    context.Hogar_Persona.Add(hp);
-                    context.SaveChanges();
+                        //// SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
+                        //var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);
+                        //persona.per_Activo = false;
+                        //context.Persona.Update(persona);
+                        //context.SaveChanges();
 
-                    // RESTRUCTURA JERARQUIAS
-                    AseguraJerarquias(objhp[0].hd_Id_Hogar);
+                        //// SE GENERA REGISTRO DE BAJA POR PADRES
+                        //hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
 
-                    foreach (var p in miembrosDelHogar)
-                    {
-                        // OBTIENE LOS MIEMBROS DEL HOGAR CONSULTADO
-                        var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
-                                                 join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
-                                                 where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
-                                                 select new
-                                                 {
-                                                     per_Id_Persona = hp1.per_Id_Persona,
-                                                     hp_Id_Hogar_Persona = hp1.hp_Id_Hogar_Persona
-                                                 }).ToList();
+                        // CONSULTA EL Registro HOGAR_PERSONA de cada NO Bautizado
+                        var objhp2 = (from hp1 in context.Hogar_Persona
+                                     where hp1.per_Id_Persona == p.per_Id_Persona
+                                     select hp1).ToList();
 
-                        // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
-                        var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);
-                        persona.per_Activo = false;
-                        context.Persona.Update(persona);
+                        // Vincula A LA PERSONA NO BAUTIZADA EN EL NUEVO DOMICILIO A DONDE SE REVINCULÓ AL PADRE?MADRE
+                        objhp2[0].hd_Id_Hogar = hd.hd_Id_Hogar;
+                        objhp2[0].hp_Jerarquia = objhp2[0].hp_Jerarquia;
+                        objhp2[0].usu_Id_Usuario = usu_Id_Usuario;
+                        objhp2[0].Fecha_Registro = fechayhora;
+                        context.Hogar_Persona.Update(objhp2[0]);
                         context.SaveChanges();
 
-                        // SE GENERA REGISTRO DE BAJA POR PADRES
-                        hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
+                        // GENERA REGISTRO HISTORICO DE LA EDICION DE CADA NO BAUTIZADO QUE SE REVINCULA
+                        int ct2 = 12201;
+                        hte.RegistroHistorico(p.per_Id_Persona, datosPersona.sec_Id_Sector, ct2, "REVINCULACION A OTRO HOGAR", fechayhora, usu_Id_Usuario);
+
                     }
 
                     // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
-                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
+                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == hdInicial);
                     hdx.hd_Activo = false;
                     context.HogarDomicilio.Update(hdx);
                     context.SaveChanges();
 
-                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
+                    // SE GENERA REGISTRO HISTORICO DE BAJA DE DOMICILIO
                     hte.RegistroHistorico(
                         datosPersona.per_Id_Persona,
                         datosPersona.sec_Id_Sector,
@@ -2498,6 +2463,13 @@ namespace IECE_WebApi.Controllers
                         usu_Id_Usuario
                     );
                 }
+
+                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
+                AseguraJerarquias(hdInicial);
+
+                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO NUEVO
+                AseguraJerarquias(hd.hd_Id_Hogar);
+
                 return Ok(new
                 {
                     status = "success"

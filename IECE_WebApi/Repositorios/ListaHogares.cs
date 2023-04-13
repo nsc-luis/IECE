@@ -32,6 +32,7 @@ namespace IECE_WebApi.Repositorios
         public string nombre { get; set; }
         public int edad { get; set; }
         public string cel { get; set; }
+        public DateTime? bautismo { get; set; }
     }
 
     
@@ -54,23 +55,30 @@ namespace IECE_WebApi.Repositorios
         private DateTime fechayhora = DateTime.UtcNow;
         public string getDireccion (string st, string n_ext, string n_int,string t_asent, string asent, string poblado, string municipio, string estado, string pais, string cp )
         {
-            var noExterior = (n_ext == null || n_ext == "") ? "S/N" : n_ext;
-            var noInterior = (n_int == null || n_int == "") ? "" : " Int. " + n_int;
-            var numero = noInterior != "" ? (noExterior + "," + noInterior): (noExterior);
             var tipoAsentamiento = (t_asent == null || t_asent == "") ? "" : t_asent;
             var asentamiento = (asent == null || asent == "") ? "" : $"{tipoAsentamiento} {asent}";
             var localidad = (poblado == null || poblado == "") ? "" : poblado;
             var ciudad = (localidad == municipio || localidad == "") ? municipio : (localidad + ", " + municipio);
             var direccion = "";
-            if (pais == "USA" || pais == "CAN")
+
+            if (pais == "USA" || pais == "CAN") //Configura la Dirección para USA y CANADA
             {
                 var calle = st;
-                direccion = $"{numero} {calle}, {asentamiento}, {ciudad}, {estado}, {pais}.";
+                var noExterior = (n_ext == null || n_ext == "") ? "" : n_ext;
+                var noInterior = (n_int == null || n_int == "") ? "" : "" + n_int;
+                var numero = noExterior;
+                var zip = (cp == null || cp == "") ? "" : "" + cp;
+                direccion = $"{numero} {calle} {noInterior}, {ciudad}, {estado} {zip}, {pais}.";
             }
-            else
+            else //Configura la Dirección para cualquier otro País que no sean ni USA ni CANADA
             {
+
                 var calle = st != null || st != "" ? st : "DOMICILIO CONOCIDO";
-                direccion = $"{calle} {numero}, {asentamiento}, {ciudad}, {estado}, {pais}.";
+                var noExterior = (n_ext == null || n_ext == "") ? "S/N" : n_ext;
+                var noInterior = (n_int == null || n_int == "") ? "" : n_int;
+                var numero = noInterior != "" ? (noExterior + ", " + noInterior) : (noExterior);
+                var zip = (cp == null || cp == "") ? "" : ", C.P. " + cp;
+                direccion = $"{calle} {numero}, {asentamiento}{zip}, {ciudad}, {estado},  {pais}.";
             }
 
             return (direccion);
@@ -93,6 +101,7 @@ namespace IECE_WebApi.Repositorios
                                       hd_Numero_Interior = hd.hd_Numero_Interior,
                                       hd_Subdivision = hd.hd_Subdivision,
                                       hd_Telefono = hd.hd_Telefono,
+                                      hd_CP = hd.hd_CP,
                                       hd_Tipo_Subdivision = hd.hd_Tipo_Subdivision,
                                       pais_Nombre = pais.pais_Nombre,
                                       pais_Nombre_Corto = pais.pais_Nombre_Corto,
@@ -110,7 +119,7 @@ namespace IECE_WebApi.Repositorios
             var hogardomicilio = Address(id);
             var hd = hogardomicilio[0];
 
-            var direccion = getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, hd.est_Nombre_Corto, hd.pais_Nombre_Corto, "");
+            var direccion = getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, hd.est_Nombre_Corto, hd.pais_Nombre_Corto, hd.hd_CP);
 
             return (direccion);
         }
@@ -155,7 +164,7 @@ namespace IECE_WebApi.Repositorios
                               select new Homes
                               {
                                   indice= loop,
-                                  direccion = getDireccion(hd.hd_Calle,hd.hd_Numero_Exterior, hd.hd_Numero_Interior,hd.hd_Tipo_Subdivision,hd.hd_Subdivision,hd.hd_Localidad, hd.hd_Municipio_Ciudad, state.est_Nombre_Corto, country.pais_Nombre_Corto,""),
+                                  direccion = getDireccion(hd.hd_Calle,hd.hd_Numero_Exterior, hd.hd_Numero_Interior,hd.hd_Tipo_Subdivision,hd.hd_Subdivision,hd.hd_Localidad, hd.hd_Municipio_Ciudad, state.est_Nombre_Corto, country.pais_Nombre_Corto,hd.hd_CP),
                                   tel = hd.hd_Telefono,
                                   //Query que obiene los integrantes del Hogar en que está siendo analizado en el bucle foreach.
                                   integrantes = (from hp in context.Hogar_Persona
@@ -169,7 +178,8 @@ namespace IECE_WebApi.Repositorios
                                                     cel=p.per_Telefono_Movil,
                                                     nacimiento=p.per_Fecha_Nacimiento,
                                                     edad= (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
-                                                    grupo=p.per_Bautizado==true?"B":"NB"
+                                                    grupo=p.per_Bautizado==true?"B":"NB",
+                                                    bautismo=p.per_Fecha_Bautismo
                                                   }).ToList()
 
                               }).ToList();
@@ -225,7 +235,7 @@ namespace IECE_WebApi.Repositorios
                               select new Homes
                               {
                                   indice = loop,
-                                  direccion = getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, state.est_Nombre_Corto, country.pais_Nombre_Corto, ""),
+                                  direccion = getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, state.est_Nombre_Corto, country.pais_Nombre_Corto, hd.hd_CP),
                                   tel = hd.hd_Telefono,
                                   //Query que obiene los integrantes del Hogar en que está siendo analizado en el bucle foreach.
                                   integrantes = (from hp in context.Hogar_Persona
@@ -239,7 +249,8 @@ namespace IECE_WebApi.Repositorios
                                                      cel = p.per_Telefono_Movil,
                                                      nacimiento = p.per_Fecha_Nacimiento,
                                                      edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
-                                                     grupo = p.per_Bautizado == true ? "B" : "NB"
+                                                     grupo = p.per_Bautizado == true ? "B" : "NB",
+                                                     bautismo = p.per_Fecha_Bautismo
                                                  }).ToList()
 
                               }).ToList();
