@@ -211,45 +211,8 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult Get(int id)
         {
-
-
             try
             {
-                //var hogardomicilio = (from hd in context.HogarDomicilio
-                //                  join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
-                //                  join est in context.Estado on hd.est_Id_Estado equals est.est_Id_Estado
-                //                  where hd.hd_Id_Hogar == id
-                //                  select new
-                //                  {
-                //                      hd.hd_Activo,
-                //                      hd.hd_Calle,
-                //                      hd.hd_Id_Hogar,
-                //                      hd.hd_Localidad,
-                //                      hd.hd_Municipio_Ciudad,
-                //                      hd.hd_Numero_Exterior,
-                //                      hd.hd_Numero_Interior,
-                //                      hd.hd_Subdivision,
-                //                      hd.hd_Telefono,
-                //                      hd.hd_Tipo_Subdivision,
-                //                      pais.pais_Nombre,
-                //                      pais.pais_Nombre_Corto,
-                //                      est.est_Nombre,
-                //                      est.est_Nombre_Corto
-                //                  }).ToList();
-                //var noExterior = hogardomicilio[0].hd_Numero_Exterior == null || hogardomicilio[0].hd_Numero_Exterior == "" ? "S/N" : hogardomicilio[0].hd_Numero_Exterior;
-                //var noInterior = hogardomicilio[0].hd_Numero_Interior == null || hogardomicilio[0].hd_Numero_Interior == "" ? "" : " int. " + hogardomicilio[0].hd_Numero_Interior;
-                //var tipoAsentamiento = hogardomicilio[0].hd_Tipo_Subdivision == null || hogardomicilio[0].hd_Tipo_Subdivision == "" ? "" : hogardomicilio[0].hd_Tipo_Subdivision;
-                //var asentamiento = hogardomicilio[0].hd_Subdivision == null || hogardomicilio[0].hd_Subdivision == "" ? "" : $"{ tipoAsentamiento} {hogardomicilio[0].hd_Subdivision}";
-                //var localidad = hogardomicilio[0].hd_Localidad == null || hogardomicilio[0].hd_Localidad == "" ? "" : $"{hogardomicilio[0].hd_Localidad},";
-                //var direccion = "";
-                //if (hogardomicilio[0].pais_Nombre_Corto == "USA" || hogardomicilio[0].pais_Nombre_Corto == "CAN")
-                //{
-                //    direccion = $"{noExterior} {noInterior} {hogardomicilio[0].hd_Calle}, {asentamiento} {localidad} {hogardomicilio[0].hd_Municipio_Ciudad}, {hogardomicilio[0].est_Nombre}, {hogardomicilio[0].pais_Nombre_Corto}.";
-                //}
-                //else
-                //{
-                //    direccion = $"{hogardomicilio[0].hd_Calle} {noExterior}{noInterior}, {asentamiento}, {localidad} {hogardomicilio[0].hd_Municipio_Ciudad}, {hogardomicilio[0].est_Nombre}, {hogardomicilio[0].pais_Nombre_Corto}.";
-                //}
                 var hogares = new Hogares(context);
                 var hogardomicilio = hogares.Address(id);
                 var direccion = hogares.getDireccion(id);
