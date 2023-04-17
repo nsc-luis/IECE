@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
+    <PackageReference Include="FreeSpire.Doc" Version="10.8.1" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />

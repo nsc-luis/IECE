@@ -5,19 +5,37 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using static IECE_WebApi.Templates.TiposDeDatosParaPDF;
-using Microsoft.AspNetCore.Hosting;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Linq;
+using System.Collections.Generic;
+using Spire.Doc;
 
 namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DocumentosPDFController : ControllerBase
     {
         private readonly AppDbContext context;
         public DocumentosPDFController(AppDbContext context)
         {
             this.context = context;
+        }
+
+        private void AgregarTextoAlMarcador(
+            List<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart> bookmarks, 
+            string NombreMarcador, 
+            string valor)
+        {
+            foreach (DocumentFormat.OpenXml.Wordprocessing.BookmarkStart b in bookmarks)
+            {
+                if (b.Name == NombreMarcador)
+                {
+                    b.Parent.InsertAfter(new Run(new Text(valor)), b);
+                }
+            }
         }
 
         [HttpPost]
@@ -39,133 +57,56 @@ namespace IECE_WebApi.Controllers
                 // Create shadow File
                 System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
 
-                // open word
-                Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
-                Microsoft.Office.Interop.Word.Document doc = app.Documents.Open(archivoTemporal);
+                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(archivoTemporal, true))
+                {
+                    var main = wordDoc.MainDocumentPart.Document;
+                    var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
+                    AgregarTextoAlMarcador(bookmarks, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"));
+                    AgregarTextoAlMarcador(bookmarks, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"));
+                    AgregarTextoAlMarcador(bookmarks, "AdultosBautizados", orme.AdultosBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "AltasBautizadosBautismo", orme.AltasBautizadosBautismo.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "AltasBautizadosCambioDomicilio", orme.AltasBautizadosCambioDomicilio.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "AltasBautizadosRestitucion", orme.AltasBautizadosRestitucion.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "AltasNoBautizadosCambioDomicilio", orme.AltasNoBautizadosCambioDomicilio.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "AltasNoBautizadosNuevoIngreso", orme.AltasNoBautizadosNuevoIngreso.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "AltasNoBautizadosReactivacion", orme.AltasNoBautizadosReactivacion.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BajasBautizadosCambioDomicilio", orme.BajasBautizadosCambioDomicilio.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BajasBautizadosDefuncion", orme.BajasBautizadosDefuncion.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BajasBautizadosExcomunion", orme.BajasBautizadosExcomunion.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BajasNoBautizadosAlejamiento", orme.BajasNoBautizadosAlejamiento.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BajasNoBautizadosCambioDomicilio", orme.BajasNoBautizadosCambioDomicilio.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BajasNoBautizadosDefuncion", orme.BajasNoBautizadosDefuncion.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BautizadosAdultoHombre", orme.BautizadosAdultoHombre.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BautizadosAdultoMujer", orme.BautizadosAdultoMujer.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BautizadosJovenHombre", orme.BautizadosJovenHombre.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "BautizadosJovenMujer", orme.BautizadosJovenMujer.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "JovenesBautizados", orme.JovenesBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "JovenesNoBautizados", orme.JovenesNoBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Legalizaciones", orme.Legalizaciones.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Matrimonios", orme.Matrimonios.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Ninas", orme.Ninas.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Ninos", orme.Ninos.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "NoBautizadosJovenHombre", orme.NoBautizadosJovenHombre.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "NoBautizadosJovenMujer", orme.NoBautizadosJovenMujer.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Presentaciones", orme.Presentaciones.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Total", orme.Total.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "TotalAltasBautizados", orme.TotalAltasBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "TotalAltasNoBautizados", orme.TotalAltasNoBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "TotalBajasBautizados", orme.TotalBajasBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "TotalBajasNoBautizados", orme.TotalBajasNoBautizados.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Ministro", orme.Ministro);
+                    AgregarTextoAlMarcador(bookmarks, "Secretario", orme.Secretario);
+                    AgregarTextoAlMarcador(bookmarks, "Transacciones", orme.Transacciones);
+                    AgregarTextoAlMarcador(bookmarks, "TotalNinos", (orme.Ninas + orme.Ninos).ToString());
+                    AgregarTextoAlMarcador(bookmarks, "TotalBautizados", (orme.AdultosBautizados + orme.JovenesBautizados).ToString());
+                    AgregarTextoAlMarcador(bookmarks, "TotalNoBautizados", (orme.JovenesNoBautizados + orme.Ninas + orme.Ninos).ToString());
+                    main.Save();
+                }
 
-                object oBookMark = "FechaInicial";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.FechaInicial.ToString("yyyy-MM-dd");
-
-                oBookMark = "FechaFinal";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.FechaFinal.ToString("yyyy-MM-dd");
-
-                oBookMark = "AdultosBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AdultosBautizados.ToString();
-
-                oBookMark = "AltasBautizadosBautismo";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AltasBautizadosBautismo.ToString();
-
-                oBookMark = "AltasBautizadosCambioDomicilio";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AltasBautizadosCambioDomicilio.ToString();
-
-                oBookMark = "AltasBautizadosRestitucion";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AltasBautizadosRestitucion.ToString();
-
-                oBookMark = "AltasNoBautizadosCambioDomicilio";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AltasNoBautizadosCambioDomicilio.ToString();
-
-                oBookMark = "AltasNoBautizadosNuevoIngreso";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AltasNoBautizadosNuevoIngreso.ToString();
-
-                oBookMark = "AltasNoBautizadosReactivacion";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.AltasNoBautizadosReactivacion.ToString();
-
-                oBookMark = "BajasBautizadosCambioDomicilio";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BajasBautizadosCambioDomicilio.ToString();
-
-                oBookMark = "BajasBautizadosDefuncion";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BajasBautizadosDefuncion.ToString();
-
-                oBookMark = "BajasBautizadosExcomunion";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BajasBautizadosExcomunion.ToString();
-
-                oBookMark = "BajasNoBautizadosAlejamiento";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BajasNoBautizadosAlejamiento.ToString();
-
-                oBookMark = "BajasNoBautizadosCambioDomicilio";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BajasNoBautizadosCambioDomicilio.ToString();
-
-                oBookMark = "BajasNoBautizadosDefuncion";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BajasNoBautizadosDefuncion.ToString();
-
-                oBookMark = "BautizadosAdultoHombre";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BautizadosAdultoHombre.ToString();
-
-                oBookMark = "BautizadosAdultoMujer";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BautizadosAdultoMujer.ToString();
-
-                oBookMark = "BautizadosJovenHombre";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BautizadosJovenHombre.ToString();
-
-                oBookMark = "BautizadosJovenMujer";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.BautizadosJovenMujer.ToString();
-
-                oBookMark = "JovenesBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.JovenesBautizados.ToString();
-
-                oBookMark = "JovenesNoBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.JovenesNoBautizados.ToString();
-
-                oBookMark = "Legalizaciones";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Legalizaciones.ToString();
-
-                oBookMark = "Matrimonios";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Matrimonios.ToString();
-
-                oBookMark = "Ninas";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Ninas.ToString();
-
-                oBookMark = "Ninos";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Ninos.ToString();
-
-                oBookMark = "NoBautizadosJovenHombre";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.NoBautizadosJovenHombre.ToString();
-
-                oBookMark = "NoBautizadosJovenMujer";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.NoBautizadosJovenMujer.ToString();
-
-                oBookMark = "Presentaciones";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Presentaciones.ToString();
-
-                oBookMark = "Total";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Total.ToString();
-
-                oBookMark = "TotalAltasBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.TotalAltasBautizados.ToString();
-
-                oBookMark = "TotalAltasNoBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.TotalAltasNoBautizados.ToString();
-
-                oBookMark = "TotalBajasBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.TotalBajasBautizados.ToString();
-
-                oBookMark = "TotalBajasNoBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.TotalBajasNoBautizados.ToString();
-
-                oBookMark = "Ministro";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Ministro;
-
-                oBookMark = "Secretario";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Secretario;
-
-                oBookMark = "Transacciones";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = orme.Transacciones;
-
-                oBookMark = "TotalNinos";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = (orme.Ninas + orme.Ninos).ToString();
-
-                oBookMark = "TotalBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = (orme.AdultosBautizados + orme.JovenesBautizados).ToString();
-
-                oBookMark = "TotalNoBautizados";
-                doc.Bookmarks.get_Item(ref oBookMark).Range.Text = (orme.JovenesNoBautizados + orme.Ninas + orme.Ninos).ToString();
-
-                doc.ExportAsFixedFormat(archivoDeSalida, Microsoft.Office.Interop.Word.WdExportFormat.wdExportFormatPDF);
-
-                doc.Close();
-                app.Quit();
+                Spire.Doc.Document document = new Spire.Doc.Document();
+                document.LoadFromFile(archivoTemporal);
+                document.SaveToFile(archivoDeSalida, FileFormat.PDF);
                 System.IO.File.Delete(archivoTemporal);
-
                 byte[] FileByteData = System.IO.File.ReadAllBytes(archivoDeSalida);
                 return File(FileByteData, "application/pdf");
             }
