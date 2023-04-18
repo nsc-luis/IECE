@@ -60,9 +60,10 @@ namespace IECE_WebApi.Controllers
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(archivoTemporal, true))
                 {
                     var main = wordDoc.MainDocumentPart.Document;
+                    var bookmarksHeader = wordDoc.MainDocumentPart.HeaderParts.FirstOrDefault().RootElement.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
                     var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
-                    AgregarTextoAlMarcador(bookmarks, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"));
-                    AgregarTextoAlMarcador(bookmarks, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"));
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"));
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"));
                     AgregarTextoAlMarcador(bookmarks, "AdultosBautizados", orme.AdultosBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosBautismo", orme.AltasBautizadosBautismo.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosCambioDomicilio", orme.AltasBautizadosCambioDomicilio.ToString());
