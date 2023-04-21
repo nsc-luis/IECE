@@ -10,6 +10,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using System.Linq;
 using System.Collections.Generic;
 using Spire.Doc;
+using DocumentFormat.OpenXml;
 
 namespace IECE_WebApi.Controllers
 {
@@ -25,17 +26,25 @@ namespace IECE_WebApi.Controllers
         }
 
         private void AgregarTextoAlMarcador(
-            List<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart> bookmarks, 
-            string NombreMarcador, 
-            string valor)
+            List<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart> bookmarks,
+            string NombreMarcador,
+            string valor,
+            bool bold = false,
+            bool underline = false)
         {
-            foreach (DocumentFormat.OpenXml.Wordprocessing.BookmarkStart b in bookmarks)
+            var bm = bookmarks.FirstOrDefault(bms => bms.Name == NombreMarcador);
+            Run r = bm.Parent.InsertAfter(new Run(), bm);
+            RunProperties rp = new RunProperties();
+            if (bold)
             {
-                if (b.Name == NombreMarcador)
-                {
-                    b.Parent.InsertAfter(new Run(new Text(valor)), b);
-                }
+                rp.AppendChild<Bold>(new Bold());
             }
+            if (underline)
+            {
+                rp.AppendChild<Underline>(new Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
+            }
+            r.AppendChild(rp);
+            r.AppendChild(new Text(valor));
         }
 
         [HttpPost]
@@ -62,8 +71,8 @@ namespace IECE_WebApi.Controllers
                     var main = wordDoc.MainDocumentPart.Document;
                     var bookmarksHeader = wordDoc.MainDocumentPart.HeaderParts.FirstOrDefault().RootElement.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
                     var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
-                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"));
-                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"));
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"), true, true);
                     AgregarTextoAlMarcador(bookmarks, "AdultosBautizados", orme.AdultosBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosBautismo", orme.AltasBautizadosBautismo.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosCambioDomicilio", orme.AltasBautizadosCambioDomicilio.ToString());
@@ -101,6 +110,80 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "TotalNinos", (orme.Ninas + orme.Ninos).ToString());
                     AgregarTextoAlMarcador(bookmarks, "TotalBautizados", (orme.AdultosBautizados + orme.JovenesBautizados).ToString());
                     AgregarTextoAlMarcador(bookmarks, "TotalNoBautizados", (orme.JovenesNoBautizados + orme.Ninas + orme.Ninos).ToString());
+                    main.Save();
+                }
+
+                Spire.Doc.Document document = new Spire.Doc.Document();
+                document.LoadFromFile(archivoTemporal);
+                document.SaveToFile(archivoDeSalida, FileFormat.PDF);
+                System.IO.File.Delete(archivoTemporal);
+                byte[] FileByteData = System.IO.File.ReadAllBytes(archivoDeSalida);
+                return File(FileByteData, "application/pdf");
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult HojaDatosEstadisticos([FromBody] oHojaDatosEstadisticos ohde)
+        {
+            try
+            {
+                var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
+                string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\HojaDatosEstadisticos_Plantilla.docx";
+
+                // NOMBRE DEL PDF QUE SE CREARA
+                string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\HojaDatosEstadisticos_{fechayhora}.pdf";
+
+                // ARCHIVO TEMPORAL EN BASE A LA PLANTILLA
+                string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\HojaDatosEstadisticos_{fechayhora}.docx";
+
+                // Create shadow File
+                System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
+
+                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(archivoTemporal, true))
+                {
+                    var main = wordDoc.MainDocumentPart.Document;
+                    //var bookmarksHeader = wordDoc.MainDocumentPart.HeaderParts.FirstOrDefault().RootElement.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
+                    var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
+                    AgregarTextoAlMarcador(bookmarks, "NombreCompleto", ohde.NombreCompleto, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "edad", ohde.edad.ToString(), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Nacionalidad", ohde.Nacionalidad, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "LugarNacimiento", ohde.LugarNacimiento, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "FechaNacimiento", ohde.FechaNacimiento.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "NombreDePadres", ohde.NombreDePadres, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "PadresPaternos", ohde.PadresPaternos, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "PadresMaternos", ohde.PadresMaternos, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "EstadoCivil", ohde.EstadoCivil, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "FechaBodaCivil", ohde.FechaBodaCivil?.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Acta", ohde.Acta, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Libro", ohde.Libro, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Oficialia", ohde.Oficialia, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "RegistroCivil", ohde.RegistroCivil, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "FechaBodaEclesiastica", ohde.FechaBodaEclesiastica?.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "LugarBodaEclesiastica", ohde.LugarBodaEclesiastica, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "NombreConyugue", ohde.NombreConyugue, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "CantidadHijos", ohde.CantidadHijos.ToString(), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "NombreHijos", ohde.NombreHijos, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "LugarBautismo", ohde.LugarBautismo, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "FechaBautismo", ohde.FechaBautismo.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "QuienBautizo", ohde.QuienBautizo, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "FechaPromesaEspiritu", ohde.FechaPromesaEspiritu?.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarks, "BajoImposicionDeManos", ohde.BajoImposicionDeManos, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Puestos", ohde.Puestos, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "CambiosDomicilio", ohde.CambiosDomicilio, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Domicilio", ohde.Domicilio, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Telefonos", ohde.Telefonos, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Oficio1", ohde.Oficio1, true, true);
+                    AgregarTextoAlMarcador(bookmarks, "Oficio2", ohde.Oficio2, true, true);
                     main.Save();
                 }
 
