@@ -52,6 +52,7 @@ namespace IECE_WebApi.Templates
         // Objeto para plantilla HojaDatosEstadisticos
         public class oHojaDatosEstadisticos
         {
+            public int idPersona { get; set; }
             public string NombreCompleto { get; set; }
             public int edad { get; set; }
             public string Nacionalidad { get; set; }
@@ -82,6 +83,8 @@ namespace IECE_WebApi.Templates
             public string Telefonos { get; set; }
             public string Oficio1 { get; set; }
             public string Oficio2 { get; set; }
+            public string Fecha { get; set; }
+            public string Secretario { get; set; }
         }
     }
 }
