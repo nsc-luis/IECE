@@ -2492,6 +2492,14 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Consulta a la persona tal y como está actualmente en la Tabla persona.
+                var queryPersona = (from p in context.Persona
+                                    where p.per_Id_Persona == id
+                                    select new
+                                    {
+                                        p.per_Bautizado
+                                    }).ToList();
+
                 Persona persona = objeto.PersonaEntity;
 
                 // ALTA DE NUEVAS PROFESIONES
@@ -2511,16 +2519,20 @@ namespace IECE_WebApi.Controllers
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
                 persona.Fecha_Registro = fechayhora;
 
-                if (persona.per_Bautizado == persona.per_Bautizado)
+                //Si era Bautizado y viene Bautizado entonces setea el código edición.
+                if (queryPersona[0].per_Bautizado == persona.per_Bautizado)
                 {
                     ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
                 }
                 else
-                {
+                { //Si era No Bautizado y ahora viene Bautizado entonces setea el código a Alta por Bautismo.
                     persona.per_Bautizado = true;
                     persona.per_En_Comunion = true;
                     ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
+
+                    //Da de baja a No Bautizado por concepto de "Pasa a Personal Bautizado"
+                    hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12105, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
                 }
 
                 hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
