@@ -65,10 +65,10 @@ namespace IECE_WebApi.Repositorios
             {
                 var calle = st;
                 var noExterior = (n_ext == null || n_ext == "") ? "" : n_ext;
-                var noInterior = (n_int == null || n_int == "") ? "" : "" + n_int;
+                var noInterior = (n_int == null || n_int == "") ? "" : " " + n_int;
                 var numero = noExterior;
                 var zip = (cp == null || cp == "") ? "" : "" + cp;
-                direccion = $"{numero} {calle} {noInterior}, {ciudad}, {estado} {zip}, {pais}.";
+                direccion = $"{numero} {calle}{noInterior}, {ciudad}, {estado} {zip}, {pais}.";
             }
             else //Configura la Dirección para cualquier otro País que no sean ni USA ni CANADA
             {
