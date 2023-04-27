@@ -7,6 +7,8 @@ using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using IECE_WebApi.Contexts;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace IECE_WebApi.Controllers
 {
@@ -111,18 +113,18 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var query = (from s in context.Sector
-                         join pem in context.Personal_Ministerial
-                         on s.pem_Id_Pastor equals pem.pem_Id_Ministro
-                         where s.sec_Id_Sector == sec_Id_Sector
-                         select new
-                         {
-                             pem_Id_Pastor = s.pem_Id_Pastor,
-                             pem_Id_Ministro = pem.pem_Id_Ministro,
-                             pem_Nombre = pem.pem_Nombre,
-                             pem_emailIECE = pem.pem_emailIECE,
-                             pem_email_Personal= pem.pem_email_Personal,
-                             pem_Grado_Ministerial = pem.pem_Grado_Ministerial
-                         }).ToList();
+                             join pem in context.Personal_Ministerial
+                             on s.pem_Id_Pastor equals pem.pem_Id_Ministro
+                             where s.sec_Id_Sector == sec_Id_Sector
+                             select new
+                             {
+                                 pem_Id_Pastor = s.pem_Id_Pastor,
+                                 pem_Id_Ministro = pem.pem_Id_Ministro,
+                                 pem_Nombre = pem.pem_Nombre,
+                                 pem_emailIECE = pem.pem_emailIECE,
+                                 pem_email_Personal = pem.pem_email_Personal,
+                                 pem_Grado_Ministerial = pem.pem_Grado_Ministerial
+                             }).ToList();
                 return Ok(
                     new
                     {
@@ -167,7 +169,8 @@ namespace IECE_WebApi.Controllers
                               }).ToList();
                 // sector = context.Sector.FirstOrDefault(sec => sec.sec_Id_Sector == id);
                 return Ok(
-                    new {
+                    new
+                    {
                         status = "success",
                         sector = sector
                     });
@@ -175,29 +178,73 @@ namespace IECE_WebApi.Controllers
             catch (Exception ex)
             {
                 return Ok(
-                    new {
+                    new
+                    {
                         status = "error",
                         mensaje = ex.Message
                     });
             }
         }
 
-        // POST: api/Sector
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // GET /api/Sector/BuscarPorTexto
+        [HttpGet]
+        [Route("[action]/{texto}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BuscarPorTexto(string texto)
         {
-        }
-
-        // PUT: api/Sector/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            try
+            {
+                if (Regex.IsMatch(texto, @"^\d+$"))
+                {
+                    var query = (from s in context.Sector
+                                 join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                 where d.dis_Numero == int.Parse(texto)
+                                 select new
+                                 {
+                                     s.sec_Id_Sector,
+                                     s.sec_Alias,
+                                     d.dis_Id_Distrito,
+                                     d.dis_Tipo_Distrito,
+                                     d.dis_Numero,
+                                     d.dis_Alias
+                                 }).ToList();
+                    return Ok(new
+                    {
+                        status = "success",
+                        query
+                    });
+                }
+                else
+                {
+                    var query = (from s in context.Sector
+                                 join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                 where s.sec_Alias.ToUpper().Contains(texto.ToUpper())
+                                 || d.dis_Alias.ToUpper().Contains(texto.ToUpper())
+                                 || d.dis_Tipo_Distrito.ToUpper().Contains(texto.ToUpper())
+                                 select new
+                                 {
+                                     s.sec_Id_Sector,
+                                     s.sec_Alias,
+                                     d.dis_Id_Distrito,
+                                     d.dis_Tipo_Distrito,
+                                     d.dis_Numero,
+                                     d.dis_Alias
+                                 }).ToList();
+                    return Ok(new
+                    {
+                        status = "success",
+                        query
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
     }
 }
