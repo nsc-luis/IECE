@@ -142,6 +142,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Consulta los datos actuales de la Persona en proceso de Alta por Cambio de Domicilio
                 var persona = (from per in context.Persona
                                where per.per_Id_Persona == altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.per_Id_Persona
                                select per).ToList();
@@ -660,7 +661,7 @@ namespace IECE_WebApi.Controllers
                 if (p.per_Bautizado == true)
                 {
 
-                    // Esenario 1: en el hogar hay varias personas bautizadas activas
+                    // Esenario 1: en el hogar hay varias personas bautizadas activas, No ocupa dar de Alta el Hogar. solo a la Persona
                     p.per_Activo = true;
                     p.per_En_Comunion = true;
                     context.Persona.Update(p);
@@ -674,7 +675,7 @@ namespace IECE_WebApi.Controllers
 
                     if (contador == 0)
                     {
-                        // Esenario 2: en el hogar hay varias personas no bautizadas o excomulgadas
+                        // Esenario 2: en el hogar hay varias personas no bautizadas o excomulgadas osea que se adicionalmente se ocupa dar de Alta el Hogar.
                         // ACTIVACION DE HOGAR
                         var d = context.HogarDomicilio.FirstOrDefault(dom => dom.hd_Id_Hogar == h.hd_Id_Hogar);
                         d.hd_Activo = true;
@@ -682,7 +683,7 @@ namespace IECE_WebApi.Controllers
                         context.SaveChanges();
 
                         // REGISTRO HISTORICO DEL HOGAR
-                        RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 31203, (p.per_Nombre + " " + p.per_Apellido_Paterno + " " +p.per_Apellido_Materno), arrha.fecha, arrha.idMinistro);
+                        RegistroHistorico(arrha.idPersona, p.sec_Id_Sector, 31001, (p.per_Nombre + " " + p.per_Apellido_Paterno + " " +p.per_Apellido_Materno), arrha.fecha, arrha.idMinistro);
 
                         // OBTENER MIEMBROS DEL HOGAR
                         var mh = (from hp in context.Hogar_Persona
