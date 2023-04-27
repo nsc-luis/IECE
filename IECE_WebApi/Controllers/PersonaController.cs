@@ -2046,7 +2046,7 @@ namespace IECE_WebApi.Controllers
                                select e).ToList();
 
                 //Si el campo nvoEstado trae un nuevo Estado, lo agrega a la Tabla 'Estado' y envía el email de solicitud del Nuevo Estado a Soporte Técnico.
-                if (pd.nvoEstado != "") 
+                if (pd.nvoEstado != "")
                 {
                     var pais = context.Pais.FirstOrDefault(pais2 => pais2.pais_Id_Pais == hd.pais_Id_Pais);
                     var est = new Estado
@@ -2095,7 +2095,7 @@ namespace IECE_WebApi.Controllers
                     ct_Codigo_Transaccion = 12001;
                     hte_Fecha_Transaccion = pd.FechaTransaccionHistorica == null ? p.per_Fecha_Nacimiento : pd.FechaTransaccionHistorica;
                 }
-                                
+
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
                     p.sec_Id_Sector,
@@ -2292,7 +2292,7 @@ namespace IECE_WebApi.Controllers
         [Route("[action]/{per_Id_Persona}/{usu_Id_Usuario}/{nvoEstado?}")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult RevinculaPersonaNvoHogar([FromBody] HogarDomicilio hogarDomicilio, int per_Id_Persona, int usu_Id_Usuario, string nvoEstado="")
+        public IActionResult RevinculaPersonaNvoHogar([FromBody] HogarDomicilio hogarDomicilio, int per_Id_Persona, int usu_Id_Usuario, string nvoEstado = "")
         {
             try
             {
@@ -2404,7 +2404,7 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-                if (bautizados == 1) 
+                if (bautizados == 1)
                 { // LA PERSONA CREA UN NUEVO DOMICILIO PERO ES LA ULTIMA PERSONA BAUTIZADA EN EL DOMICILIO AL QUE PERTENECE
 
                     // OBTIENE LOS MIEMBROS DEL HOGAR que quedará solo
@@ -2430,8 +2430,8 @@ namespace IECE_WebApi.Controllers
 
                         // CONSULTA EL Registro HOGAR_PERSONA de cada NO Bautizado
                         var objhp2 = (from hp1 in context.Hogar_Persona
-                                     where hp1.per_Id_Persona == p.per_Id_Persona
-                                     select hp1).ToList();
+                                      where hp1.per_Id_Persona == p.per_Id_Persona
+                                      select hp1).ToList();
 
                         // Vincula A LA PERSONA NO BAUTIZADA EN EL NUEVO DOMICILIO A DONDE SE REVINCULÓ AL PADRE?MADRE
                         objhp2[0].hd_Id_Hogar = hd.hd_Id_Hogar;
@@ -2492,7 +2492,11 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                Persona persona = objeto.PersonaEntity;
+                var persona = objeto.PersonaEntity;
+                // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA CONTICION PRINCIPAL
+                var personaBD = context.Persona.FirstOrDefault(per => per.per_Id_Persona == persona.per_Id_Persona);
+                bool registroBautismoBD = personaBD.per_Bautizado;
+                context.Entry(personaBD).State = EntityState.Detached;
 
                 // ALTA DE NUEVAS PROFESIONES
                 if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
@@ -2506,26 +2510,49 @@ namespace IECE_WebApi.Controllers
                     persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
                 }
 
+                // NUEVA INSTANCIA DEL CONTROLADOR DE Historial de transacciones estadisticas
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
                 persona.Fecha_Registro = fechayhora;
 
-                if (persona.per_Bautizado == persona.per_Bautizado)
-                {
-                    ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
-                }
-                else
+                // CONDICION PRINCIPAL PARA PASAR A PERSONAL BAUTIZADO 
+                if (persona.per_Bautizado != registroBautismoBD)
                 {
                     persona.per_Bautizado = true;
                     persona.per_En_Comunion = true;
-                    ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = persona.per_Fecha_Bautismo;
+                    // REGISTRO HISTORICO BAJA POR CAMBIO DE NO BAUTIZADO A BAUTIZADO
+                    hte.RegistroHistorico(
+                        persona.per_Id_Persona, 
+                        persona.sec_Id_Sector, 
+                        12105, 
+                        objeto.ComentarioHTE, 
+                        persona.per_Fecha_Bautismo,
+                        persona.usu_Id_Usuario);
+                    // REGISTRO HISTORICO ALTA POR CAMBIO DE NO BAUTIZADO A BAUTIZADO
+                    hte.RegistroHistorico(
+                        persona.per_Id_Persona, 
+                        persona.sec_Id_Sector, 
+                        11001, 
+                        objeto.ComentarioHTE,
+                        persona.per_Fecha_Bautismo, 
+                        persona.usu_Id_Usuario);
+                }
+                else
+                {
+                    ct_Codigo_Transaccion = persona.per_Bautizado ? 11201 : 12201;
+                    // REGISTRO HISTORIO SIMPLE DE ACTUALIZACIÓN DE DATOS PERSONALES
+                    hte.RegistroHistorico(
+                        persona.per_Id_Persona, 
+                        persona.sec_Id_Sector, 
+                        ct_Codigo_Transaccion, 
+                        objeto.ComentarioHTE, 
+                        hte_Fecha_Transaccion, 
+                        persona.usu_Id_Usuario);
                 }
 
-                hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, ct_Codigo_Transaccion, objeto.ComentarioHTE, hte_Fecha_Transaccion, persona.usu_Id_Usuario);
-
-                // MODIFICACION DE REGISTRO DE PERSONA
+                // MODIFICACION DE INFO DE LA PERSONA
                 context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
 
