@@ -888,7 +888,7 @@ namespace IECE_WebApi.Controllers
 
             try
             {
-                int ct = 21002;
+                int ct = 21102;
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
 
                 // VALIDACION INICIAL - Si los 2 campos vienen vacíos
