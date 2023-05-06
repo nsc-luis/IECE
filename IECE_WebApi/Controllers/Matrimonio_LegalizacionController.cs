@@ -844,19 +844,13 @@ namespace IECE_WebApi.Controllers
                             // ASEGURANDO JERARQUIAS EN EL NUEVO HOGAR
                             AseguraJerarquias(dom.hd_Id_Hogar);
                         }
-
-
-                        
-                } //Si No pertenecerán a la Localidad, sus hogares anteriores y sus vonculaciones quedan intactas.
-
-
+                    } //Si No pertenecerán a la Localidad, sus hogares anteriores y sus vinculaciones quedan intactas.
                     return Ok(new
                     {
                         status = "success",
                         nvoMatLegal = matLegal.mat_Id_MatrimonioLegalizacion
                     });
                 }
-
             }
             catch (Exception ex)
             {
