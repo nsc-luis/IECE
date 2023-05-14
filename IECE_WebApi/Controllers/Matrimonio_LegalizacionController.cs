@@ -279,6 +279,8 @@ namespace IECE_WebApi.Controllers
                                  p.per_Nombre,
                                  p.per_Apellido_Paterno,
                                  p.per_Apellido_Materno,
+                                 p.per_Apellido_Casada,
+                                 apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
                                  p.per_Categoria,
                                  p.sec_Id_Sector
                              }).ToList();
@@ -321,6 +323,8 @@ namespace IECE_WebApi.Controllers
                                  p.per_Nombre,
                                  p.per_Apellido_Paterno,
                                  p.per_Apellido_Materno,
+                                 p.per_Apellido_Casada,
+                                 apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
                                  p.per_Categoria,
                                  p.sec_Id_Sector
                              }).ToList();
@@ -700,6 +704,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Registro_Civil = matLegal.mat_Registro_Civil;
                         p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
                         p.per_Estado_Civil = "CASADO(A)";
+                        p.per_Categoria = "ADULTO_HOMBRE";
 
                         context.SaveChanges();
                         hte.RegistroHistorico(perHombre[0].per_Id_Persona, perHombre[0].sec_Id_Sector, 11201, "POR " + matLegal.mat_Tipo_Enlace, matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
@@ -719,7 +724,9 @@ namespace IECE_WebApi.Controllers
                         p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
                         p.per_Registro_Civil = matLegal.mat_Registro_Civil;
                         p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
+                        p.per_Apellido_Casada = matLegal.mat_Apellido_Casada;
                         p.per_Estado_Civil = "CASADO(A)";
+                        p.per_Categoria = "ADULTO_MUJER";
 
                         context.SaveChanges();
                         hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 11201, "POR " + matLegal.mat_Tipo_Enlace, matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
@@ -947,7 +954,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Num_Acta_Boda_Civil = matLegal.mat_Numero_Acta;
                         p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
                         p.per_Registro_Civil = matLegal.mat_Registro_Civil;
-                        p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
+                        p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;                        
                         p.per_Estado_Civil = "CASADO(A)";
 
                         context.SaveChanges();
@@ -967,6 +974,7 @@ namespace IECE_WebApi.Controllers
                         p.per_Oficialia_Boda_Civil = matLegal.mat_Oficialia;
                         p.per_Registro_Civil = matLegal.mat_Registro_Civil;
                         p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
+                        p.per_Apellido_Casada = matLegal.mat_Apellido_Casada;
                         p.per_Estado_Civil = "CASADO(A)";
 
                         context.SaveChanges();

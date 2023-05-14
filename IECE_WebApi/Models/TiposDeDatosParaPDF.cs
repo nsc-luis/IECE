@@ -11,8 +11,8 @@ namespace IECE_WebApi.Templates
         // Objeto para plantilla ReporteMovimientosEstadisticos
         public class oReporteMovimientosEstadisticos
         {
-            public DateTime FechaInicial { get; set; }
-            public DateTime FechaFinal { get; set; }
+            public string FechaInicial { get; set; }
+            public string FechaFinal { get; set; }
             public int AdultosBautizados { get; set; }
             public int AltasBautizadosBautismo { get; set; }
             public int AltasBautizadosCambioDomicilio { get; set; }
@@ -34,6 +34,9 @@ namespace IECE_WebApi.Templates
             public int JovenesNoBautizados { get; set; }
             public int Legalizaciones { get; set; }
             public int Matrimonios { get; set; }
+            public int NoDeHogares { get; set; }
+            public int Altas_Hogares { get; set; }
+            public int Bajas_Hogares { get; set; }
             public int Ninas { get; set; }
             public int Ninos { get; set; }
             public int NoBautizadosJovenHombre { get; set; }

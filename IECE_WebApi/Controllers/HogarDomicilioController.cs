@@ -109,7 +109,7 @@ namespace IECE_WebApi.Controllers
                 return Ok(
                     new {
                         status = "success",
-                        data = domicilios
+                        domicilios = domicilios
                     });
             }
             catch (Exception ex)
@@ -150,6 +150,8 @@ namespace IECE_WebApi.Controllers
                                             p.per_Nombre,
                                             p.per_Apellido_Paterno,
                                             p.per_Apellido_Materno,
+                                            p.per_Apellido_Casada,
+                                            apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
                                             p.per_Fecha_Nacimiento,
                                             p.per_Bautizado,
                                             p.per_Telefono_Movil
@@ -184,6 +186,8 @@ namespace IECE_WebApi.Controllers
                                       sub.per_Nombre,
                                       sub.per_Apellido_Paterno,
                                       sub.per_Apellido_Materno,
+                                      sub.per_Apellido_Casada,
+                                      apellidoPrincipal = (sub.per_Apellido_Casada == "" || sub.per_Apellido_Casada == null) ? sub.per_Apellido_Paterno : (sub.per_Apellido_Casada + "* " + sub.per_Apellido_Paterno),
                                       sub.per_Fecha_Nacimiento,
                                       sub.per_Bautizado,
                                       sub.per_Telefono_Movil
