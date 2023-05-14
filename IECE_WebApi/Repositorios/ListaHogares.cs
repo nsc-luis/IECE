@@ -23,6 +23,8 @@ namespace IECE_WebApi.Repositorios
         public string tel { get; set; }
         public string direccion { get; set; }
         public List<IntegrantesHogar> integrantes { get; set; }
+
+        
     }
 
     public class IntegrantesHogar
@@ -33,6 +35,7 @@ namespace IECE_WebApi.Repositorios
         public int edad { get; set; }
         public string cel { get; set; }
         public DateTime? bautismo { get; set; }
+        public string apellidoPrincipal { get; set; }
     }
 
     
@@ -174,12 +177,13 @@ namespace IECE_WebApi.Repositorios
                                                   orderby (hp.hp_Jerarquia)
                                                   select new IntegrantesHogar
                                                   {
-                                                    nombre = p.per_Nombre + " " + p.per_Apellido_Paterno + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : ""),
+                                                    nombre = ((p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)) + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "") + " " + p.per_Nombre,
                                                     cel=p.per_Telefono_Movil,
                                                     nacimiento=p.per_Fecha_Nacimiento,
                                                     edad= (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
                                                     grupo=p.per_Bautizado==true?"B":"NB",
-                                                    bautismo=p.per_Fecha_Bautismo
+                                                    bautismo=p.per_Fecha_Bautismo,
+                                                    apellidoPrincipal = (p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)
                                                   }).ToList()
 
                               }).ToList();
@@ -245,12 +249,13 @@ namespace IECE_WebApi.Repositorios
                                                  orderby (hp.hp_Jerarquia)
                                                  select new IntegrantesHogar
                                                  {
-                                                     nombre = p.per_Nombre + " " + p.per_Apellido_Paterno + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : ""),
+                                                     nombre = ((p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)) + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "") + " " + p.per_Nombre,
                                                      cel = p.per_Telefono_Movil,
                                                      nacimiento = p.per_Fecha_Nacimiento,
                                                      edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
                                                      grupo = p.per_Bautizado == true ? "B" : "NB",
-                                                     bautismo = p.per_Fecha_Bautismo
+                                                     bautismo = p.per_Fecha_Bautismo,
+                                                     apellidoPrincipal = (p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)
                                                  }).ToList()
 
                               }).ToList();

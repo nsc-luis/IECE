@@ -909,7 +909,11 @@ namespace IECE_WebApi.Controllers
                                  per.per_Nombre,
                                  per.per_Apellido_Paterno,
                                  per.per_Apellido_Materno,
+                                 per.per_Apellido_Casada,
+                                 apellidoPrincipal = (per.per_Apellido_Casada == "" || per.per_Apellido_Casada == null) ? per.per_Apellido_Paterno : (per.per_Apellido_Casada + "* " + per.per_Apellido_Paterno),
                                  hte.hte_Comentario,
+                                 hte.sec_Sector_Alias,
+                                 hte.dis_Distrito_Alias,
                                  hte.hte_Fecha_Transaccion
                              }).ToList();
 
@@ -957,10 +961,13 @@ namespace IECE_WebApi.Controllers
                                  per.per_Nombre,
                                  per.per_Apellido_Paterno,
                                  per.per_Apellido_Materno,
+                                 per.per_Apellido_Casada,
+                                 apellidoPrincipal = (per.per_Apellido_Casada == "" || per.per_Apellido_Casada == null) ? per.per_Apellido_Paterno : (per.per_Apellido_Casada + "* " + per.per_Apellido_Paterno),
                                  per.per_Bautizado,
                                  per.per_Categoria,
                                  hte.hte_Comentario,
                                  hte.hte_Fecha_Transaccion,
+                                 hte.dis_Distrito_Alias,
                                  hte.sec_Sector_Alias
                              }).ToList();
 

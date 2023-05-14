@@ -79,7 +79,7 @@ namespace IECE_WebApi.Controllers
         {
             var element = new Drawing(
                 new DW.Inline(
-                     new DW.Extent() { Cx = 990000L, Cy = 992000L },
+                     new DW.Extent() { Cx = 990000L, Cy = 990000L },
                      new DW.EffectExtent()
                      {
                          LeftEdge = 0L,
@@ -123,7 +123,7 @@ namespace IECE_WebApi.Controllers
                                  new PIC.ShapeProperties(
                                      new A.Transform2D(
                                          new A.Offset() { X = 0L, Y = 0L },
-                                         new A.Extents() { Cx = 990000L, Cy = 992000L }),
+                                         new A.Extents() { Cx = 990000L, Cy = 990000L }),
                                      new A.PresetGeometry(
                                          new A.AdjustValueList()
                                      )
@@ -165,8 +165,8 @@ namespace IECE_WebApi.Controllers
                     var main = wordDoc.MainDocumentPart.Document;
                     var bookmarksHeader = wordDoc.MainDocumentPart.HeaderParts.FirstOrDefault().RootElement.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
                     var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
-                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"), true, true);
-                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial, true, true);
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal, true, true);
                     AgregarTextoAlMarcador(bookmarks, "AdultosBautizados", orme.AdultosBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosBautismo", orme.AltasBautizadosBautismo.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosCambioDomicilio", orme.AltasBautizadosCambioDomicilio.ToString());
@@ -187,6 +187,9 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "JovenesBautizados", orme.JovenesBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "JovenesNoBautizados", orme.JovenesNoBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Legalizaciones", orme.Legalizaciones.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "NoDeHogares", orme.NoDeHogares.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Altas_Hogares", orme.Altas_Hogares.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Bajas_Hogares", orme.Bajas_Hogares.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Matrimonios", orme.Matrimonios.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Ninas", orme.Ninas.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Ninos", orme.Ninos.ToString());
