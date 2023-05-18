@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Text;
 
 namespace IECE_WebApi.Controllers
 {
@@ -434,6 +436,146 @@ namespace IECE_WebApi.Controllers
                         status = "error",
                         mensaje = ex.Message
                     });
+            }
+        }
+
+
+        public static string RemoveAccents(string input)
+        {
+            string normalizedString = input.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString();
+        }
+
+
+
+        // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
+        [Route("[action]/{sec_Id_Congregacion}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonaCuyoIdPersonaNoEstaEnPersonalMinisterialBySector(int sec_Id_Congregacion)
+        {
+            try
+            {
+                var PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial = new List<object>();
+                var sec = context.Sector.Where(p => p.sec_Id_Sector == sec_Id_Congregacion).Select(p => p.dis_Id_Distrito).FirstOrDefault();
+
+                    var query =(from per in context.Persona
+                                  where per.per_Activo == true && (per.per_Categoria == "ADULTO_HOMBRE" || per.per_Categoria == "JOVEN_HOMBRE")
+                                  && per.sec_Id_Sector == sec_Id_Congregacion
+                                  orderby per.per_Nombre
+                                 select new
+                                  {
+                                      per.per_Id_Persona,
+                                      per.per_Nombre,
+                                      per.per_Apellido_Paterno,
+                                      per.per_Apellido_Materno,
+                                      per.per_Fecha_Nacimiento
+                                  }).ToList();
+
+
+                foreach (var person in query)
+                {
+                    var query2 = (from pem in context.Personal_Ministerial
+                                  where pem.per_Id_Miembro != person.per_Id_Persona
+                                  select new
+                                  {
+                                      person.per_Id_Persona,
+                                      person.per_Nombre,
+                                      person.per_Apellido_Paterno,
+                                      person.per_Apellido_Materno,
+                                      person.per_Fecha_Nacimiento
+                                  }
+                        ).FirstOrDefault();
+                    PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial.Add(query2);
+                }
+
+                return Ok(
+            new
+            {
+                status = true,
+                personas= PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial
+            }
+          );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new object[]
+                    {
+                        new
+                        {
+                            status= false,
+                            mensaje = ex.Message
+                        }
+                    }
+                );
+            }
+        }
+
+
+        // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalMinisterialSinIdMiembroByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                var query = (from pem in context.Personal_Ministerial
+                             join s in context.Sector on pem.sec_Id_Congregacion equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where d.dis_Id_Distrito == dis_Id_Distrito
+                             && pem.pem_Activo == true && (pem.per_Id_Miembro == null || pem.per_Id_Miembro == 0)
+                             orderby pem.pem_Nombre ascending
+                             select new
+                             {
+                                 pem.pem_Id_Ministro,
+                                 pem.pem_Activo,
+                                 pem.per_Id_Miembro,
+                                 pem.pem_Nombre,
+                                 pem.sec_Id_Congregacion,
+                                 pem.pem_En_Permiso,
+                                 pem.pem_emailIECE,
+                                 pem.pem_email_Personal,
+                                 pem.pem_Grado_Ministerial,
+                                 pem.pem_Fecha_Nacimiento
+                             }).ToList();
+
+                return Ok(
+            new
+            {
+                status = true,
+                PersonalSinVincularConPersona = query,
+
+            }
+          );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new object[]
+                    {
+                        new
+                        {
+                            status= false,
+                            mensaje = ex.Message
+                        }
+                    }
+                );
             }
         }
     }
