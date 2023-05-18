@@ -139,8 +139,8 @@ namespace IECE_WebApi.Repositorios
                          join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                          where p.sec_Id_Sector == sec_Id_Sector && p.per_Activo == true
                          join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
-                         where hp.hp_Jerarquia==1
-                      
+                         where hp.hp_Jerarquia==1 && p.per_Activo == true
+
                          select new 
                          {
                              hogarId = hp.hd_Id_Hogar,
@@ -149,7 +149,7 @@ namespace IECE_WebApi.Repositorios
 
             //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
             int loop = 0;
-            foreach (var hogar in query)
+            foreach (var hogar in query) 
             {
                 loop++;
                  var query2 = (from hp in context.Hogar_Persona
@@ -162,9 +162,9 @@ namespace IECE_WebApi.Repositorios
                               join p in context.Persona
                               on hp.per_Id_Persona equals p.per_Id_Persona
                               where hp.hd_Id_Hogar == hogar.hogarId
-                              && hp.hp_Jerarquia == 1
-                              
-                              select new Homes
+                              && hp.hp_Jerarquia == 1 && p.per_Activo == true && hd.hd_Activo == true
+
+                               select new Homes
                               {
                                   indice= loop,
                                   direccion = getDireccion(hd.hd_Calle,hd.hd_Numero_Exterior, hd.hd_Numero_Interior,hd.hd_Tipo_Subdivision,hd.hd_Subdivision,hd.hd_Localidad, hd.hd_Municipio_Ciudad, state.est_Nombre_Corto, country.pais_Nombre_Corto,hd.hd_CP),
@@ -212,7 +212,7 @@ namespace IECE_WebApi.Repositorios
                          join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
                          where d.dis_Id_Distrito == dis_Id_Distrito && p.per_Activo == true
                          join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
-                         where hp.hp_Jerarquia == 1
+                         where hp.hp_Jerarquia == 1 && p.per_Activo == true
 
                          select new
                          {
@@ -220,7 +220,7 @@ namespace IECE_WebApi.Repositorios
                              titular = p.per_Apellido_Paterno
                          }).Distinct().OrderBy(obj => obj.titular).ToList();
 
-            //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
+            //Query por cada Hogar encontrado del query anterior para buscar sus datos y tambien sus Integrantes ordenados por jerarquía
             int loop = 0;
             foreach (var hogar in query)
             {
@@ -235,7 +235,7 @@ namespace IECE_WebApi.Repositorios
                               join p in context.Persona
                               on hp.per_Id_Persona equals p.per_Id_Persona
                               where hp.hd_Id_Hogar == hogar.hogarId
-                              && hp.hp_Jerarquia == 1
+                              && hp.hp_Jerarquia == 1 && p.per_Activo == true && hd.hd_Activo == true
                               select new Homes
                               {
                                   indice = loop,
