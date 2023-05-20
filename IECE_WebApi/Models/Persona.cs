@@ -91,6 +91,7 @@ namespace IECE_WebApi.Models
         public string per_Registro_Civil { get; set; }
         public Nullable<DateTime> per_Fecha_Boda_Eclesiastica { get; set; }
         public string per_Lugar_Boda_Eclesiastica { get; set; }
+        public string per_Apellido_Casada { get; set; }
         [Required]
         [DefaultValue(0)]
         public int per_Cantidad_Hijos { get; set; }
