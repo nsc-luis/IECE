@@ -1593,24 +1593,24 @@ namespace IECE_WebApi.Controllers
                 //Si solo hay 1 bautizado significa que es el último bautizado en el hogar y se debe dar de baja el hogar y reacomodar a los integrantes y sus Jerarquias
                 if (bautizados == 1)
                 {
-                    foreach (var p1 in miembrosDelHogar)
+                    // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
+                    var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
+                    hdx.hd_Activo = false;
+                    context.HogarDomicilio.Update(hdx);
+                    context.SaveChanges();
+
+                    // SE GENERA REGISTRO DE BAJA DE DOMICILIO
+                    hte.RegistroHistorico(
+                        p.per_Id_Persona,
+                        p.sec_Id_Sector,
+                        31102,
+                        $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
+                        bnbad.fechaTransaccion,
+                        bnbad.idUsuario);
+
+                    foreach (var p1 in miembrosDelHogar) // SE INACTIVAN LAS PERSONAS NB (QUE NO SON LA PERSONA SELECCIONADA) DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
                     {
-                        // SE ESTABLECE LA BAJA DEL DOMICILIO ANTERIOR DEBIDO A QUE NO HAY PERSONAS BAUTIZADAS
-                        var hdx = context.HogarDomicilio.FirstOrDefault(d => d.hd_Id_Hogar == objhp[0].hd_Id_Hogar);
-                        hdx.hd_Activo = false;
-                        context.HogarDomicilio.Update(hdx);
-                        context.SaveChanges();
-
-                        // SE GENERA REGISTRO DE BAJA DE DOMICILIO
-                        hte.RegistroHistorico(
-                            p.per_Id_Persona,
-                            p.sec_Id_Sector,
-                            31102,
-                            $"{p.per_Nombre} {p.per_Apellido_Paterno} {p.per_Apellido_Materno}",
-                            bnbad.fechaTransaccion,
-                            bnbad.idUsuario);
-
-                        if (p1.per_Id_Persona != bnbad.personaSeleccionada) // SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
+                        if (p1.per_Id_Persona != bnbad.personaSeleccionada)
                         {
                             var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p1.per_Id_Persona);
                             persona.per_Activo = false;
@@ -1918,18 +1918,6 @@ namespace IECE_WebApi.Controllers
                 Persona persona = new Persona();
                 persona = phe.PersonaEntity;
 
-                // ALTA DE NUEVAS PROFESIONES
-                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "")
-                {
-                    var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio1);
-                    persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
-                }
-                if (persona.pro_Id_Profesion_Oficio2 == 1 && phe.nvaProfesionOficio2 != "")
-                {
-                    var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio2);
-                    persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
-                }
-
                 // ALTA DE PERSONA
                 persona.Fecha_Registro = fechayhora;
                 context.Persona.Add(persona);
@@ -1973,6 +1961,27 @@ namespace IECE_WebApi.Controllers
                         "",
                         phe.FechaTransaccionHistorica == null ? persona.per_Fecha_Nacimiento : phe.FechaTransaccionHistorica,
                         persona.usu_Id_Usuario);
+                }
+
+
+                // ALTA DE NUEVAS PROFESIONES
+                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "")
+                {
+                    var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio1);
+                    persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
+
+                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
+                    context.Persona.Update(persona);
+                    context.SaveChanges();
+                }
+                if (persona.pro_Id_Profesion_Oficio2 == 1 && phe.nvaProfesionOficio2 != "")
+                {
+                    var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio2);
+                    persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
+
+                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
+                    context.Persona.Update(persona);
+                    context.SaveChanges();
                 }
 
                 // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
@@ -2021,21 +2030,31 @@ namespace IECE_WebApi.Controllers
                 Persona p = new Persona();
                 p = pd.PersonaEntity;
 
+                p.Fecha_Registro = fechayhora;
+                context.Persona.Add(p);
+                context.SaveChanges();
+
                 // ALTA DE NUEVAS PROFESIONES
                 if (p.pro_Id_Profesion_Oficio1 == 1 && pd.nvaProfesionOficio1 != "")
                 {
                     var idNvaProf1 = AltaDeProfesion(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio1);
                     p.pro_Id_Profesion_Oficio1 = idNvaProf1;
+
+                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
+                    context.Persona.Update(p);
+                    context.SaveChanges();
                 }
                 if (p.pro_Id_Profesion_Oficio2 == 1 && pd.nvaProfesionOficio2 != "")
                 {
                     var idNvaProf2 = AltaDeProfesion(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio2);
                     p.pro_Id_Profesion_Oficio2 = idNvaProf2;
+
+                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
+                    context.Persona.Update(p);
+                    context.SaveChanges();
                 }
 
-                p.Fecha_Registro = fechayhora;
-                context.Persona.Add(p);
-                context.SaveChanges();
+
 
                 // ALTA DE DOMICILIO
                 HogarDomicilio hd = new HogarDomicilio();
@@ -2501,12 +2520,12 @@ namespace IECE_WebApi.Controllers
                 // ALTA DE NUEVAS PROFESIONES
                 if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
                 {
-                    var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio1);
+                    var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, personaBD.per_Id_Persona, objeto.nvaProfesionOficio1);
                     persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
                 }
                 if (persona.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
                 {
-                    var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, objeto.nvaProfesionOficio2);
+                    var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, personaBD.per_Id_Persona, objeto.nvaProfesionOficio2);
                     persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
                 }
 
