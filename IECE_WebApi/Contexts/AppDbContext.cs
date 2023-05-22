@@ -39,5 +39,6 @@ namespace IECE_WebApi.Contexts
         public DbSet<SolicitudNuevaProfesion> SolicitudNuevaProfesion { get; set; }
         public DbSet<SolicitudNvoEstado> SolicitudNvoEstado { get; set; }
         public DbSet<PersonaHogarExistente> PersonaHogarExistente { get; set; }
+        public DbSet<Registro_Transacciones> Registro_Transacciones { get; set; }
     }
 }
