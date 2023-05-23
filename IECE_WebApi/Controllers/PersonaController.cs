@@ -1425,6 +1425,56 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Persona/GetPersonasParaAuxiliarBySector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonasParaAuxiliarBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector
+                             on p.sec_Id_Sector equals s.sec_Id_Sector
+                             where p.sec_Id_Sector == sec_Id_Sector
+                             && p.per_Bautizado == true
+                             && p.per_En_Comunion == true
+                             && p.per_Vivo == true
+                             && (p.per_Categoria == "ADULTO_HOMBRE" || p.per_Categoria == "JOVEN_HOMBRE")
+                             && !(from pem in context.Personal_Ministerial
+                                  where pem.sec_Id_Congregacion == sec_Id_Sector 
+                                  && pem.pem_Grado_Ministerial == "AUXILIAR" 
+                                  && pem.per_Id_Miembro != null
+                                  select pem.per_Id_Miembro).Contains(p.per_Id_Persona)
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // POST: api/Persona
         [HttpPost]
         [Route("[action]/{per_Id_Persona}")]
@@ -2132,20 +2182,23 @@ namespace IECE_WebApi.Controllers
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
+                int idSector = 0;
                 if (p.per_Bautizado) //Si la Alta es un Bautismo
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = p.per_Fecha_Bautismo;
+                    idSector = pd.idSectorBautismo;
                 }
                 else //Si la Alta es un Nuevo Ingreso de un No Bautiado
                 {
                     ct_Codigo_Transaccion = 12001;
+                    idSector = p.sec_Id_Sector;
                     hte_Fecha_Transaccion = pd.FechaTransaccionHistorica == null ? p.per_Fecha_Nacimiento : pd.FechaTransaccionHistorica;
                 }
 
                 hte.RegistroHistorico(
                     p.per_Id_Persona,
-                    p.sec_Id_Sector,
+                    idSector,
                     ct_Codigo_Transaccion,
                     "",
                     hte_Fecha_Transaccion,

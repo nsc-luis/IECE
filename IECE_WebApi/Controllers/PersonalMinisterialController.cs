@@ -16,7 +16,7 @@ namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PersonalMinisterialController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -24,6 +24,22 @@ namespace IECE_WebApi.Controllers
         public PersonalMinisterialController(AppDbContext context)
         {
             this.context = context;
+        }
+
+        // Clase para alta de auxiliar
+        public class infoNvoAuxiliar
+        {
+            public int per_Id_Persona { get; set; }
+            //public string comentario { get; set; }
+            //public DateTime fecha { get; set; }
+        }
+
+        public class infoNvoSecretario
+        {
+            public int pem_Id_Ministro { get; set; }
+            public int sec_Id_Sector { get; set; }
+            //public string comentario { get; set; }
+            //public DateTime fecha { get; set; }
         }
 
         // GET: api/Personal_Ministerial
@@ -333,6 +349,34 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET api/GetSecretarioBySector/idSector
+        [Route("[action]/{idSector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetTesoreroBySector(int idSector)
+        {
+            try
+            {
+                var query = (from s in context.Sector
+                             join pem in context.Personal_Ministerial on s.pem_Id_Tesorero equals pem.pem_Id_Ministro
+                             where s.sec_Id_Sector == idSector
+                             select pem).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    infoTesorero = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET api/GetSecretarioByDistrito/idDistrito
         [Route("[action]/{idDistrito}")]
         [HttpGet]
@@ -439,7 +483,6 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-
         public static string RemoveAccents(string input)
         {
             string normalizedString = input.Normalize(NormalizationForm.FormD);
@@ -455,8 +498,6 @@ namespace IECE_WebApi.Controllers
 
             return stringBuilder.ToString();
         }
-
-
 
         // GET: api/Personal_Ministerial
         // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
@@ -576,6 +617,190 @@ namespace IECE_WebApi.Controllers
                         }
                     }
                 );
+            }
+        }
+
+        // GET: api/Personal_Ministerial
+        // AUXILIARES POR SECTOR
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetAuxiliaresBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var auxiliares = (from a in context.Personal_Ministerial
+                                  where a.sec_Id_Congregacion == sec_Id_Sector
+                                  && a.pem_Activo && a.pem_Grado_Ministerial == "AUXILIAR"
+                                  select a).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    auxiliares = auxiliares
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Personal_Ministerial
+        // Personal administrativo por Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalAdministrativoBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var administrativo = (from a in context.Personal_Ministerial
+                                  where a.sec_Id_Congregacion == sec_Id_Sector
+                                  && a.pem_Activo
+                                  select a).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = administrativo
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ALTA DE AUXILIAR EN EL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AltaAuxiliarEnSector([FromBody] infoNvoAuxiliar info)
+        {
+            try
+            {
+                var per = context.Persona.FirstOrDefault(p => p.per_Id_Persona == info.per_Id_Persona);
+                Personal_Ministerial pem = new Personal_Ministerial
+                {
+                    per_Id_Miembro = per.per_Id_Persona,
+                    pem_Nombre = per.per_Nombre + " " + per.per_Apellido_Paterno + (per.per_Apellido_Materno != "" ? " " + per.per_Apellido_Materno : ""),
+                    sec_Id_Congregacion = per.sec_Id_Sector,
+                    pem_Activo = true,
+                    pem_Fecha_Nacimiento = per.per_Fecha_Nacimiento,
+                    pem_Grado_Ministerial = "AUXILIAR",
+                    pem_Cel1 = per.per_Telefono_Movil != null ? per.per_Telefono_Movil : null,
+                    pem_email_Personal = per.per_Email_Personal != null ? per.per_Email_Personal : null,
+                };
+                context.Personal_Ministerial.Add(pem);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                    nuevoAuxiliar = pem
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ESTABLECE SECRETARIO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetSecretarioDelSector([FromBody] infoNvoSecretario info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                sector.pem_Id_Secretario = info.pem_Id_Ministro;
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ESTABLECE TESORERO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetTesoreroDelSector([FromBody] infoNvoSecretario info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                sector.pem_Id_Tesorero = info.pem_Id_Ministro;
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // BAJA DE AUXILIAR EN EL SECTOR
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        [Route("[action]/{pem_Id_Ministro}")]
+        public IActionResult BajaAuxiliarEnSector(int pem_Id_Ministro)
+        {
+            try
+            {
+                var pem = context.Personal_Ministerial.FirstOrDefault(p => p.pem_Id_Ministro == pem_Id_Ministro);
+                context.Entry(pem).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
     }
