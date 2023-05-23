@@ -8,13 +8,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Text;
 
 namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PersonalMinisterialController : ControllerBase
     {
         private readonly AppDbContext context;
@@ -22,6 +24,22 @@ namespace IECE_WebApi.Controllers
         public PersonalMinisterialController(AppDbContext context)
         {
             this.context = context;
+        }
+
+        // Clase para alta de auxiliar
+        public class infoNvoAuxiliar
+        {
+            public int per_Id_Persona { get; set; }
+            //public string comentario { get; set; }
+            //public DateTime fecha { get; set; }
+        }
+
+        public class infoNvoSecretario
+        {
+            public int pem_Id_Ministro { get; set; }
+            public int sec_Id_Sector { get; set; }
+            //public string comentario { get; set; }
+            //public DateTime fecha { get; set; }
         }
 
         // GET: api/Personal_Ministerial
@@ -331,6 +349,34 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET api/GetSecretarioBySector/idSector
+        [Route("[action]/{idSector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetTesoreroBySector(int idSector)
+        {
+            try
+            {
+                var query = (from s in context.Sector
+                             join pem in context.Personal_Ministerial on s.pem_Id_Tesorero equals pem.pem_Id_Ministro
+                             where s.sec_Id_Sector == idSector
+                             select pem).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    infoTesorero = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
         // GET api/GetSecretarioByDistrito/idDistrito
         [Route("[action]/{idDistrito}")]
         [HttpGet]
@@ -434,6 +480,327 @@ namespace IECE_WebApi.Controllers
                         status = "error",
                         mensaje = ex.Message
                     });
+            }
+        }
+
+        public static string RemoveAccents(string input)
+        {
+            string normalizedString = input.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
+        [Route("[action]/{sec_Id_Congregacion}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonaCuyoIdPersonaNoEstaEnPersonalMinisterialBySector(int sec_Id_Congregacion)
+        {
+            try
+            {
+                var PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial = new List<object>();
+                var sec = context.Sector.Where(p => p.sec_Id_Sector == sec_Id_Congregacion).Select(p => p.dis_Id_Distrito).FirstOrDefault();
+
+                    var query =(from per in context.Persona
+                                  where per.per_Activo == true && (per.per_Categoria == "ADULTO_HOMBRE" || per.per_Categoria == "JOVEN_HOMBRE")
+                                  && per.sec_Id_Sector == sec_Id_Congregacion
+                                  orderby per.per_Nombre
+                                 select new
+                                  {
+                                      per.per_Id_Persona,
+                                      per.per_Nombre,
+                                      per.per_Apellido_Paterno,
+                                      per.per_Apellido_Materno,
+                                      per.per_Fecha_Nacimiento
+                                  }).ToList();
+
+
+                foreach (var person in query)
+                {
+                    var query2 = (from pem in context.Personal_Ministerial
+                                  where pem.per_Id_Miembro != person.per_Id_Persona
+                                  select new
+                                  {
+                                      person.per_Id_Persona,
+                                      person.per_Nombre,
+                                      person.per_Apellido_Paterno,
+                                      person.per_Apellido_Materno,
+                                      person.per_Fecha_Nacimiento
+                                  }
+                        ).FirstOrDefault();
+                    PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial.Add(query2);
+                }
+
+                return Ok(
+            new
+            {
+                status = true,
+                personas= PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial
+            }
+          );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new object[]
+                    {
+                        new
+                        {
+                            status= false,
+                            mensaje = ex.Message
+                        }
+                    }
+                );
+            }
+        }
+
+
+        // GET: api/Personal_Ministerial
+        // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalMinisterialSinIdMiembroByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                var query = (from pem in context.Personal_Ministerial
+                             join s in context.Sector on pem.sec_Id_Congregacion equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                             where d.dis_Id_Distrito == dis_Id_Distrito
+                             && pem.pem_Activo == true && (pem.per_Id_Miembro == null || pem.per_Id_Miembro == 0)
+                             orderby pem.pem_Nombre ascending
+                             select new
+                             {
+                                 pem.pem_Id_Ministro,
+                                 pem.pem_Activo,
+                                 pem.per_Id_Miembro,
+                                 pem.pem_Nombre,
+                                 pem.sec_Id_Congregacion,
+                                 pem.pem_En_Permiso,
+                                 pem.pem_emailIECE,
+                                 pem.pem_email_Personal,
+                                 pem.pem_Grado_Ministerial,
+                                 pem.pem_Fecha_Nacimiento
+                             }).ToList();
+
+                return Ok(
+            new
+            {
+                status = true,
+                PersonalSinVincularConPersona = query,
+
+            }
+          );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new object[]
+                    {
+                        new
+                        {
+                            status= false,
+                            mensaje = ex.Message
+                        }
+                    }
+                );
+            }
+        }
+
+        // GET: api/Personal_Ministerial
+        // AUXILIARES POR SECTOR
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetAuxiliaresBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var auxiliares = (from a in context.Personal_Ministerial
+                                  where a.sec_Id_Congregacion == sec_Id_Sector
+                                  && a.pem_Activo && a.pem_Grado_Ministerial == "AUXILIAR"
+                                  select a).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    auxiliares = auxiliares
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Personal_Ministerial
+        // Personal administrativo por Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalAdministrativoBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var administrativo = (from a in context.Personal_Ministerial
+                                  where a.sec_Id_Congregacion == sec_Id_Sector
+                                  && a.pem_Activo
+                                  select a).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = administrativo
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ALTA DE AUXILIAR EN EL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AltaAuxiliarEnSector([FromBody] infoNvoAuxiliar info)
+        {
+            try
+            {
+                var per = context.Persona.FirstOrDefault(p => p.per_Id_Persona == info.per_Id_Persona);
+                Personal_Ministerial pem = new Personal_Ministerial
+                {
+                    per_Id_Miembro = per.per_Id_Persona,
+                    pem_Nombre = per.per_Nombre + " " + per.per_Apellido_Paterno + (per.per_Apellido_Materno != "" ? " " + per.per_Apellido_Materno : ""),
+                    sec_Id_Congregacion = per.sec_Id_Sector,
+                    pem_Activo = true,
+                    pem_Fecha_Nacimiento = per.per_Fecha_Nacimiento,
+                    pem_Grado_Ministerial = "AUXILIAR",
+                    pem_Cel1 = per.per_Telefono_Movil != null ? per.per_Telefono_Movil : null,
+                    pem_email_Personal = per.per_Email_Personal != null ? per.per_Email_Personal : null,
+                };
+                context.Personal_Ministerial.Add(pem);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success",
+                    nuevoAuxiliar = pem
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ESTABLECE SECRETARIO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetSecretarioDelSector([FromBody] infoNvoSecretario info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                sector.pem_Id_Secretario = info.pem_Id_Ministro;
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ESTABLECE TESORERO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetTesoreroDelSector([FromBody] infoNvoSecretario info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                sector.pem_Id_Tesorero = info.pem_Id_Ministro;
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // BAJA DE AUXILIAR EN EL SECTOR
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        [Route("[action]/{pem_Id_Ministro}")]
+        public IActionResult BajaAuxiliarEnSector(int pem_Id_Ministro)
+        {
+            try
+            {
+                var pem = context.Personal_Ministerial.FirstOrDefault(p => p.pem_Id_Ministro == pem_Id_Ministro);
+                context.Entry(pem).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
     }

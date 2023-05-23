@@ -71,6 +71,8 @@ namespace IECE_WebApi.Controllers
                                                 p.per_Nombre,
                                                 p.per_Apellido_Paterno,
                                                 p.per_Apellido_Materno,
+                                                p.per_Apellido_Casada,
+                                                apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
                                                 p.per_Activo,
                                                 p.per_Bautizado,
                                                 p.per_Vivo,
@@ -247,7 +249,9 @@ namespace IECE_WebApi.Controllers
                                  p.per_Activo,
                                  p.per_Nombre,
                                  p.per_Apellido_Paterno,
-                                 p.per_Apellido_Materno
+                                 p.per_Apellido_Materno,
+                                 p.per_Apellido_Casada,
+                                 apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
                              }).ToList();
                 return Ok(query);
             }

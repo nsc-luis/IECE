@@ -79,7 +79,7 @@ namespace IECE_WebApi.Controllers
         {
             var element = new Drawing(
                 new DW.Inline(
-                     new DW.Extent() { Cx = 990000L, Cy = 792000L },
+                     new DW.Extent() { Cx = 990000L, Cy = 990000L },
                      new DW.EffectExtent()
                      {
                          LeftEdge = 0L,
@@ -123,7 +123,7 @@ namespace IECE_WebApi.Controllers
                                  new PIC.ShapeProperties(
                                      new A.Transform2D(
                                          new A.Offset() { X = 0L, Y = 0L },
-                                         new A.Extents() { Cx = 990000L, Cy = 792000L }),
+                                         new A.Extents() { Cx = 990000L, Cy = 990000L }),
                                      new A.PresetGeometry(
                                          new A.AdjustValueList()
                                      )
@@ -165,8 +165,8 @@ namespace IECE_WebApi.Controllers
                     var main = wordDoc.MainDocumentPart.Document;
                     var bookmarksHeader = wordDoc.MainDocumentPart.HeaderParts.FirstOrDefault().RootElement.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
                     var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
-                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial.ToString("yyyy-MM-dd"), true, true);
-                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal.ToString("yyyy-MM-dd"), true, true);
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaInicial", orme.FechaInicial, true, true);
+                    AgregarTextoAlMarcador(bookmarksHeader, "FechaFinal", orme.FechaFinal, true, true);
                     AgregarTextoAlMarcador(bookmarks, "AdultosBautizados", orme.AdultosBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosBautismo", orme.AltasBautizadosBautismo.ToString());
                     AgregarTextoAlMarcador(bookmarks, "AltasBautizadosCambioDomicilio", orme.AltasBautizadosCambioDomicilio.ToString());
@@ -187,6 +187,9 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "JovenesBautizados", orme.JovenesBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "JovenesNoBautizados", orme.JovenesNoBautizados.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Legalizaciones", orme.Legalizaciones.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "NoDeHogares", orme.NoDeHogares.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Altas_Hogares", orme.Altas_Hogares.ToString());
+                    AgregarTextoAlMarcador(bookmarks, "Bajas_Hogares", orme.Bajas_Hogares.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Matrimonios", orme.Matrimonios.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Ninas", orme.Ninas.ToString());
                     AgregarTextoAlMarcador(bookmarks, "Ninos", orme.Ninos.ToString());
@@ -265,30 +268,31 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "edad", ohde.edad.ToString(), false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Nacionalidad", ohde.Nacionalidad, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "LugarNacimiento", ohde.LugarNacimiento, false, true, "Arial", "16");
-                    AgregarTextoAlMarcador(bookmarks, "FechaNacimiento", ohde.FechaNacimiento.ToString("yyyy-MM-dd"), false, true, "Arial", "16");
+                    AgregarTextoAlMarcador(bookmarks, "FechaNacimiento", ohde.FechaNacimiento, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "NombreDePadres", ohde.NombreDePadres, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "PadresPaternos", ohde.PadresPaternos, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "PadresMaternos", ohde.PadresMaternos, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "EstadoCivil", ohde.EstadoCivil, false, true, "Arial", "16");
-                    AgregarTextoAlMarcador(bookmarks, "FechaBodaCivil", ohde.FechaBodaCivil?.ToString("yyyy-MM-dd"), false, true, "Arial", "16");
+                    AgregarTextoAlMarcador(bookmarks, "FechaBodaCivil", ohde.FechaBodaCivil, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Acta", ohde.Acta, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Libro", ohde.Libro, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Oficialia", ohde.Oficialia, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "RegistroCivil", ohde.RegistroCivil, false, true, "Arial", "16");
-                    AgregarTextoAlMarcador(bookmarks, "FechaBodaEclesiastica", ohde.FechaBodaEclesiastica?.ToString("yyyy-MM-dd"), false, true, "Arial", "16");
+                    AgregarTextoAlMarcador(bookmarks, "FechaBodaEclesiastica", ohde.FechaBodaEclesiastica, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "LugarBodaEclesiastica", ohde.LugarBodaEclesiastica, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "NombreConyugue", ohde.NombreConyugue, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "CantidadHijos", ohde.CantidadHijos.ToString(), false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "NombreHijos", ohde.NombreHijos, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "LugarBautismo", ohde.LugarBautismo, false, true, "Arial", "16");
-                    AgregarTextoAlMarcador(bookmarks, "FechaBautismo", ohde.FechaBautismo.ToString("yyyy-MM-dd"), false, true, "Arial", "16");
+                    AgregarTextoAlMarcador(bookmarks, "FechaBautismo", ohde.FechaBautismo, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "QuienBautizo", ohde.QuienBautizo, false, true, "Arial", "16");
-                    AgregarTextoAlMarcador(bookmarks, "FechaPromesaEspiritu", ohde.FechaPromesaEspiritu?.ToString("yyyy-MM-dd"), false, true, "Arial", "16");
+                    AgregarTextoAlMarcador(bookmarks, "FechaPromesaEspiritu", ohde.FechaPromesaEspiritu, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "BajoImposicionDeManos", ohde.BajoImposicionDeManos, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Puestos", ohde.Puestos, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "CambiosDomicilio", ohde.CambiosDomicilio, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Domicilio", ohde.Domicilio, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Telefonos", ohde.Telefonos, false, true, "Arial", "16");
+                    AgregarTextoAlMarcador(bookmarks, "Email", ohde.Email, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Oficio1", ohde.Oficio1, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Oficio2", ohde.Oficio2, false, true, "Arial", "16");
                     AgregarTextoAlMarcador(bookmarks, "Fecha", ohde.Fecha, true, false, "Arial", "16");

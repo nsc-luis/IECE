@@ -11,8 +11,8 @@ namespace IECE_WebApi.Templates
         // Objeto para plantilla ReporteMovimientosEstadisticos
         public class oReporteMovimientosEstadisticos
         {
-            public DateTime FechaInicial { get; set; }
-            public DateTime FechaFinal { get; set; }
+            public string FechaInicial { get; set; }
+            public string FechaFinal { get; set; }
             public int AdultosBautizados { get; set; }
             public int AltasBautizadosBautismo { get; set; }
             public int AltasBautizadosCambioDomicilio { get; set; }
@@ -34,6 +34,9 @@ namespace IECE_WebApi.Templates
             public int JovenesNoBautizados { get; set; }
             public int Legalizaciones { get; set; }
             public int Matrimonios { get; set; }
+            public int NoDeHogares { get; set; }
+            public int Altas_Hogares { get; set; }
+            public int Bajas_Hogares { get; set; }
             public int Ninas { get; set; }
             public int Ninos { get; set; }
             public int NoBautizadosJovenHombre { get; set; }
@@ -57,25 +60,25 @@ namespace IECE_WebApi.Templates
             public int edad { get; set; }
             public string Nacionalidad { get; set; }
             public string LugarNacimiento { get; set; }
-            public DateTime FechaNacimiento { get; set; }
+            public string FechaNacimiento { get; set; }
             public string NombreDePadres { get; set; }
             public string PadresPaternos { get; set; }
             public string PadresMaternos { get; set; }
             public string EstadoCivil { get; set; }
-            public DateTime? FechaBodaCivil { get; set; }
+            public string FechaBodaCivil { get; set; }
             public string Acta { get; set; }
             public string  Libro { get; set; }
             public string Oficialia { get; set; }
             public string RegistroCivil { get; set; }
-            public DateTime? FechaBodaEclesiastica { get; set; }
+            public string FechaBodaEclesiastica { get; set; }
             public string LugarBodaEclesiastica { get; set; }
             public string NombreConyugue { get; set; }
             public int CantidadHijos { get; set; }
             public string NombreHijos { get; set; }
             public string LugarBautismo { get; set; }
-            public DateTime FechaBautismo { get; set; }
+            public string FechaBautismo { get; set; }
             public string QuienBautizo { get; set; }
-            public DateTime? FechaPromesaEspiritu { get; set; }
+            public string FechaPromesaEspiritu { get; set; }
             public string BajoImposicionDeManos { get; set; }
             public string Puestos { get; set; }
             public string CambiosDomicilio { get; set; }
@@ -83,6 +86,7 @@ namespace IECE_WebApi.Templates
             public string Telefonos { get; set; }
             public string Oficio1 { get; set; }
             public string Oficio2 { get; set; }
+            public string Email { get; set; }
             public string Fecha { get; set; }
             public string Secretario { get; set; }
         }

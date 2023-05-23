@@ -9,12 +9,14 @@ using IECE_WebApi.Contexts;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SectorController : ControllerBase
     {
 
@@ -161,6 +163,8 @@ namespace IECE_WebApi.Controllers
                                   sec_Tipo_Sector = s.sec_Tipo_Sector,
                                   sec_Numero = s.sec_Numero,
                                   sec_Alias = s.sec_Alias,
+                                  s.pem_Id_Secretario,
+                                  s.pem_Id_Tesorero,
                                   dis_Id_Distrito = s.dis_Id_Distrito,
                                   dis_Alias = d.dis_Alias,
                                   dis_Tipo_Distrito = d.dis_Tipo_Distrito,
