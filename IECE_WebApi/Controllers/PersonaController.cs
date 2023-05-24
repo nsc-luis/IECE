@@ -2023,7 +2023,7 @@ namespace IECE_WebApi.Controllers
                     ct_Codigo_Transaccion = 11001;
                     hte.RegistroHistorico(
                         persona.per_Id_Persona,
-                        persona.sec_Id_Sector,
+                        phe.idSectorBautismo,
                         ct_Codigo_Transaccion,
                         "",
                         persona.per_Fecha_Bautismo,
@@ -2597,6 +2597,50 @@ namespace IECE_WebApi.Controllers
                 var personaBD = context.Persona.FirstOrDefault(per => per.per_Id_Persona == persona.per_Id_Persona);
                 bool registroBautismoBD = personaBD.per_Bautizado;
                 context.Entry(personaBD).State = EntityState.Detached;
+
+                // ACTUALIZA LUGAR DE BAUTISMO 
+                if (registroBautismoBD && objeto.idSectorBautismo != 0)
+                {
+                    var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == persona.per_Id_Persona && rh.ct_Codigo_Transaccion == 11001);
+                    var SectorDistrito = (from s in context.Sector
+                                  join d in context.Distrito
+                                  on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                  where s.sec_Id_Sector == objeto.idSectorBautismo
+                                  select new
+                                  {
+                                      sec_Id_Sector = s.sec_Id_Sector,
+                                      sec_Alias = s.sec_Alias,
+                                      dis_Id_Distrito = s.dis_Id_Distrito,
+                                      dis_Alias = d.dis_Alias
+                                  }).ToList();
+                    registroHistoricoDeBautismo.dis_Distrito_Id = SectorDistrito[0].dis_Id_Distrito;
+                    registroHistoricoDeBautismo.dis_Distrito_Alias = SectorDistrito[0].dis_Alias;
+                    registroHistoricoDeBautismo.sec_Sector_Id = SectorDistrito[0].sec_Id_Sector;
+                    registroHistoricoDeBautismo.sec_Sector_Alias = SectorDistrito[0].sec_Alias;
+                    context.Historial_Transacciones_Estadisticas.Update(registroHistoricoDeBautismo);
+                    context.SaveChanges();
+                }
+                if (registroBautismoBD && objeto.idSectorBautismo == 0)
+                {
+                    var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == persona.per_Id_Persona && rh.ct_Codigo_Transaccion == 11001);
+                    var SectorDistrito = (from s in context.Sector
+                                          join d in context.Distrito
+                                          on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                          where s.sec_Id_Sector == persona.sec_Id_Sector
+                                          select new
+                                          {
+                                              sec_Id_Sector = s.sec_Id_Sector,
+                                              sec_Alias = s.sec_Alias,
+                                              dis_Id_Distrito = s.dis_Id_Distrito,
+                                              dis_Alias = d.dis_Alias
+                                          }).ToList();
+                    registroHistoricoDeBautismo.dis_Distrito_Id = SectorDistrito[0].dis_Id_Distrito;
+                    registroHistoricoDeBautismo.dis_Distrito_Alias = SectorDistrito[0].dis_Alias;
+                    registroHistoricoDeBautismo.sec_Sector_Id = SectorDistrito[0].sec_Id_Sector;
+                    registroHistoricoDeBautismo.sec_Sector_Alias = SectorDistrito[0].sec_Alias;
+                    context.Historial_Transacciones_Estadisticas.Update(registroHistoricoDeBautismo);
+                    context.SaveChanges();
+                }
 
                 // ALTA DE NUEVAS PROFESIONES
                 if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
