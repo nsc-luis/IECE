@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
 
+
 namespace IECE_WebApi.Controllers
 {
     [Route("api/[controller]")]
@@ -26,7 +27,6 @@ namespace IECE_WebApi.Controllers
             this.context = context;
         }
 
-        // Clase para alta de auxiliar
         public class infoNvoAuxiliar
         {
             public int per_Id_Persona { get; set; }
@@ -38,8 +38,33 @@ namespace IECE_WebApi.Controllers
         {
             public int pem_Id_Ministro { get; set; }
             public int sec_Id_Sector { get; set; }
+            public int idUsuario { get; set; }
             //public string comentario { get; set; }
             //public DateTime fecha { get; set; }
+        }
+
+        private DateTime fechayhora = DateTime.UtcNow;
+
+        public class PersonaAVincular
+        {
+            public int id_Persona { get; set; }
+            public int id_Ministro { get; set; }
+            public string nombre_Persona { get; set; }
+            public string nombre_Elemento { get; set; }
+            public int sec_Id_Sector { get; set; }
+            public int usu_Id_Usuario { get; set; }
+            public DateTime fechaTransaccion { get; set; }
+        }
+
+        public class AuxiliarBaja
+        {
+            public int id_Ministro { get; set; }
+            public string nombre_Elemento { get; set; }
+            public int sec_Id_Sector { get; set; }
+            public int usu_Id_Usuario { get; set; }
+            public string causaDeBaja { get; set; }
+
+            public DateTime fechaTransaccion { get; set; }
         }
 
         // GET: api/Personal_Ministerial
@@ -501,6 +526,9 @@ namespace IECE_WebApi.Controllers
 
         // GET: api/Personal_Ministerial
         // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
+
+        // GET: api/Personal_Ministerial/GetPersonaCuyoIdPersonaNoEstaEnPersonalMinisterialBySector
+        // METODO PARA OBTENER LISTA DE PERSONAS VARONES DEL SECTOR QUE AUN NO ESTAN REGISTRADOS COMO PERSONAL MINISTERIAL
         [Route("[action]/{sec_Id_Congregacion}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -508,46 +536,47 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Obtiene a todos los varones del Sector
                 var PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial = new List<object>();
-                var sec = context.Sector.Where(p => p.sec_Id_Sector == sec_Id_Congregacion).Select(p => p.dis_Id_Distrito).FirstOrDefault();
+                var dto = context.Sector.Where(p => p.sec_Id_Sector == sec_Id_Congregacion).Select(p => p.dis_Id_Distrito).FirstOrDefault();
 
                     var query =(from per in context.Persona
                                   where per.per_Activo == true && (per.per_Categoria == "ADULTO_HOMBRE" || per.per_Categoria == "JOVEN_HOMBRE")
                                   && per.sec_Id_Sector == sec_Id_Congregacion
                                   orderby per.per_Nombre
-                                 select new
-                                  {
-                                      per.per_Id_Persona,
-                                      per.per_Nombre,
-                                      per.per_Apellido_Paterno,
-                                      per.per_Apellido_Materno,
-                                      per.per_Fecha_Nacimiento
-                                  }).ToList();
+                                 select per).ToList();
 
 
                 foreach (var person in query)
                 {
-                    var query2 = (from pem in context.Personal_Ministerial
-                                  where pem.per_Id_Miembro != person.per_Id_Persona
+                    var query3 = (from pem in context.Personal_Ministerial
+                                  where pem.per_Id_Miembro == person.per_Id_Persona
                                   select new
                                   {
+                                      pem.per_Id_Miembro,
                                       person.per_Id_Persona,
                                       person.per_Nombre,
                                       person.per_Apellido_Paterno,
                                       person.per_Apellido_Materno,
-                                      person.per_Fecha_Nacimiento
+                                      person.per_Fecha_Nacimiento,
+
                                   }
-                        ).FirstOrDefault();
-                    PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial.Add(query2);
+               ).FirstOrDefault();
+
+                    var personaEnLista = query3;
+                    if (personaEnLista==null)
+                    {
+                       PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial.Add(person);
+                    }
+                    
                 }
 
                 return Ok(
-            new
-            {
-                status = true,
-                personas= PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial
-            }
-          );
+                new
+                {
+                    status = true,
+                    personas= PersonaCuyoIdPersonaNoEstaEnPersonaMinisterial
+                });
 
             }
             catch (Exception ex)
@@ -566,8 +595,8 @@ namespace IECE_WebApi.Controllers
         }
 
 
-        // GET: api/Personal_Ministerial
-        // METODO PARA OBTENER INFO DEL SECTOR SEGUN ID DEL MINISTRO
+        // GET: api/Personal_Ministerial/GetPersonalMinisterialSinIdMiembroByDistrito
+        // METODO PARA OBTENER LISTA DE PERSONAL MINISTERIAL DEL DISTRITO QUE NO TENGA REGISTRADO Id_Miembro
         [Route("[action]/{dis_Id_Distrito}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -575,6 +604,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                
                 var query = (from pem in context.Personal_Ministerial
                              join s in context.Sector on pem.sec_Id_Congregacion equals s.sec_Id_Sector
                              join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
@@ -595,15 +625,160 @@ namespace IECE_WebApi.Controllers
                                  pem.pem_Fecha_Nacimiento
                              }).ToList();
 
+                            return Ok(
+                        new
+                        {
+                            status = true,
+                            personalSinVincularConPersona = query,
+                        }
+                      );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new object[]
+                    {
+                        new
+                        {
+                            status= false,
+                            mensaje = ex.Message
+                        }
+                    }
+                );
+            }
+        }
+
+        // POST: api/PersonalMinisterial/AddPersonalMinisterial
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult AddPersonalMinisterial([FromBody] PersonaAVincular vnm)
+        {
+            try
+            {
+                // DEFINE OBJETO PERSONA
+                Persona persona = new Persona();
+                persona = (from per in context.Persona
+                           where per.per_Id_Persona == vnm.id_Persona
+                           select per).FirstOrDefault();
+
+                Personal_Ministerial elementoMinisterial =new Personal_Ministerial();
+                Registro_Transacciones RegistroHistorico = new Registro_Transacciones();
+
+
+                // VINCULA UNA PERSONA 
+                if (vnm.id_Ministro != 0) // Si no es Zero, significa que ya existe el Ministro, solo va a vincular con Id_Miembro. 
+                {
+                    //Obtiene el Elemento del Personal Ministerial que desea Editar
+                    elementoMinisterial = (from min in context.Personal_Ministerial
+                                           where min.pem_Id_Ministro == vnm.id_Ministro
+                                           select min).FirstOrDefault();
+
+                    //Modifica el campo per_Id_miembro y otros campos que pueden ser dinámicos y los graba.
+                    elementoMinisterial.per_Id_Miembro = vnm.id_Persona;
+                    elementoMinisterial.pem_Fecha_Nacimiento = persona.per_Fecha_Nacimiento;
+                    elementoMinisterial.sec_Id_Congregacion = persona.sec_Id_Sector;
+                    elementoMinisterial.pem_Cel1 = persona.per_Telefono_Movil;
+                    elementoMinisterial.pem_email_Personal = persona.per_Email_Personal;
+                    elementoMinisterial.usu_Id_Usuario = vnm.usu_Id_Usuario;
+
+                    context.SaveChanges();
+                }
+                else //si es Zero, se trata de Una Alta de Nuevo Personal Ministerial
+                {
+                    elementoMinisterial.pem_Activo = true;
+                    elementoMinisterial.per_Id_Miembro = vnm.id_Persona;
+                    elementoMinisterial.pem_Nombre = vnm.nombre_Persona;
+                    elementoMinisterial.pem_Fecha_Nacimiento = persona.per_Fecha_Nacimiento;
+                    elementoMinisterial.sec_Id_Congregacion = persona.sec_Id_Sector;
+                    elementoMinisterial.pem_Grado_Ministerial = "AUXILIAR";
+                    elementoMinisterial.pem_Dedicado = false;
+                    elementoMinisterial.pem_En_Permiso = false;
+                    elementoMinisterial.pem_Tipo_Jubilacion = "";
+                    elementoMinisterial.pem_Registrado_Gobernacion = false;
+                    elementoMinisterial.pem_Necesita_Credencial = false;
+                    elementoMinisterial.pem_Cel1 = persona.per_Telefono_Movil;
+                    elementoMinisterial.pem_email_Personal = persona.per_Email_Personal;
+                    elementoMinisterial.Fecha_Registro = fechayhora;
+                    elementoMinisterial.usu_Id_Usuario = vnm.usu_Id_Usuario;
+
+                    context.Personal_Ministerial.Add(elementoMinisterial);
+                    context.SaveChanges();
+
+                    Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
+                    rt.RegistroHistorico(
+                     elementoMinisterial.pem_Id_Ministro,
+                     elementoMinisterial.sec_Id_Congregacion,
+                     "ALTA DE NUEVO PERSONAL MINISTERIAL",
+                     null,
+                     "ALTA AUXILIAR",
+                     vnm.fechaTransaccion,
+                     vnm.usu_Id_Usuario,
+                     vnm.usu_Id_Usuario
+                    );
+                }                             
+
+                return Ok
+                (
+                    new
+                    {
+                        status = "success"
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return Ok
+                (
+                    new
+                    {
+                        status = "error",
+                        message = ex.Message
+                    }
+                );
+            }
+        }
+
+
+
+        // GET: api/Personal_Ministerial/GetAuxiliaresBySector
+        // METODO PARA OBTENER LISTA DE AUXILIARES DE UN SECTOR
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetAuxiliaresBySector(int sec_Id_Sector)
+        {
+            try
+            {
+
+                var query = (from pem in context.Personal_Ministerial
+                             join s in context.Sector on pem.sec_Id_Congregacion equals s.sec_Id_Sector
+                             where s.sec_Id_Sector == sec_Id_Sector
+                             && pem.pem_Activo == true 
+                             && pem.pem_Grado_Ministerial == "AUXILIAR"
+
+                             orderby pem.pem_Nombre ascending
+                             select new
+                             {
+                                 pem.pem_Id_Ministro,
+                                 pem.pem_Activo,
+                                 pem.per_Id_Miembro,
+                                 pem.pem_Nombre,
+                                 pem.sec_Id_Congregacion,
+                                 pem.pem_En_Permiso,
+                                 pem.pem_emailIECE,
+                                 pem.pem_email_Personal,
+                                 pem.pem_Grado_Ministerial,
+                                 pem.pem_Fecha_Nacimiento
+                             }).ToList();
+
                 return Ok(
             new
             {
                 status = true,
-                PersonalSinVincularConPersona = query,
-
+                personalMinisterial = query,
             }
           );
-
             }
             catch (Exception ex)
             {
@@ -625,7 +800,7 @@ namespace IECE_WebApi.Controllers
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetAuxiliaresBySector(int sec_Id_Sector)
+        public IActionResult GetAuxiliaresBySector2(int sec_Id_Sector)
         {
             try
             {
@@ -732,6 +907,9 @@ namespace IECE_WebApi.Controllers
                 context.Sector.Update(sector);
                 context.SaveChanges();
 
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDeSecretario(info.pem_Id_Ministro, info.idUsuario);
+
                 return Ok(new
                 {
                     status = "success"
@@ -761,6 +939,9 @@ namespace IECE_WebApi.Controllers
                 context.Sector.Update(sector);
                 context.SaveChanges();
 
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDeTesorero(info.pem_Id_Ministro, info.idUsuario);
+
                 return Ok(new
                 {
                     status = "success"
@@ -786,13 +967,24 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var pem = context.Personal_Ministerial.FirstOrDefault(p => p.pem_Id_Ministro == pem_Id_Ministro);
-                context.Entry(pem).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                context.SaveChanges();
-
-                return Ok(new
+                if (pem.per_Id_Miembro == null || pem.per_Id_Miembro == 0)
                 {
-                    status = "success"
-                });
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No se puede hacer baja de auxiliar que NO TIENE UN REGISTRO como miembro de la iglesia."
+                    });
+                }
+                else
+                {
+                    context.Entry(pem).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                    context.SaveChanges();
+
+                    return Ok(new
+                    {
+                        status = "success"
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -801,6 +993,66 @@ namespace IECE_WebApi.Controllers
                     status = "error",
                     mensaje = ex.Message
                 });
+            }
+        }
+
+
+        // POST: api/PersonalMinisterial/BajaDeAuxiliar
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BajaDeAuxiliar([FromBody] AuxiliarBaja ab)
+        {
+            try
+            {
+                Personal_Ministerial elementoMinisterial = new Personal_Ministerial();
+                Registro_Transacciones RegistroHistorico = new Registro_Transacciones();
+
+
+                // VINCULA UNA PERSONA 
+                if (ab.id_Ministro != 0) // Se asegura que viene un ministro registrado con un Numero de id_Ministro. 
+                {
+                    //Obtiene el Elemento del Personal Ministerial que desea dar de Baja
+                    elementoMinisterial = (from min in context.Personal_Ministerial
+                                           where min.pem_Id_Ministro == ab.id_Ministro
+                                           select min).FirstOrDefault();
+
+                    //Inactiva al Auxiliar y lo graba.
+                    elementoMinisterial.pem_Activo = false;
+                    context.SaveChanges();
+
+                    //Registra la Transacción Ministerial
+                    Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
+                    rt.RegistroHistorico(
+                     elementoMinisterial.pem_Id_Ministro,
+                     elementoMinisterial.sec_Id_Congregacion,
+                     "BAJA DE PERSONAL MINISTERIAL",
+                     ab.causaDeBaja,
+                     "",
+                     ab.fechaTransaccion,
+                     ab.usu_Id_Usuario,
+                     ab.usu_Id_Usuario
+                    );
+                }
+
+                return Ok
+                (
+                    new
+                    {
+                        status = "success"
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return Ok
+                (
+                    new
+                    {
+                        status = "error",
+                        message = ex.Message
+                    }
+                );
             }
         }
     }
