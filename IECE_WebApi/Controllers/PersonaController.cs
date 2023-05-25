@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IECE_WebApi.Controllers
 {
-    //Comentario sin uso
-
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -2023,7 +2021,7 @@ namespace IECE_WebApi.Controllers
                     ct_Codigo_Transaccion = 11001;
                     hte.RegistroHistorico(
                         persona.per_Id_Persona,
-                        phe.idSectorBautismo,
+                        phe.idSectorBautismo == 0 ? persona.sec_Id_Sector : phe.idSectorBautismo,
                         ct_Codigo_Transaccion,
                         "",
                         persona.per_Fecha_Bautismo,
@@ -2187,7 +2185,7 @@ namespace IECE_WebApi.Controllers
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = p.per_Fecha_Bautismo;
-                    idSector = pd.idSectorBautismo;
+                    idSector = pd.idSectorBautismo == 0 ? p.sec_Id_Sector : pd.idSectorBautismo;
                 }
                 else //Si la Alta es un Nuevo Ingreso de un No Bautiado
                 {
@@ -2613,27 +2611,6 @@ namespace IECE_WebApi.Controllers
                                       dis_Id_Distrito = s.dis_Id_Distrito,
                                       dis_Alias = d.dis_Alias
                                   }).ToList();
-                    registroHistoricoDeBautismo.dis_Distrito_Id = SectorDistrito[0].dis_Id_Distrito;
-                    registroHistoricoDeBautismo.dis_Distrito_Alias = SectorDistrito[0].dis_Alias;
-                    registroHistoricoDeBautismo.sec_Sector_Id = SectorDistrito[0].sec_Id_Sector;
-                    registroHistoricoDeBautismo.sec_Sector_Alias = SectorDistrito[0].sec_Alias;
-                    context.Historial_Transacciones_Estadisticas.Update(registroHistoricoDeBautismo);
-                    context.SaveChanges();
-                }
-                if (registroBautismoBD && objeto.idSectorBautismo == 0)
-                {
-                    var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == persona.per_Id_Persona && rh.ct_Codigo_Transaccion == 11001);
-                    var SectorDistrito = (from s in context.Sector
-                                          join d in context.Distrito
-                                          on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                                          where s.sec_Id_Sector == persona.sec_Id_Sector
-                                          select new
-                                          {
-                                              sec_Id_Sector = s.sec_Id_Sector,
-                                              sec_Alias = s.sec_Alias,
-                                              dis_Id_Distrito = s.dis_Id_Distrito,
-                                              dis_Alias = d.dis_Alias
-                                          }).ToList();
                     registroHistoricoDeBautismo.dis_Distrito_Id = SectorDistrito[0].dis_Id_Distrito;
                     registroHistoricoDeBautismo.dis_Distrito_Alias = SectorDistrito[0].dis_Alias;
                     registroHistoricoDeBautismo.sec_Sector_Id = SectorDistrito[0].sec_Id_Sector;
