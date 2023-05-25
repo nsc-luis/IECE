@@ -38,6 +38,7 @@ namespace IECE_WebApi.Controllers
         {
             public int pem_Id_Ministro { get; set; }
             public int sec_Id_Sector { get; set; }
+            public int idUsuario { get; set; }
             //public string comentario { get; set; }
             //public DateTime fecha { get; set; }
         }
@@ -906,6 +907,9 @@ namespace IECE_WebApi.Controllers
                 context.Sector.Update(sector);
                 context.SaveChanges();
 
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDeSecretario(info.pem_Id_Ministro, info.idUsuario);
+
                 return Ok(new
                 {
                     status = "success"
@@ -935,6 +939,9 @@ namespace IECE_WebApi.Controllers
                 context.Sector.Update(sector);
                 context.SaveChanges();
 
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDeTesorero(info.pem_Id_Ministro, info.idUsuario);
+
                 return Ok(new
                 {
                     status = "success"
@@ -960,13 +967,24 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var pem = context.Personal_Ministerial.FirstOrDefault(p => p.pem_Id_Ministro == pem_Id_Ministro);
-                context.Entry(pem).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                context.SaveChanges();
-
-                return Ok(new
+                if (pem.per_Id_Miembro == null || pem.per_Id_Miembro == 0)
                 {
-                    status = "success"
-                });
+                    return Ok(new
+                    {
+                        status = "error",
+                        mensaje = "No se puede hacer baja de auxiliar que NO TIENE UN REGISTRO como miembro de la iglesia."
+                    });
+                }
+                else
+                {
+                    context.Entry(pem).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                    context.SaveChanges();
+
+                    return Ok(new
+                    {
+                        status = "success"
+                    });
+                }
             }
             catch (Exception ex)
             {
