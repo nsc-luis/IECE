@@ -739,7 +739,102 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Personal_Ministerial
+        // Personal Ministerial por Sector, vinculado con un Id_Miembro
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalMinisterialByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                var PersonalMinisterial = (from PM in context.Personal_Ministerial
+                                           join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
+                                           join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
+                                           join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
+                                           where D.dis_Id_Distrito == dis_Id_Distrito && P.per_Activo == true
+                                           select PM).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = PersonalMinisterial
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
 
+
+
+        // GET: api/Personal_Ministerial
+        // Personal Ministerial por Sector, vinculado con un Id_Miembro
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalMinisterialBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                var PersonalMinisterial = (from PM in context.Personal_Ministerial
+                                           join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
+                                           join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
+                                           join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
+                                           where P.sec_Id_Sector == sec_Id_Sector && P.per_Activo == true
+                                           select PM).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = PersonalMinisterial
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+
+        // GET: api/Personal_Ministerial
+        // AUXILIARES POR SECTOR
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetAuxiliaresBySector2(int sec_Id_Sector)
+        {
+            try
+            {
+                var auxiliares = (from a in context.Personal_Ministerial
+                                  where a.sec_Id_Congregacion == sec_Id_Sector
+                                  && a.pem_Activo && a.pem_Grado_Ministerial == "AUXILIAR"
+                                  select a).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    auxiliares = auxiliares
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        
 
         // GET: api/Personal_Ministerial/GetAuxiliaresBySector
         // METODO PARA OBTENER LISTA DE AUXILIARES DE UN SECTOR
@@ -795,36 +890,9 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/Personal_Ministerial
-        // AUXILIARES POR SECTOR
-        [Route("[action]/{sec_Id_Sector}")]
-        [HttpGet]
-        [EnableCors("AllowOrigin")]
-        public IActionResult GetAuxiliaresBySector2(int sec_Id_Sector)
-        {
-            try
-            {
-                var auxiliares = (from a in context.Personal_Ministerial
-                                  where a.sec_Id_Congregacion == sec_Id_Sector
-                                  && a.pem_Activo && a.pem_Grado_Ministerial == "AUXILIAR"
-                                  select a).ToList();
-                return Ok(new
-                {
-                    status = "success",
-                    auxiliares = auxiliares
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    status = "error",
-                    mensaje = ex.Message
-                });
-            }
-        }
+        
 
-        // GET: api/Personal_Ministerial
+        // GET: api/PersonalMinisterial
         // Personal administrativo por Sector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
