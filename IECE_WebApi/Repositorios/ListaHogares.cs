@@ -144,7 +144,7 @@ namespace IECE_WebApi.Repositorios
                          select new 
                          {
                              hogarId = hp.hd_Id_Hogar,
-                             titular = p.per_Apellido_Paterno
+                             titular = (p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)
                          }).Distinct().OrderBy(obj => obj.titular).ToList();
 
             //Query por cada Hogar encontrado en el query anterior para buscar sus datos y tambien sus Integrantes ordenados por herarquía
@@ -217,7 +217,7 @@ namespace IECE_WebApi.Repositorios
                          select new
                          {
                              hogarId = hp.hd_Id_Hogar,
-                             titular = p.per_Apellido_Paterno
+                             titular = (p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)
                          }).Distinct().OrderBy(obj => obj.titular).ToList();
 
             //Query por cada Hogar encontrado del query anterior para buscar sus datos y tambien sus Integrantes ordenados por jerarquía
