@@ -106,7 +106,7 @@ namespace IECE_WebApi.Controllers
             // var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("E38shaGPv6xDgUHN4BffduCQx5fXSMRhyEY2r5tD"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiration = DateTime.UtcNow.AddHours(2);
+            var expiration = DateTime.UtcNow.AddHours(5);
 
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: "iece-tpr.ddns.net",
