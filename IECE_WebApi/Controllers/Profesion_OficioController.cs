@@ -7,6 +7,7 @@ using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using IECE_WebApi.Contexts;
 using Microsoft.AspNetCore.Cors;
+using System.Text.RegularExpressions;
 
 namespace IECE_WebApi.Controllers
 {
@@ -40,8 +41,41 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+
+        // GET /api/Profesion_Oficio/BuscarPorTexto
+        [HttpGet]
+        [Route("[action]/{texto}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BuscarPorTexto(string texto)
+        {
+            try
+            {
+                    var query = (from p in context.Profesion_Oficio
+                                 where p.pro_Categoria.ToUpper().Contains(texto.ToUpper())
+                                 || p.pro_Sub_Categoria.ToUpper().Contains(texto.ToUpper())
+                                 select new
+                                 {
+                                    p.pro_Id_Profesion_Oficio,
+                                    p.pro_Categoria,
+                                    p.pro_Sub_Categoria
+                                 }).ToList();
+                    return Ok(new
+                    {
+                        status = "success",
+                        query
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
         // GET: api/Profesion_Oficio/5
-        /*[HttpGet("{id}")]
+        [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
         public IActionResult Get(int id)
         {
@@ -58,22 +92,25 @@ namespace IECE_WebApi.Controllers
         }
 
         // POST: api/Profesion_Oficio
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        /* [HttpPost]
+         public void Post([FromBody] string value)
+         {
+         }
 
-        // PUT: api/Profesion_Oficio/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+         // PUT: api/Profesion_Oficio/5
+         [HttpPut("{id}")]
+         public void Put(int id, [FromBody] string value)
+         {
+         }
 
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-    }*/
+         // DELETE: api/ApiWithActions/5
+         [HttpDelete("{id}")]
+         public void Delete(int id)
+         {
+         }
+     }*/
+
+
+
     }
 }
