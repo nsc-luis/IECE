@@ -200,14 +200,39 @@ namespace IECE_WebApi.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(usuario.Email, usuario.Password, isPersistent: false, lockoutOnFailure: false);
-                var ministroActivo = (from u in context.Usuario
-                             join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
-                             join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
-                             where u.Email == usuario.Email && pm.pem_Activo == true
-                             select pm.pem_Activo).ToList();
-                if (result.Succeeded && ministroActivo[0])
+                
+                if (result.Succeeded)//Si Credenciales están correctas, procede a verificar que esté Activo, Que sea Pastor de Sector u Obispo.
                 {
-                    return BuildToken(usuario);
+
+                    //Verifica si coincide el email, se está Activo y si es Pastor o Encargado de un Sector
+                    var ministroActivo = (from u in context.Usuario
+                                          join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
+                                          join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                                          join S in context.Sector on pm.pem_Id_Ministro equals S.pem_Id_Pastor
+                                          where u.Email == usuario.Email && pm.pem_Activo == true && S.sec_Tipo_Sector == "SECTOR"
+                                          select pm.pem_Activo).ToList();
+
+                    //Verifica si coincide el email, se está Activo y si es Obispo
+                    var ministroActivo2 = (from u in context.Usuario
+                                           join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
+                                           join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                                           join D in context.Distrito on pm.pem_Id_Ministro equals D.pem_Id_Obispo
+                                           where u.Email == usuario.Email && pm.pem_Activo == true
+                                           select pm.pem_Activo).ToList();
+
+                    if (ministroActivo.Count > 0 || ministroActivo2.Count > 0)
+                    {
+                        return BuildToken(usuario);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Error: El Usuario no tiene permisos de acceso.");
+                        return Ok(new
+                        {
+                            status = "error",
+                            message = "Error: El Usuario no tiene permisos de acceso."
+                        });
+                    }                    
                 }
                 else
                 {
@@ -241,6 +266,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Verifica si el email ya se había registrado como Usuario
                 var query = (from u in context.Usuario
                              where u.Email == email
                              select new
@@ -253,12 +279,28 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = "El email ya esta registado como usuario en la base de datos."
+                        mensaje = "El email ya está registado como Usuario en la Base de Datos."
                     });
                 }
-                else
-                {
+                else // Si no se encuentra aún registrado en la Tabla Usuario.
+                { 
+                    //Debe coincidir el email ya sea con el email IECE.mx o uno Personal
+                    //El Elemento del Personal Ministerial debe estar Activo
+                    //Debe Estar como Encargado o Pastor de un Sector
                     var query1 = (from pem in context.Personal_Ministerial
+                                  join S in context.Sector on pem.pem_Id_Ministro equals S.pem_Id_Pastor
+                                  where (pem.pem_emailIECE == email || pem.pem_email_Personal == email)
+                                  && pem.pem_Activo == true
+                                  && S.sec_Tipo_Sector == "SECTOR"
+                                  select new
+                                  {
+                                      pem.pem_Id_Ministro,
+                                      pem.pem_Nombre
+                                  }).ToList();
+
+                    //Si no está como Pastor o Encargado de un Sector, Puede Estar Sólo como Obispo
+                    var query2 = (from pem in context.Personal_Ministerial
+                                  join D in context.Distrito on pem.pem_Id_Ministro equals D.pem_Id_Obispo
                                   where (pem.pem_emailIECE == email || pem.pem_email_Personal == email)
                                   && pem.pem_Activo == true
                                   select new
@@ -266,20 +308,22 @@ namespace IECE_WebApi.Controllers
                                       pem.pem_Id_Ministro,
                                       pem.pem_Nombre
                                   }).ToList();
-                    if (query1.Count > 0)
+
+                    if (query1.Count > 0 || query2.Count > 0)
                     {
                         return Ok(new
                         {
                             status = "success",
-                            datos = query1
-                        });
+                            datos = query1.Count>0 ? query1 : query2
+                        }); ;
                     }
                     else
                     {
                         return Ok(new
                         {
                             status = "error",
-                            mensaje = "No existe el correo registrado para ningun ministro."
+                            mensaje = "El email no se encontró registrado" +
+                            "o no corresponde al de un Pastor o Encargado de un Sector ni al de un Obispo"
                         });
                     }
                 }

@@ -716,6 +716,9 @@ namespace IECE_WebApi.Controllers
                      vnm.usu_Id_Usuario,
                      vnm.usu_Id_Usuario
                     );
+
+                    SendMailController smc = new SendMailController(context);
+                    smc.AltaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, vnm.usu_Id_Usuario);
                 }                             
 
                 return Ok
