@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using IECE_WebApi.Repositorios;
@@ -2758,6 +2759,50 @@ namespace IECE_WebApi.Controllers
                 }
             }
             catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult CambiarClavePersona()
+        {
+            try
+            {
+                var personas = context.Persona.ToList();
+                int i = 0;
+                string pattern = @"[^AEIOU]";
+                Regex rg = new Regex(pattern);
+                foreach (var per in personas)
+                {
+                    //char[] arrAP = per.per_Apellido_Paterno.ToCharArray();
+                    //char[] arrAPV = rg.Replace(per.per_Apellido_Paterno, "").ToCharArray();
+                    //string ap = arrAP[0] == arrAPV[0] ? arrAP[0].ToString() + arrAPV[1].ToString() : arrAP[0].ToString() + arrAPV[0].ToString();
+                    string ap = per.per_Apellido_Paterno.Substring(0, 2);
+                    string n = per.per_Nombre.Substring(0, 2);
+                    string d = per.per_Fecha_Nacimiento.Day < 10 ? "0" + per.per_Fecha_Nacimiento.Day.ToString() : per.per_Fecha_Nacimiento.Day.ToString();
+                    string m = per.per_Fecha_Nacimiento.Month < 10 ? "0" + per.per_Fecha_Nacimiento.Month.ToString() : per.per_Fecha_Nacimiento.Month.ToString();
+                    string a = per.per_Fecha_Nacimiento.Year.ToString();
+                    string genero = per.per_Categoria == "ADULTO_HOMBRE" || per.per_Categoria == "NIÑO" || per.per_Categoria == "JOVEN_HOMBRE" ? "M" : "F";
+                    string nvaClave = ap + n + genero + d + m + a;
+
+                    per.per_RFC_Sin_Homo = nvaClave;
+                    context.Persona.Update(per);
+                    context.SaveChanges();
+                    context.Entry(per).State = EntityState.Detached;
+                }
+                return Ok(new
+                {
+                    status = "success",
+                });
+            }
+            catch(Exception ex)
             {
                 return Ok(new
                 {
