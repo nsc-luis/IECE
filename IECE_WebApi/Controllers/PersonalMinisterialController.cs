@@ -43,6 +43,15 @@ namespace IECE_WebApi.Controllers
             //public DateTime fecha { get; set; }
         }
 
+        public class infoNvoSecretarioDto
+        {
+            public int pem_Id_Ministro { get; set; }
+            public int dis_Id_Distrito { get; set; }
+            public int idUsuario { get; set; }
+            public string comentario { get; set; }
+            public DateTime fecha { get; set; }
+        }
+
         private DateTime fechayhora = DateTime.UtcNow;
 
         public class PersonaAVincular
@@ -358,6 +367,7 @@ namespace IECE_WebApi.Controllers
                              join pem in context.Personal_Ministerial on s.pem_Id_Secretario equals pem.pem_Id_Ministro
                              where s.sec_Id_Sector == idSector
                              select pem).ToList();
+
                     return Ok(new
                 {
                     status = "success",
@@ -418,6 +428,35 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "success",
                     infoSecretario = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+        // GET api/GetTesoreroByDistrito/idDistrito
+        [Route("[action]/{idDistrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetTesoreroByDistrito(int idDistrito)
+        {
+            try
+            {
+                var query = (from d in context.Distrito
+                             join pem in context.Personal_Ministerial on d.pem_Id_Tesorero equals pem.pem_Id_Ministro
+                             where d.dis_Id_Distrito == idDistrito
+                             select pem).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    infoTesorero = query
                 });
             }
             catch (Exception ex)
@@ -945,6 +984,7 @@ namespace IECE_WebApi.Controllers
                     pem_Cel1 = per.per_Telefono_Movil != null ? per.per_Telefono_Movil : null,
                     pem_email_Personal = per.per_Email_Personal != null ? per.per_Email_Personal : null,
                 };
+
                 context.Personal_Ministerial.Add(pem);
                 context.SaveChanges();
 
@@ -1124,6 +1164,71 @@ namespace IECE_WebApi.Controllers
                         message = ex.Message
                     }
                 );
+            }
+        }
+
+        // POST: api/Personal_Ministerial
+        // ESTABLECE SECRETARIO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetSecretarioDelDistrito([FromBody] infoNvoSecretarioDto info)
+        {
+            try
+            {
+                var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == info.dis_Id_Distrito);
+                distrito.pem_Id_Secretario = info.pem_Id_Ministro;
+                context.Distrito.Update(distrito);
+                context.SaveChanges();
+
+                //Notä: No se grabará el registro historico porque desde Secretaría General lo harán cuando llegue el acta del Cambio de Administración por reglamento.
+                /*{Registro_TransaccionesController registroTransacciones = new Registro_TransaccionesController(context);
+                registroTransacciones.RegistroHistorico(info.pem_Id_Ministro, 0, "DESIGNACIÓN DE CARGO ADMINISTRATIVO", "SECRETARIO", info.comentario, info.fecha, 0, info.idUsuario);*/
+
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        } 
+
+        // POST: api/Personal_Ministerial
+        // ESTABLECE TESORERO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetTesoreroDelDistrito([FromBody] infoNvoSecretarioDto info)
+        {
+            try
+            {
+                var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == info.dis_Id_Distrito);
+                distrito.pem_Id_Tesorero = info.pem_Id_Ministro;
+                context.Distrito.Update(distrito);
+                context.SaveChanges();
+
+                //Falta crear el registro de Transacción de designación de Tesoero de Distrito
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
             }
         }
     }
