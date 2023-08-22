@@ -2604,7 +2604,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var persona = objeto.PersonaEntity;
-                // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA CONTICION PRINCIPAL
+                // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA SABER CONDICION PRINCIPAL
                 var personaBD = context.Persona.FirstOrDefault(per => per.per_Id_Persona == persona.per_Id_Persona);
                 bool registroBautismoBD = personaBD.per_Bautizado;
                 context.Entry(personaBD).State = EntityState.Detached;
@@ -2613,6 +2613,7 @@ namespace IECE_WebApi.Controllers
 
                 //Consulta el Registro Historico del Bautismo, para que si la Edición altera Lugar o Fecha de Bautismo se actualicé tambien el Histórico
                 var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == persona.per_Id_Persona && rh.ct_Codigo_Transaccion == 11001);
+                
                 if (objeto.idSectorBautismo != 0) //Si se eligió un Sector Registrado
                 {
                     idSector = persona.per_Fecha_Bautismo < Fecha_Lanzamiento_App ? objeto.idSectorBautismo : persona.sec_Id_Sector;
@@ -2623,7 +2624,8 @@ namespace IECE_WebApi.Controllers
                 } 
 
                 // ACTUALIZA LUGAR y/o FECHA DE BAUTISMO EN EL REGISTRO HISTORICO CORRESPONDIENTE
-                if ((registroBautismoBD && (idSector != registroHistoricoDeBautismo.sec_Sector_Id)) || (personaBD.per_Fecha_Bautismo != persona.per_Fecha_Bautismo))
+                // SOLO SI ES ACTUALIZACIÓN, Y EN LA EDICIÓN CAMBIO EL SECTOR O LA FECHA DE BAUTISMO
+                if (registroBautismoBD && ((idSector != registroHistoricoDeBautismo.sec_Sector_Id) || (personaBD.per_Fecha_Bautismo != persona.per_Fecha_Bautismo)))
                 {
                     var SectorDistrito = (from s in context.Sector
                                           join d in context.Distrito
