@@ -460,10 +460,15 @@ namespace IECE_WebApi.Controllers
                                {
                                    pm.pem_Nombre,
                                    pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
                                    s.sec_Id_Sector,
                                    s.sec_Alias
                                }).ToList();
                 var tesorero = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == idNvoTesorero);
+
+                string emailDestinatario = usuario[0].pem_emailIECE == "" ? usuario[0].pem_email_Personal : usuario[0].pem_emailIECE;
+                emailDestinatario = emailDestinatario == "" ? "soporte@iece.mx" : emailDestinatario;
 
                 datos datosEnvioCorreo = new datos
                 {
@@ -473,7 +478,7 @@ namespace IECE_WebApi.Controllers
                     password = EMAILPASSWORD,
                     encriptacion = ENCRIPTACION,
                     formato = FORMATO,
-                    destinatario = "soporte@iece.mx",
+                    destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de Tesorero de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
                         $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Tesorero " +
@@ -537,10 +542,15 @@ namespace IECE_WebApi.Controllers
                                {
                                    pm.pem_Nombre,
                                    pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
                                    s.sec_Id_Sector,
                                    s.sec_Alias
                                }).ToList();
                 var secretario = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == idNvoSecretario);
+
+                string emailDestinatario = usuario[0].pem_emailIECE == "" ? usuario[0].pem_email_Personal : usuario[0].pem_emailIECE;
+                emailDestinatario = emailDestinatario == "" ? "soporte@iece.mx" : emailDestinatario;
 
                 datos datosEnvioCorreo = new datos
                 {
@@ -550,7 +560,7 @@ namespace IECE_WebApi.Controllers
                     password = EMAILPASSWORD,
                     encriptacion = ENCRIPTACION,
                     formato = FORMATO,
-                    destinatario = "soporte@iece.mx",
+                    destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de Secretario de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
                         $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Secretario " +
@@ -592,7 +602,6 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-
         // POST /api/AltaDeAuxiliar/{idNvoAuxiliar}/{usu_Id_Usuario}
         [HttpPost]
         [Route("[action]/{idNvoAuxiliar}/{usu_Id_Usuario}")]
@@ -601,7 +610,6 @@ namespace IECE_WebApi.Controllers
             int idNvoAuxiliar,
             int usu_Id_Usuario)
         {
-
             try
             {
                 var usuario = (from mu in context.Ministro_Usuario
@@ -613,6 +621,8 @@ namespace IECE_WebApi.Controllers
                                {
                                    pm.pem_Nombre,
                                    pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
                                    s.sec_Id_Sector,
                                    s.sec_Alias,
                                    d.pem_Id_Obispo
