@@ -16,5 +16,9 @@ namespace IECE_WebApi.Models
         public string nvoEstado { get; set; }
         public DateTime? FechaTransaccionHistorica { get; set; }
         public int idSectorBautismo { get; set; }
+        public int idOficio1 { get; set; }
+        public int idOficio2 { get; set; }
+        
+
     }
 }

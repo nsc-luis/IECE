@@ -40,6 +40,7 @@ namespace IECE_WebApi.Models
         public string per_Apellido_Paterno { get; set; }
         [Display(Name = "Apellido materno")]
         public string per_Apellido_Materno { get; set; }
+        public string per_Nombre_Completo { get; set; }
         [Required]
         [Display(Name = "Fecha nacimiento")]
         [DefaultValue("1900-01-01")]

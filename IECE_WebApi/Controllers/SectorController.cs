@@ -250,5 +250,46 @@ namespace IECE_WebApi.Controllers
                 });
             }
         }
+
+
+        // GET: api/Sector/PorTransaccionBautismo/5
+        [HttpGet]
+        [Route("[action]/{id_Persona}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult PorTransaccionBautismo(int id_Persona)
+        {
+            try
+            {
+                var persona = context.Persona.FirstOrDefault(rh => rh.per_Id_Persona == id_Persona);
+                var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == id_Persona && rh.ct_Codigo_Transaccion == 11001);
+
+                //Si el Alias registrado en el Persona_Lugar_Bautismo coincide con el Alias de algun Sector. Tomará el id de esa Coincidencia como idLugarBautismo, si No, se queda en 0
+                Sector sectorConCoincidenciaDeAlias = context.Sector.FirstOrDefault(sec => sec.sec_Alias == persona.per_Lugar_Bautismo);
+                int idLugarBautismo = 0;          
+                if (sectorConCoincidenciaDeAlias != null && registroHistoricoDeBautismo !=null) 
+                {
+                    Sector sector = context.Sector.FirstOrDefault(sec => sec.sec_Id_Sector == sectorConCoincidenciaDeAlias.sec_Id_Sector);
+                    idLugarBautismo = sector.sec_Id_Sector;
+                }
+                  return Ok(
+                         new
+                         {
+                          status = "success",
+                          sector = idLugarBautismo
+                         });
+ 
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
+            }
+        }
+
+
     }
 }

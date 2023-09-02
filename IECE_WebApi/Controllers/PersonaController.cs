@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using IECE_WebApi.Contexts;
+using IECE_WebApi.Helpers;
 using IECE_WebApi.Models;
 using IECE_WebApi.Repositorios;
 using ImageMagick;
@@ -530,6 +532,7 @@ namespace IECE_WebApi.Controllers
                               p.per_Nombre,
                               p.per_Apellido_Paterno,
                               p.per_Apellido_Materno,
+                              p.per_Nombre_Completo,
                               p.per_Fecha_Nacimiento,
                               edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
                               p.per_RFC_Sin_Homo,
@@ -602,7 +605,7 @@ namespace IECE_WebApi.Controllers
                                   p.per_Apellido_Paterno,
                                   p.per_Apellido_Materno,
                                   p.per_Apellido_Casada,
-                                  apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                                  apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada +"* " + p.per_Apellido_Paterno),
                                   hd.hd_Calle,
                                   hd.hd_Numero_Exterior,
                                   hd.hd_Numero_Interior,
@@ -1993,6 +1996,9 @@ namespace IECE_WebApi.Controllers
                 // DEFINE OBJETO PERSONA
                 Persona persona = new Persona();
                 persona = phe.PersonaEntity;
+                var nombreCompleto = persona.per_Nombre + " " + persona.per_Apellido_Paterno + " " + (persona.per_Apellido_Materno == "" ? "" : persona.per_Apellido_Materno);
+                nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                persona.per_Nombre_Completo = nombreCompleto;
 
                 // ALTA DE PERSONA
                 persona.Fecha_Registro = fechayhora;
@@ -2016,12 +2022,14 @@ namespace IECE_WebApi.Controllers
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime hte_Fecha_Transaccion = DateTime.Now;
+                DateTime Fecha_Lanzamiento_App = new DateTime(2023,6,01);
+
                 if (persona.per_Bautizado)
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte.RegistroHistorico(
                         persona.per_Id_Persona,
-                        phe.idSectorBautismo == 0 ? persona.sec_Id_Sector : phe.idSectorBautismo,
+                        (persona.per_Fecha_Bautismo < Fecha_Lanzamiento_App && phe.idSectorBautismo != 0) ? phe.idSectorBautismo : persona.sec_Id_Sector,
                         ct_Codigo_Transaccion,
                         "",
                         persona.per_Fecha_Bautismo,
@@ -2041,24 +2049,30 @@ namespace IECE_WebApi.Controllers
 
 
                 // ALTA DE NUEVAS PROFESIONES
-                if (persona.pro_Id_Profesion_Oficio1 == 1 && phe.nvaProfesionOficio1 != "")
+                if (phe.idOficio1 == 1 && phe.nvaProfesionOficio1 != "")
                 {
                     var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio1);
                     persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
-
-                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
-                    context.Persona.Update(persona);
-                    context.SaveChanges();
                 }
-                if (persona.pro_Id_Profesion_Oficio2 == 1 && phe.nvaProfesionOficio2 != "")
+                else
+                {
+                    persona.pro_Id_Profesion_Oficio1 = phe.idOficio1;
+                }
+
+
+                if (phe.idOficio2 == 1 && phe.nvaProfesionOficio2 != "")
                 {
                     var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, persona.per_Id_Persona, phe.nvaProfesionOficio2);
                     persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
-
-                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
-                    context.Persona.Update(persona);
-                    context.SaveChanges();
                 }
+                else
+                {
+                    persona.pro_Id_Profesion_Oficio2 = phe.idOficio2;
+                }
+
+                // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
+                context.Persona.Update(persona);
+                context.SaveChanges();
 
                 // GENERA REGISTRO Y CORREO DE NUEVA PROFESION
                 SolicitudNuevaProfesionController snpc = new SolicitudNuevaProfesionController(context);
@@ -2111,26 +2125,28 @@ namespace IECE_WebApi.Controllers
                 context.SaveChanges();
 
                 // ALTA DE NUEVAS PROFESIONES
-                if (p.pro_Id_Profesion_Oficio1 == 1 && pd.nvaProfesionOficio1 != "")
+                if (pd.idOficio1 == 1 && pd.nvaProfesionOficio1 != "")
                 {
                     var idNvaProf1 = AltaDeProfesion(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio1);
                     p.pro_Id_Profesion_Oficio1 = idNvaProf1;
-
-                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
-                    context.Persona.Update(p);
-                    context.SaveChanges();
                 }
-                if (p.pro_Id_Profesion_Oficio2 == 1 && pd.nvaProfesionOficio2 != "")
+                else
+                {
+                    p.pro_Id_Profesion_Oficio1 = pd.idOficio1;
+                }
+                if (pd.idOficio2 == 1 && pd.nvaProfesionOficio2 != "")
                 {
                     var idNvaProf2 = AltaDeProfesion(p.usu_Id_Usuario, p.per_Id_Persona, pd.nvaProfesionOficio2);
                     p.pro_Id_Profesion_Oficio2 = idNvaProf2;
-
-                    // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
-                    context.Persona.Update(p);
-                    context.SaveChanges();
+                }
+                else
+                {
+                    p.pro_Id_Profesion_Oficio2 = pd.idOficio2;
                 }
 
-
+                // SE GRABA EL NUEVO OFICIO EN LA PERSONA DE INFO DE LA PERSONA
+                context.Persona.Update(p);
+                context.SaveChanges();
 
                 // ALTA DE DOMICILIO
                 HogarDomicilio hd = new HogarDomicilio();
@@ -2180,12 +2196,14 @@ namespace IECE_WebApi.Controllers
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
                 int ct_Codigo_Transaccion = 0;
                 DateTime? hte_Fecha_Transaccion = DateTime.Now;
+                DateTime Fecha_Lanzamiento_App = new DateTime(2023, 6, 01);
                 int idSector = 0;
                 if (p.per_Bautizado) //Si la Alta es un Bautismo
                 {
                     ct_Codigo_Transaccion = 11001;
                     hte_Fecha_Transaccion = p.per_Fecha_Bautismo;
-                    idSector = pd.idSectorBautismo == 0 ? p.sec_Id_Sector : pd.idSectorBautismo;
+                    //Selecciona el Sector en base a si Eligió un Sector ya registrado en BBDD y si a era fecha de Antes o Despues del Lanzamiento de la App.
+                    idSector = (p.per_Fecha_Bautismo < Fecha_Lanzamiento_App && pd.idSectorBautismo != 0) ? pd.idSectorBautismo : p.sec_Id_Sector;
                 }
                 else //Si la Alta es un Nuevo Ingreso de un No Bautiado
                 {
@@ -2591,44 +2609,72 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var persona = objeto.PersonaEntity;
-                // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA CONTICION PRINCIPAL
+                // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA SABER CONDICION PRINCIPAL
                 var personaBD = context.Persona.FirstOrDefault(per => per.per_Id_Persona == persona.per_Id_Persona);
                 bool registroBautismoBD = personaBD.per_Bautizado;
                 context.Entry(personaBD).State = EntityState.Detached;
+                DateTime Fecha_Lanzamiento_App = new DateTime(2023, 6, 01);
+                int idSector = 0;
 
-                // ACTUALIZA LUGAR DE BAUTISMO 
-                if (registroBautismoBD && objeto.idSectorBautismo != 0)
+                //Consulta el Registro Historico del Bautismo, para que si la Edición altera Lugar o Fecha de Bautismo se actualicé tambien el Histórico
+                var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == persona.per_Id_Persona && rh.ct_Codigo_Transaccion == 11001);
+                
+                if (objeto.idSectorBautismo != 0) //Si se eligió un Sector Registrado
                 {
-                    var registroHistoricoDeBautismo = context.Historial_Transacciones_Estadisticas.FirstOrDefault(rh => rh.per_Persona_Id == persona.per_Id_Persona && rh.ct_Codigo_Transaccion == 11001);
+                    idSector = persona.per_Fecha_Bautismo < Fecha_Lanzamiento_App ? objeto.idSectorBautismo : persona.sec_Id_Sector;
+                }
+                else //Si se escribió Texto libre en el input de Lugar de Bautismo
+                {
+                    idSector = persona.sec_Id_Sector;
+                } 
+
+                // ACTUALIZA LUGAR y/o FECHA DE BAUTISMO EN EL REGISTRO HISTORICO CORRESPONDIENTE
+                // SOLO SI ES ACTUALIZACIÓN, Y EN LA EDICIÓN CAMBIO EL SECTOR O LA FECHA DE BAUTISMO
+                if (registroBautismoBD && ((idSector != registroHistoricoDeBautismo.sec_Sector_Id) || (personaBD.per_Fecha_Bautismo != persona.per_Fecha_Bautismo)))
+                {
                     var SectorDistrito = (from s in context.Sector
-                                  join d in context.Distrito
-                                  on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                                  where s.sec_Id_Sector == objeto.idSectorBautismo
-                                  select new
-                                  {
-                                      sec_Id_Sector = s.sec_Id_Sector,
-                                      sec_Alias = s.sec_Alias,
-                                      dis_Id_Distrito = s.dis_Id_Distrito,
-                                      dis_Alias = d.dis_Alias
-                                  }).ToList();
+                                          join d in context.Distrito
+                                          on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                          where s.sec_Id_Sector == idSector
+                                          select new
+                                          {
+                                              sec_Id_Sector = s.sec_Id_Sector,
+                                              sec_Alias = s.sec_Alias,
+                                              dis_Id_Distrito = s.dis_Id_Distrito,
+                                              dis_Alias = d.dis_Alias
+                                          }).ToList();
+
                     registroHistoricoDeBautismo.dis_Distrito_Id = SectorDistrito[0].dis_Id_Distrito;
                     registroHistoricoDeBautismo.dis_Distrito_Alias = SectorDistrito[0].dis_Alias;
                     registroHistoricoDeBautismo.sec_Sector_Id = SectorDistrito[0].sec_Id_Sector;
                     registroHistoricoDeBautismo.sec_Sector_Alias = SectorDistrito[0].sec_Alias;
+                    registroHistoricoDeBautismo.hte_Fecha_Transaccion = personaBD.per_Fecha_Bautismo != persona.per_Fecha_Bautismo? persona.per_Fecha_Bautismo: personaBD.per_Fecha_Bautismo;
                     context.Historial_Transacciones_Estadisticas.Update(registroHistoricoDeBautismo);
                     context.SaveChanges();
                 }
 
+                //Si cambia la Fecha de Bautismo
+
                 // ALTA DE NUEVAS PROFESIONES
-                if (persona.pro_Id_Profesion_Oficio1 == 1 && objeto.nvaProfesionOficio1 != "")
+                if (objeto.idOficio1 == 1 && objeto.nvaProfesionOficio1 != "")
                 {
                     var idNvaProf1 = AltaDeProfesion(persona.usu_Id_Usuario, personaBD.per_Id_Persona, objeto.nvaProfesionOficio1);
                     persona.pro_Id_Profesion_Oficio1 = idNvaProf1;
                 }
-                if (persona.pro_Id_Profesion_Oficio2 == 1 && objeto.nvaProfesionOficio2 != "")
+                else
+                {
+                    persona.pro_Id_Profesion_Oficio1 = objeto.idOficio1;
+                }
+
+
+                if (objeto.idOficio2 == 1 && objeto.nvaProfesionOficio2 != "")
                 {
                     var idNvaProf2 = AltaDeProfesion(persona.usu_Id_Usuario, personaBD.per_Id_Persona, objeto.nvaProfesionOficio2);
                     persona.pro_Id_Profesion_Oficio2 = idNvaProf2;
+                }
+                else
+                {
+                    persona.pro_Id_Profesion_Oficio2 = objeto.idOficio2;
                 }
 
                 // NUEVA INSTANCIA DEL CONTROLADOR DE Historial de transacciones estadisticas
@@ -2756,6 +2802,93 @@ namespace IECE_WebApi.Controllers
                         mensaje = "No se cargo niguna imagen"
                     });
                 }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult CambiarClavePersona()
+        {
+            try
+            {
+                var personas = context.Persona.ToList();
+                int i = 0;
+                string pattern = @"[^AEIOU]";
+                Regex rg = new Regex(pattern);
+                foreach (var per in personas)
+                {
+                    //char[] arrAP = per.per_Apellido_Paterno.ToCharArray();
+                    //char[] arrAPV = rg.Replace(per.per_Apellido_Paterno, "").ToCharArray();
+                    //string ap = arrAP[0] == arrAPV[0] ? arrAP[0].ToString() + arrAPV[1].ToString() : arrAP[0].ToString() + arrAPV[0].ToString();
+                    string ap = per.per_Apellido_Paterno.Substring(0, 2);
+                    string n = per.per_Nombre.Substring(0, 2);
+                    string d = per.per_Fecha_Nacimiento.Day < 10 ? "0" + per.per_Fecha_Nacimiento.Day.ToString() : per.per_Fecha_Nacimiento.Day.ToString();
+                    string m = per.per_Fecha_Nacimiento.Month < 10 ? "0" + per.per_Fecha_Nacimiento.Month.ToString() : per.per_Fecha_Nacimiento.Month.ToString();
+                    string a = per.per_Fecha_Nacimiento.Year.ToString();
+                    string genero = per.per_Categoria == "ADULTO_HOMBRE" || per.per_Categoria == "NIÑO" || per.per_Categoria == "JOVEN_HOMBRE" ? "M" : "F";
+                    string nvaClave = ap + n + genero + d + m + a;
+
+                    per.per_RFC_Sin_Homo = nvaClave;
+                    context.Persona.Update(per);
+                    context.SaveChanges();
+                    context.Entry(per).State = EntityState.Detached;
+                }
+                return Ok(new
+                {
+                    status = "success",
+                });
+            }
+            catch(Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GenerarNombreCompleto()
+        {
+            try
+            {
+                // Obtiene listado de personas
+                var personas = (from p in context.Persona select p).ToList();
+
+                // A cada persona le los acentos en nombre y apellidos y
+                // guarda el nombre completo en el campo per_Nombre_Completo
+                foreach(var p  in personas)
+                {
+                    var nombre = ManejoDeApostrofes.QuitarApostrofe2(p.per_Nombre);
+                    var apellidoPaterno = ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Paterno);
+                    var apellidoMaterno = p.per_Apellido_Materno != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Materno) : "";
+                    var apellidoCasada = p.per_Apellido_Casada != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Casada) : "";
+
+                    // Genera nombre completo
+                    p.per_Nombre_Completo = $"{nombre} {apellidoPaterno} {apellidoMaterno} {apellidoCasada}";
+
+                    // Guarda cambios
+                    context.Persona.Update(p);
+                    context.SaveChanges();
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    personas
+                });
             }
             catch (Exception ex)
             {
