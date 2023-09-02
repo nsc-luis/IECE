@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using IECE_WebApi.Contexts;
+using IECE_WebApi.Helpers;
 using IECE_WebApi.Models;
 using IECE_WebApi.Repositorios;
 using ImageMagick;
@@ -531,6 +532,7 @@ namespace IECE_WebApi.Controllers
                               p.per_Nombre,
                               p.per_Apellido_Paterno,
                               p.per_Apellido_Materno,
+                              p.per_Nombre_Completo,
                               p.per_Fecha_Nacimiento,
                               edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
                               p.per_RFC_Sin_Homo,
@@ -1994,6 +1996,9 @@ namespace IECE_WebApi.Controllers
                 // DEFINE OBJETO PERSONA
                 Persona persona = new Persona();
                 persona = phe.PersonaEntity;
+                var nombreCompleto = persona.per_Nombre + " " + persona.per_Apellido_Paterno + " " + (persona.per_Apellido_Materno == "" ? "" : persona.per_Apellido_Materno);
+                nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                persona.per_Nombre_Completo = nombreCompleto;
 
                 // ALTA DE PERSONA
                 persona.Fecha_Registro = fechayhora;
@@ -2843,6 +2848,49 @@ namespace IECE_WebApi.Controllers
                 });
             }
             catch(Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GenerarNombreCompleto()
+        {
+            try
+            {
+                // Obtiene listado de personas
+                var personas = (from p in context.Persona select p).ToList();
+
+                // A cada persona le los acentos en nombre y apellidos y
+                // guarda el nombre completo en el campo per_Nombre_Completo
+                foreach(var p  in personas)
+                {
+                    var nombre = ManejoDeApostrofes.QuitarApostrofe2(p.per_Nombre);
+                    var apellidoPaterno = ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Paterno);
+                    var apellidoMaterno = p.per_Apellido_Materno != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Materno) : "";
+                    var apellidoCasada = p.per_Apellido_Casada != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Casada) : "";
+
+                    // Genera nombre completo
+                    p.per_Nombre_Completo = $"{nombre} {apellidoPaterno} {apellidoMaterno} {apellidoCasada}";
+
+                    // Guarda cambios
+                    context.Persona.Update(p);
+                    context.SaveChanges();
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    personas
+                });
+            }
+            catch (Exception ex)
             {
                 return Ok(new
                 {

@@ -26,6 +26,6 @@
     <Folder Include="Temp\" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="https://hazelcast.com/schema/config/hazelcast-config-5.0.json" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
