@@ -2120,6 +2120,10 @@ namespace IECE_WebApi.Controllers
                 Persona p = new Persona();
                 p = pd.PersonaEntity;
 
+                var nombreCompleto = p.per_Nombre + " " + p.per_Apellido_Paterno + " " + (p.per_Apellido_Materno == "" ? "" : p.per_Apellido_Materno);
+                nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                p.per_Nombre_Completo = nombreCompleto;
+
                 p.Fecha_Registro = fechayhora;
                 context.Persona.Add(p);
                 context.SaveChanges();
