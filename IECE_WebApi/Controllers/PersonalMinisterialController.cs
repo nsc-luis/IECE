@@ -933,35 +933,39 @@ namespace IECE_WebApi.Controllers
         }
 
         
+        //NOTA: Se usaba para consultar el personal ministerial candidatos a Secretario o Tesorero de Sector, pero se usa otro API actualmente.
+        
+        //// GET: api/PersonalMinisterial
+        //// Personal administrativo por Sector
+        //[Route("[action]/{sec_Id_Sector}")]
+        //[HttpGet]
+        //[EnableCors("AllowOrigin")]
+        //public IActionResult GetPersonalAdministrativoBySector(int sec_Id_Sector)
+        //{
+        //    try
+        //    {
+        //        var administrativo = (from a in context.Personal_Ministerial
+        //                          where a.sec_Id_Congregacion == sec_Id_Sector
+        //                          && a.pem_Activo
+        //                          select a).ToList();
+        //        return Ok(new
+        //        {
+        //            status = "success",
+        //            administrativo = administrativo
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new
+        //        {
+        //            status = "error",
+        //            mensaje = ex.Message
+        //        });
+        //    }
+        //}
 
-        // GET: api/PersonalMinisterial
-        // Personal administrativo por Sector
-        [Route("[action]/{sec_Id_Sector}")]
-        [HttpGet]
-        [EnableCors("AllowOrigin")]
-        public IActionResult GetPersonalAdministrativoBySector(int sec_Id_Sector)
-        {
-            try
-            {
-                var administrativo = (from a in context.Personal_Ministerial
-                                  where a.sec_Id_Congregacion == sec_Id_Sector
-                                  && a.pem_Activo
-                                  select a).ToList();
-                return Ok(new
-                {
-                    status = "success",
-                    administrativo = administrativo
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    status = "error",
-                    mensaje = ex.Message
-                });
-            }
-        }
+
+
 
         // POST: api/Personal_Ministerial
         // ALTA DE AUXILIAR EN EL SECTOR
@@ -1181,7 +1185,7 @@ namespace IECE_WebApi.Controllers
                 context.Distrito.Update(distrito);
                 context.SaveChanges();
 
-                //Notä: No se grabará el registro historico porque desde Secretaría General lo harán cuando llegue el acta del Cambio de Administración por reglamento.
+                //Nota: No se grabará el registro historico porque desde Secretaría General lo harán cuando llegue el acta del Cambio de Administración por reglamento.
                 /*{Registro_TransaccionesController registroTransacciones = new Registro_TransaccionesController(context);
                 registroTransacciones.RegistroHistorico(info.pem_Id_Ministro, 0, "DESIGNACIÓN DE CARGO ADMINISTRATIVO", "SECRETARIO", info.comentario, info.fecha, 0, info.idUsuario);*/
 
