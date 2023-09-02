@@ -40,9 +40,5 @@ namespace IECE_WebApi.Contexts
         public DbSet<SolicitudNvoEstado> SolicitudNvoEstado { get; set; }
         public DbSet<PersonaHogarExistente> PersonaHogarExistente { get; set; }
         public DbSet<Registro_Transacciones> Registro_Transacciones { get; set; }
-        public DbSet<Comisiones_Integrantes> Comisiones_Integrantes { get; set; }
-        public DbSet<Comisiones> Comisiones { get; set; }
-        public DbSet<Agrupaciones_Musicales> Agrupaciones_Musicales { get; set; }
-        public DbSet<Sociedades> Sociedades { get; set; }
     }
 }
