@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
 using DocumentFormat.OpenXml.EMMA;
-
+using System.Linq.Expressions;
 
 namespace IECE_WebApi.Controllers
 {
@@ -997,9 +997,9 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        
+
         //NOTA: Se usaba para consultar el personal ministerial candidatos a Secretario o Tesorero de Sector, pero se usa otro API actualmente.
-        
+
         //// GET: api/PersonalMinisterial
         //// Personal administrativo por Sector
         //[Route("[action]/{sec_Id_Sector}")]
@@ -1029,8 +1029,48 @@ namespace IECE_WebApi.Controllers
         //    }
         //}
 
+        //POST: api/Personal_Ministerial/removerAsignacionDeAdministracion/{idSector}/{puesto}
+        [Route("[action]/{idSector}/{puesto}")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult removerAsignacionDeAdministracion(int idSector, string puesto)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == idSector);
+                switch(puesto)
+                {
+                    case "Secretario":
+                        sector.pem_Id_Secretario = null;
+                        break;
+                    case "SubSecretario":
+                        sector.pem_Id_SubSecretario = null;
+                        break;
+                    case "Tesorero":
+                        sector.pem_Id_Tesorero = null;
+                        break;
+                    case "SubTesorero":
+                        sector.pem_Id_SubTesorero = null;
+                        break;
+                }
 
+                context.Sector.Update(sector);
+                context.SaveChanges();
 
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
 
         // POST: api/Personal_Ministerial
         // ALTA DE AUXILIAR EN EL SECTOR
