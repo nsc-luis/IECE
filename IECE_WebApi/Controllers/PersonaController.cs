@@ -2616,6 +2616,9 @@ namespace IECE_WebApi.Controllers
                 // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA SABER CONDICION PRINCIPAL
                 var personaBD = context.Persona.FirstOrDefault(per => per.per_Id_Persona == persona.per_Id_Persona);
                 bool registroBautismoBD = personaBD.per_Bautizado;
+                var nombreCompleto = personaBD.per_Nombre + " " + personaBD.per_Apellido_Paterno + " " + (personaBD.per_Apellido_Materno == "" ? "" : personaBD.per_Apellido_Materno);
+                nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                personaBD.per_Nombre_Completo = nombreCompleto;
                 context.Entry(personaBD).State = EntityState.Detached;
                 DateTime Fecha_Lanzamiento_App = new DateTime(2023, 6, 01);
                 int idSector = 0;
@@ -2878,10 +2881,11 @@ namespace IECE_WebApi.Controllers
                     var nombre = ManejoDeApostrofes.QuitarApostrofe2(p.per_Nombre);
                     var apellidoPaterno = ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Paterno);
                     var apellidoMaterno = p.per_Apellido_Materno != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Materno) : "";
-                    var apellidoCasada = p.per_Apellido_Casada != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Casada) : "";
+                    var apellidoCasada = p.per_Apellido_Casada != null && p.per_Apellido_Casada != "" ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Casada) : "";
+                    var apellidoPrincipal = (apellidoCasada != null && apellidoCasada != "") ? (apellidoCasada + " " + apellidoPaterno) : apellidoPaterno;
 
                     // Genera nombre completo
-                    p.per_Nombre_Completo = $"{nombre} {apellidoPaterno} {apellidoMaterno} {apellidoCasada}";
+                    p.per_Nombre_Completo = $"{nombre} {apellidoPrincipal} {apellidoMaterno}";
 
                     // Guarda cambios
                     context.Persona.Update(p);

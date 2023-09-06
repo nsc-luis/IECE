@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
+using DocumentFormat.OpenXml.EMMA;
 
 
 namespace IECE_WebApi.Controllers
@@ -52,6 +53,13 @@ namespace IECE_WebApi.Controllers
             public DateTime fecha { get; set; }
         }
 
+        public class infoNuevaAsignacion {
+            public int pem_Id_Ministro { get; set; }
+            public int sec_Id_Sector { get; set; }
+            public int idUsuario { get; set; }
+            public string puesto { get; set; }
+        }
+
         private DateTime fechayhora = DateTime.UtcNow;
 
         public class PersonaAVincular
@@ -74,6 +82,13 @@ namespace IECE_WebApi.Controllers
             public string causaDeBaja { get; set; }
 
             public DateTime fechaTransaccion { get; set; }
+        }
+
+        private class PersonalAdministrativo
+        {
+            public int id { get; set; }
+            public string puesto { get; set; }
+            public object personalMinisterial { get; set; }
         }
 
         // GET: api/Personal_Ministerial
@@ -384,7 +399,7 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET api/GetSecretarioBySector/idSector
+        // GET api/GetTesoreroBySector/idSector
         [Route("[action]/{idSector}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -400,6 +415,56 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "success",
                     infoTesorero = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET api/GetPersonalAdministrativoBySector/idSector
+        [Route("[action]/{idSector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalAdministrativoBySector(int idSector)
+        {
+            try
+            {
+                var secretario = (from s in context.Sector
+                                  join pem in context.Personal_Ministerial on s.pem_Id_Secretario equals pem.pem_Id_Ministro
+                                  where s.sec_Id_Sector == idSector
+                                  select pem).ToList();
+
+                var subSecretario = (from s in context.Sector
+                                     join pem in context.Personal_Ministerial on s.pem_Id_SubSecretario equals pem.pem_Id_Ministro
+                                     where s.sec_Id_Sector == idSector
+                                     select pem).ToList();
+
+                var tesorero = (from s in context.Sector
+                                join pem in context.Personal_Ministerial on s.pem_Id_Tesorero equals pem.pem_Id_Ministro
+                                where s.sec_Id_Sector == idSector
+                                select pem).ToList();
+
+                var subTesorero = (from s in context.Sector
+                                   join pem in context.Personal_Ministerial on s.pem_Id_SubTesorero equals pem.pem_Id_Ministro
+                                   where s.sec_Id_Sector == idSector
+                                   select pem).ToList();
+
+                List<PersonalAdministrativo> personalAdministrativo = new List<PersonalAdministrativo>();
+                personalAdministrativo.Add( new PersonalAdministrativo{ id = 1, puesto = "Secretario", personalMinisterial = secretario });
+                personalAdministrativo.Add(new PersonalAdministrativo { id = 2, puesto = "SubSecretario", personalMinisterial = subSecretario });
+                personalAdministrativo.Add(new PersonalAdministrativo { id = 3, puesto = "Tesorero", personalMinisterial = tesorero });
+                personalAdministrativo.Add(new PersonalAdministrativo { id = 4, puesto = "SubTesorero", personalMinisterial = subTesorero });
+
+                return Ok(new
+                {
+                    status = "success",
+                    personalAdministrativo = personalAdministrativo
                 });
             }
             catch (Exception ex)
@@ -1056,6 +1121,51 @@ namespace IECE_WebApi.Controllers
 
                 SendMailController smc = new SendMailController(context);
                 smc.CambioDeTesorero(info.pem_Id_Ministro, info.idUsuario);
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST api/GetPersonalAdministrativoBySector
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetPersonalAdministrativoBySector(infoNuevaAsignacion info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                switch (info.puesto)
+                {
+                    case "secretario":
+                        sector.pem_Id_Secretario = info.pem_Id_Ministro;
+                        break;
+                    case "subSecretario":
+                        sector.pem_Id_SubSecretario = info.pem_Id_Ministro;
+                        break;
+                    case "tesorero":
+                        sector.pem_Id_Tesorero = info.pem_Id_Ministro;
+                        break;
+                    case "subTesorero":
+                        sector.pem_Id_SubTesorero = info.pem_Id_Ministro;
+                        break;
+                }
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDePersonalAdministrativo(info.pem_Id_Ministro, info.puesto, info.idUsuario);
 
                 return Ok(new
                 {
