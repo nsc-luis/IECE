@@ -683,6 +683,9 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+
+
+
         // GET: api/Persona/GetBautizadosBySector/sec_Id_Sector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
@@ -783,6 +786,54 @@ namespace IECE_WebApi.Controllers
                              //     where hte.ct_Codigo_Transaccion == 11101
                              //     || (hte.ct_Codigo_Transaccion == 11102 || hte.ct_Codigo_Transaccion == 11103)
                              //     select hte.per_Persona_Id).Contains(p.per_Id_Persona)
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Activo,
+                                 p.per_En_Comunion,
+                                 p.per_Vivo,
+                                 p.per_Visibilidad_Abierta,
+                                 p.sec_Id_Sector,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Apellido_Casada,
+                                 apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                                 p.per_Bautizado
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    personas = query
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+
+        // GET: api/Persona/GetBautizadosComunionVivoBySector/dis_Id_Distrito
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetBautizadosComunionVivoByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                var query = (from p in context.Persona
+                             join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                             join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito                             
+                             where d.dis_Id_Distrito == dis_Id_Distrito
+                             && p.per_Bautizado == true
+                             && p.per_En_Comunion == true
+                             && p.per_Vivo == true
                              select new
                              {
                                  p.per_Id_Persona,
@@ -2878,10 +2929,10 @@ namespace IECE_WebApi.Controllers
                     var nombre = ManejoDeApostrofes.QuitarApostrofe2(p.per_Nombre);
                     var apellidoPaterno = ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Paterno);
                     var apellidoMaterno = p.per_Apellido_Materno != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Materno) : "";
-                    var apellidoCasada = p.per_Apellido_Casada != null ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Casada) : "";
-
+                    var apellidoCasada = p.per_Apellido_Casada != null && p.per_Apellido_Casada != "" ? ManejoDeApostrofes.QuitarApostrofe2(p.per_Apellido_Casada) + "*" : "";
+                    var apellidoPrincipal = (apellidoCasada != null && apellidoCasada != "") ? (apellidoCasada + " " + apellidoPaterno) : apellidoPaterno;
                     // Genera nombre completo
-                    p.per_Nombre_Completo = $"{nombre} {apellidoPaterno} {apellidoMaterno} {apellidoCasada}";
+                    p.per_Nombre_Completo = $"{nombre} {apellidoPrincipal} {apellidoMaterno} ";
 
                     // Guarda cambios
                     context.Persona.Update(p);
