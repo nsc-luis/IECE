@@ -13,65 +13,57 @@ namespace IECE_WebApi.Controllers
 {
 
     //Modelo
-    public class Integrantes_Comisiones_Local
+    public class Integrantes_Comisiones_Distrital
     {
         public string Comision { get; set; }
         public int Comision_Id { get; set; }
         public List<Integrantes> Integrantes { get; set; }
     }
 
-    public class Integrantes
-    {
-        public int Integrante_Comision_Id { get; set; }
-        public string Comision { get; set; }
-        public string Integrante { get; set; }
-        public int Jerarquia { get; set; }
-    }
-
 
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("AllowOrigin")]
-    public class Integrante_Comision_LocalController : ControllerBase
+    public class Integrante_Comision_DistritalController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public Integrante_Comision_LocalController(AppDbContext context)
+        public Integrante_Comision_DistritalController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Integrante_Comision_Local
+        // GET: api/Integrante_Comision_Distrital
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Integrante_Comision_Local>>> GetIntegrante_Comision_Local()
+        public async Task<ActionResult<IEnumerable<Integrante_Comision_Distrital>>> GetIntegrante_Comision_Distrital()
         {
-            return await _context.Integrante_Comision_Local.ToListAsync();
+            return await _context.Integrante_Comision_Distrital.ToListAsync();
         }
 
-        // GET: api/Integrante_Comision_Local/5
+        // GET: api/Integrante_Comision_Distrital/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Integrante_Comision_Local>> GetIntegrante_Comision_Local(int id)
+        public async Task<ActionResult<Integrante_Comision_Distrital>> GetIntegrante_Comision_Distrital(int id)
         {
-            var integrante_Comision_Local = await _context.Integrante_Comision_Local.FindAsync(id);
+            var integrante_Comision_Distrital = await _context.Integrante_Comision_Distrital.FindAsync(id);
 
-            if (integrante_Comision_Local == null)
+            if (integrante_Comision_Distrital == null)
             {
                 return NotFound();
             }
 
-            return integrante_Comision_Local;
+            return integrante_Comision_Distrital;
         }
 
-        // PUT: api/Integrante_Comision_Local/5
+        // PUT: api/Integrante_Comision_Distrital/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutIntegrante_Comision_Local(int id, Integrante_Comision_Local integrante_Comision_Local)
+        public async Task<IActionResult> PutIntegrante_Comision_Distrital(int id, Integrante_Comision_Distrital integrante_Comision_Distrital)
         {
-            if (id != integrante_Comision_Local.Id_Integrante_Comision)
+            if (id != integrante_Comision_Distrital.Id_Integrante_Comision)
             {
                 return BadRequest();
             }
 
-            _context.Entry(integrante_Comision_Local).State = EntityState.Modified;
+            _context.Entry(integrante_Comision_Distrital).State = EntityState.Modified;
 
             try
             {
@@ -79,7 +71,7 @@ namespace IECE_WebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!Integrante_Comision_LocalExists(id))
+                if (!Integrante_Comision_DistritalExists(id))
                 {
                     return NotFound();
                 }
@@ -92,17 +84,17 @@ namespace IECE_WebApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Integrante_Comision_Local
+        // POST: api/Integrante_Comision_Distrital
         [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
-        public IActionResult PostIntegrante_Comision_Local(Integrante_Comision_Local integrante_Comision_Local)
+        public IActionResult PostIntegrante_Comision_Distrital(Integrante_Comision_Distrital integrante_Comision_Distrital)
         {
-            Integrante_Comision_Local NuevoIntegrante = integrante_Comision_Local;
+            Integrante_Comision_Distrital NuevoIntegrante = integrante_Comision_Distrital;
 
             //Verifica si debe mover las Jerarquías
-            var Integrantes = (from icl in _context.Integrante_Comision_Local
-                               where icl.Sector_Id == integrante_Comision_Local.Sector_Id && icl.Comision_Id == integrante_Comision_Local.Comision_Id && icl.Activo == true
+            var Integrantes = (from icl in _context.Integrante_Comision_Distrital
+                               where icl.Distrito_Id == integrante_Comision_Distrital.Distrito_Id && icl.Comision_Id == integrante_Comision_Distrital.Comision_Id && icl.Activo == true
                                orderby icl.Jerarquia_Integrante
                                select icl).ToList();
 
@@ -110,7 +102,7 @@ namespace IECE_WebApi.Controllers
             {
                 foreach (var integrante in Integrantes)
                 {
-                    if (integrante_Comision_Local.Jerarquia_Integrante <= integrante.Jerarquia_Integrante)
+                    if (integrante_Comision_Distrital.Jerarquia_Integrante <= integrante.Jerarquia_Integrante)
                     {
 
                         integrante.Jerarquia_Integrante = integrante.Jerarquia_Integrante + 1;
@@ -122,9 +114,9 @@ namespace IECE_WebApi.Controllers
 
             try
             {
-                _context.Integrante_Comision_Local.Add(NuevoIntegrante);
+                _context.Integrante_Comision_Distrital.Add(NuevoIntegrante);
                  _context.SaveChanges();
-                //return CreatedAtAction("GetIntegrante_Comision_Local", new { id = integrante_Comision_Local.Id_Integrante_Comision }, integrante_Comision_Local);
+                //return CreatedAtAction("GetIntegrante_Comision_Distrital", new { id = integrante_Comision_Distrital.Id_Integrante_Comision }, integrante_Comision_Distrital);
                              
                 return Ok(new
                 {
@@ -146,55 +138,55 @@ namespace IECE_WebApi.Controllers
 
         }
 
-        // DELETE: api/Integrante_Comision_Local/5
+        // DELETE: api/Integrante_Comision_Distrital/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Integrante_Comision_Local>> DeleteIntegrante_Comision_Local(int id)
+        public async Task<ActionResult<Integrante_Comision_Distrital>> DeleteIntegrante_Comision_Distrital(int id)
         {
-            var integrante_Comision_Local = await _context.Integrante_Comision_Local.FindAsync(id);
-            if (integrante_Comision_Local == null)
+            var integrante_Comision_Distrital = await _context.Integrante_Comision_Distrital.FindAsync(id);
+            if (integrante_Comision_Distrital == null)
             {
                 return NotFound();
             }
 
-            _context.Integrante_Comision_Local.Remove(integrante_Comision_Local);
+            _context.Integrante_Comision_Distrital.Remove(integrante_Comision_Distrital);
             await _context.SaveChangesAsync();
 
-            return integrante_Comision_Local;
+            return integrante_Comision_Distrital;
         }
 
-        private bool Integrante_Comision_LocalExists(int id)
+        private bool Integrante_Comision_DistritalExists(int id)
         {
-            return _context.Integrante_Comision_Local.Any(e => e.Id_Integrante_Comision == id);
+            return _context.Integrante_Comision_Distrital.Any(e => e.Id_Integrante_Comision == id);
         }
 
-        // GET: api/Integrante_Comision_Local/GetComisionesBySector/{sector_Id]
-        // METODO PARA OBTENER Integrantes de Comisiones By Sector
-        [Route("[action]/{sector_Id}")]
+        // GET: api/Integrante_Comision_Distrital/GetComisionesByDistrito/{Distrito_Id]
+        // METODO PARA OBTENER Integrantes de Comisiones By Distrito
+        [Route("[action]/{Distrito_Id}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetComisionesBySector(int sector_Id)
+        public IActionResult GetComisionesByDistrito(int Distrito_Id)
         {
-            List<Integrantes_Comisiones_Local> integrantes = new List<Integrantes_Comisiones_Local> { };
+            List<Integrantes_Comisiones_Distrital> integrantes = new List<Integrantes_Comisiones_Distrital> { };
             try
             {
-                var comisionesLocales = (from cl in _context.Comision_Local
+                var comisionesDistritales = (from cl in _context.Comision_Distrital
                                         select new
                                         {
-                                            ComisionId = cl.ComisionLocal_Id,
+                                            ComisionId = cl.ComisionDistrital_Id,
                                             ComisionNombre = cl.Nombre
                                         }).ToList();
 
-                foreach (var cl in comisionesLocales)
+                foreach (var cl in comisionesDistritales)
                 {
-                    var integrantes_comisiones = new Integrantes_Comisiones_Local
+                    var integrantes_comisiones = new Integrantes_Comisiones_Distrital
                     {
                         Comision = cl.ComisionNombre,
                         Comision_Id = cl.ComisionId,
-                        Integrantes = (from icl in _context.Integrante_Comision_Local
-                                       join s in _context.Sector on icl.Sector_Id equals s.sec_Id_Sector
-                                       join c in _context.Comision_Local on icl.Comision_Id equals c.ComisionLocal_Id
+                        Integrantes = (from icl in _context.Integrante_Comision_Distrital
+                                       join d in _context.Distrito on icl.Distrito_Id equals d.dis_Id_Distrito
+                                       join c in _context.Comision_Distrital on icl.Comision_Id equals c.ComisionDistrital_Id
                                        join p in _context.Persona on icl.Integrante_Id equals p.per_Id_Persona
-                                       where s.sec_Id_Sector == sector_Id && c.ComisionLocal_Id == cl.ComisionId && icl.Activo == true
+                                       where d.dis_Id_Distrito == Distrito_Id && c.ComisionDistrital_Id == cl.ComisionId && icl.Activo == true
                                        orderby icl.Jerarquia_Integrante
                                        select new Integrantes
                                        {
@@ -231,8 +223,8 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // GET: api/Integrante_Comision_Local/BajaDeIntegranteComision/{Intgrante_Comision_id]
-        // METODO PARA DAR DE BAJA Integrantes de Comisiones en el Sector
+        // GET: api/Integrante_Comision_Distrital/BajaDeIntegranteComision/{Intgrante_Comision_id]
+        // METODO PARA DAR DE BAJA Integrantes de Comisiones en el Distrito
         [Route("[action]/{Intgrante_Comision_id}")]
         [HttpPut]
         [EnableCors("AllowOrigin")]
@@ -240,7 +232,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                var integrante_comision = _context.Integrante_Comision_Local.FirstOrDefault(icl => icl.Id_Integrante_Comision == Intgrante_Comision_id);
+                var integrante_comision = _context.Integrante_Comision_Distrital.FirstOrDefault(icl => icl.Id_Integrante_Comision == Intgrante_Comision_id);
 
                 if (integrante_comision == null)
                 {
@@ -249,8 +241,8 @@ namespace IECE_WebApi.Controllers
                 else
                 {
                     //Verifica si debe mover las Jerarquías
-                    var Integrantes = (from icl in _context.Integrante_Comision_Local
-                                       where icl.Sector_Id == integrante_comision.Sector_Id 
+                    var Integrantes = (from icl in _context.Integrante_Comision_Distrital
+                                       where icl.Distrito_Id == integrante_comision.Distrito_Id 
                                        && icl.Comision_Id == integrante_comision.Comision_Id 
                                        && icl.Activo == true 
                                        && icl.Id_Integrante_Comision != integrante_comision.Id_Integrante_Comision

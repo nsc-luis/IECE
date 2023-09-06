@@ -855,12 +855,28 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Traerá sólo al Personal Ministerial que tenga vinculado un ID de Persona.
                 var PersonalMinisterial = (from PM in context.Personal_Ministerial
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
                                            where D.dis_Id_Distrito == dis_Id_Distrito && P.per_Activo == true
-                                           select PM).ToList();
+                                           select new { 
+                                           pem_Id_Ministro = PM.pem_Id_Ministro,
+                                           pem_Nombre = PM.pem_Nombre,
+                                           pem_Grado_Ministerial = PM.pem_Grado_Ministerial,
+                                           per_Id_Persona = P.per_Id_Persona,
+                                           per_Activo=   P.per_Activo,
+                                           per_En_Comunion = P.per_En_Comunion,
+                                           per_Vivo= P.per_Vivo,
+                                           sec_Id_Sector = P.sec_Id_Sector,
+                                           per_Nombre = P.per_Nombre,
+                                           per_Apellido_Paterno = P.per_Apellido_Paterno,
+                                           per_Apellido_Materno = P.per_Apellido_Materno,
+                                           per_Apellido_Casada=P.per_Apellido_Casada,
+                                           apellidoPrincipal = (P.per_Apellido_Casada == "" || P.per_Apellido_Casada == null) ? P.per_Apellido_Paterno : (P.per_Apellido_Casada + "* " + P.per_Apellido_Paterno),
+                                           per_Bautizado = P.per_Bautizado
+                                           }).ToList();
                 return Ok(new
                 {
                     status = "success",

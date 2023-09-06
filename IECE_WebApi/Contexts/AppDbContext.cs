@@ -42,5 +42,8 @@ namespace IECE_WebApi.Contexts
         public DbSet<Registro_Transacciones> Registro_Transacciones { get; set; }
         public DbSet<Comision_Local> Comision_Local { get; set; }
         public DbSet<Integrante_Comision_Local> Integrante_Comision_Local { get; set; }
+
+        public DbSet<Comision_Distrital> Comision_Distrital { get; set; }
+        public DbSet<Integrante_Comision_Distrital> Integrante_Comision_Distrital { get; set; }
     }
 }
