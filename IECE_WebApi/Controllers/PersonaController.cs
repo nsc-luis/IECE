@@ -2047,7 +2047,12 @@ namespace IECE_WebApi.Controllers
                 // DEFINE OBJETO PERSONA
                 Persona persona = new Persona();
                 persona = phe.PersonaEntity;
-                var nombreCompleto = persona.per_Nombre + " " + persona.per_Apellido_Paterno + " " + (persona.per_Apellido_Materno == "" ? "" : persona.per_Apellido_Materno);
+                
+                //Genera el dato del Nombre Completo sin Acentos para fines de búsqueda
+                var apellidoCasada = persona.per_Apellido_Casada != null && persona.per_Apellido_Casada != "" ? persona.per_Apellido_Casada + "*" : "";
+                var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + persona.per_Apellido_Paterno) : persona.per_Apellido_Paterno;
+                var apellidoMaterno = persona.per_Apellido_Materno != null ? persona.per_Apellido_Materno : "";
+                var nombreCompleto = persona.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;                
                 nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
                 persona.per_Nombre_Completo = nombreCompleto;
 
@@ -2171,9 +2176,15 @@ namespace IECE_WebApi.Controllers
                 Persona p = new Persona();
                 p = pd.PersonaEntity;
 
-                var nombreCompleto = p.per_Nombre + " " + p.per_Apellido_Paterno + " " + (p.per_Apellido_Materno == "" ? "" : p.per_Apellido_Materno);
+
+                //Genera el dato del Nombre Completo sin Acentos para fines de búsqueda
+                var apellidoCasada = p.per_Apellido_Casada != null && p.per_Apellido_Casada != "" ? p.per_Apellido_Casada + "*" : "";
+                var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + p.per_Apellido_Paterno) : p.per_Apellido_Paterno;
+                var apellidoMaterno = p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "";
+                var nombreCompleto = p.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;
                 nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
                 p.per_Nombre_Completo = nombreCompleto;
+
 
                 p.Fecha_Registro = fechayhora;
                 context.Persona.Add(p);
@@ -2667,6 +2678,16 @@ namespace IECE_WebApi.Controllers
                 // CONSULTA EL ESTADO DEL BAUTISMO DE LA PERSONA PARA SABER CONDICION PRINCIPAL
                 var personaBD = context.Persona.FirstOrDefault(per => per.per_Id_Persona == persona.per_Id_Persona);
                 bool registroBautismoBD = personaBD.per_Bautizado;
+
+                //Se genera el nuevo campo de Nombre Completo Sin Acentos que sirve para hacer búsquedas
+                var apellidoCasada = persona.per_Apellido_Casada != null && persona.per_Apellido_Casada != "" ? persona.per_Apellido_Casada + "*" : "";
+                var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + persona.per_Apellido_Paterno) : persona.per_Apellido_Paterno;
+                var apellidoMaterno = persona.per_Apellido_Materno != null ? persona.per_Apellido_Materno : "";
+                var nombreCompleto = persona.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;
+                nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                persona.per_Nombre_Completo = nombreCompleto;
+
+
                 context.Entry(personaBD).State = EntityState.Detached;
                 DateTime Fecha_Lanzamiento_App = new DateTime(2023, 6, 01);
                 int idSector = 0;
