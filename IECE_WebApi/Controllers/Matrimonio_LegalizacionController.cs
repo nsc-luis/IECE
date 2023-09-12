@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using IECE_WebApi.Contexts;
+using IECE_WebApi.Helpers;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -728,6 +729,16 @@ namespace IECE_WebApi.Controllers
                         p.per_Estado_Civil = "CASADO(A)";
                         p.per_Categoria = "ADULTO_MUJER";
 
+
+                        //Se genera el campo de per_Nombre_Completo Sin Acentos que sirve para hacer búsquedas
+                        var apellidoCasada = p.per_Apellido_Casada != null && p.per_Apellido_Casada != "" ? p.per_Apellido_Casada + "*" : "";
+                        var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + p.per_Apellido_Paterno) : p.per_Apellido_Paterno;
+                        var apellidoMaterno = p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "";
+                        var nombreCompleto = p.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;
+                        nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                        p.per_Nombre_Completo = nombreCompleto;
+
+
                         context.SaveChanges();
                         hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 11201, "POR " + matLegal.mat_Tipo_Enlace, matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);
                     }
@@ -976,6 +987,14 @@ namespace IECE_WebApi.Controllers
                         p.per_Lugar_Boda_Eclesiastica = matLegalDom.sectorAlias;
                         p.per_Apellido_Casada = matLegal.mat_Apellido_Casada;
                         p.per_Estado_Civil = "CASADO(A)";
+
+                        //Se genera el campo de per_Nombre_Completo Sin Acentos que sirve para hacer búsquedas
+                        var apellidoCasada = p.per_Apellido_Casada != null && p.per_Apellido_Casada != "" ? p.per_Apellido_Casada + "*" : "";
+                        var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + p.per_Apellido_Paterno) : p.per_Apellido_Paterno;
+                        var apellidoMaterno = p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "";
+                        var nombreCompleto = p.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;
+                        nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
+                        p.per_Nombre_Completo = nombreCompleto;
 
                         context.SaveChanges();
                         hte.RegistroHistorico(perMujer[0].per_Id_Persona, perMujer[0].sec_Id_Sector, 11201, "POR " + matLegal.mat_Tipo_Enlace, matLegal.mat_Fecha_Boda_Eclesiastica, matLegal.usu_Id_Usuario);

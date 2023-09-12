@@ -390,7 +390,7 @@ namespace IECE_WebApi.Controllers
                         destinatario = "soporte@iece.mx",
                         asunto = "IECE WebApp. Solicitud de Nuevo Estado.",
                         mensaje = "<html><body>Paz de Dios. <br />" +
-                            $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un Nuevo Estado " +
+                            $"El hermano <strong>{ministro.pem_Nombre}</strong> a ingresado un Nuevo Estado " +
                             $"para el País {pais.pais_Nombre}, la cual es: " +
                             $"<ul><li><strong>{nvoEstado}</strong></li>" +
                             $"<li>Para la persona: <strong>{persona.per_Nombre} {persona.per_Apellido_Paterno}</strong></li></ul>" +
@@ -481,7 +481,7 @@ namespace IECE_WebApi.Controllers
                     destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de Tesorero de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Tesorero " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Tesorero " +
                         $"del Sector <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{tesorero.pem_Nombre}</strong>." +
                         "<br />Sin mas por el momento, " +
@@ -563,11 +563,11 @@ namespace IECE_WebApi.Controllers
                     destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de Secretario de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Secretario " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Secretario " +
                         $"del sector <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{secretario.pem_Nombre}</strong>." +
                         "<br /><br />Sin mas por el momento, " +
-                        "<br />Dios bendiga!" +
+                        "<br />Dios lo bendiga!" +
                         "</body></html>"
                 };
                 SmtpClient smtp = new SmtpClient();
@@ -643,11 +643,11 @@ namespace IECE_WebApi.Controllers
                     destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de personal administrativo de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como {puesto} " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha establecido como {puesto} " +
                         $"del sector <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{asignacion.pem_Nombre}</strong>." +
                         "<br /><br />Sin mas por el momento, " +
-                        "<br />Dios bendiga!" +
+                        "<br />Dios lo bendiga!" +
                         "</body></html>"
                 };
                 SmtpClient smtp = new SmtpClient();
@@ -721,7 +721,7 @@ namespace IECE_WebApi.Controllers
                     destinatario = obispo.pem_emailIECE,
                     asunto = "IECE WebApp. Notificación de Alta de un Auxiliar en su Distrito.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha dado de Alta como Auxiliar " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha dado de Alta como Auxiliar " +
                         $"en el Sector de <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{auxiliar.pem_Nombre}</strong>." +
                         "<br />Sin mas por el momento, " +
