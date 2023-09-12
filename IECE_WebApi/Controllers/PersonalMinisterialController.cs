@@ -54,8 +54,8 @@ namespace IECE_WebApi.Controllers
         }
 
         public class infoNuevaAsignacion {
-            public int pem_Id_Ministro { get; set; }
-            public int sec_Id_Sector { get; set; }
+            public int IdMinistro { get; set; }
+            public int idSectorDistrito { get; set; }
             public int idUsuario { get; set; }
             public string puesto { get; set; }
         }
@@ -1177,7 +1177,7 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST api/GetPersonalAdministrativoBySector
+        // POST api/SetPersonalAdministrativoBySector
         [Route("[action]")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
@@ -1185,27 +1185,72 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.idSectorDistrito);
                 switch (info.puesto)
                 {
                     case "secretario":
-                        sector.pem_Id_Secretario = info.pem_Id_Ministro;
+                        sector.pem_Id_Secretario = info.IdMinistro;
                         break;
                     case "subSecretario":
-                        sector.pem_Id_SubSecretario = info.pem_Id_Ministro;
+                        sector.pem_Id_SubSecretario = info.IdMinistro;
                         break;
                     case "tesorero":
-                        sector.pem_Id_Tesorero = info.pem_Id_Ministro;
+                        sector.pem_Id_Tesorero = info.IdMinistro;
                         break;
                     case "subTesorero":
-                        sector.pem_Id_SubTesorero = info.pem_Id_Ministro;
+                        sector.pem_Id_SubTesorero = info.IdMinistro;
                         break;
                 }
                 context.Sector.Update(sector);
                 context.SaveChanges();
 
                 SendMailController smc = new SendMailController(context);
-                smc.CambioDePersonalAdministrativo(info.pem_Id_Ministro, info.puesto, info.idUsuario);
+                smc.CambioDePersonalAdministrativo(info.IdMinistro, info.puesto, info.idUsuario);
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST api/SetPersonalAdministrativoByDistrito
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetPersonalAdministrativoByDistrito(infoNuevaAsignacion info)
+        {
+            try
+            {
+                var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == info.idSectorDistrito);
+                switch (info.puesto)
+                {
+                    case "secretario":
+                        distrito.pem_Id_Secretario = info.IdMinistro;
+                        break;
+                    case "subSecretario":
+                        distrito.pem_Id_Sub_Secretario = info.IdMinistro;
+                        break;
+                    case "tesorero":
+                        distrito.pem_Id_Tesorero = info.IdMinistro;
+                        break;
+                    case "subTesorero":
+                        distrito.pem_Id_Sub_Tesorero = info.IdMinistro;
+                        break;
+                }
+                context.Distrito.Update(distrito);
+                context.SaveChanges();
+
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDePersonalAdministrativo(info.IdMinistro, info.puesto, info.idUsuario);
 
                 return Ok(new
                 {
