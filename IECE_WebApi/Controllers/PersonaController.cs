@@ -342,6 +342,8 @@ namespace IECE_WebApi.Controllers
                                                     where hp.hd_Id_Hogar == hd_Id_Hogar
                                                     orderby hp.hp_Jerarquia
                                                     select hp).ToList();
+
+            //Resetea las Jerarquías empezando con la Jerarquía 1.
             int i = 1;
             foreach (Hogar_Persona m in miembrosDelHogar)
             {
@@ -619,7 +621,7 @@ namespace IECE_WebApi.Controllers
                                   hd.hd_Activo,
                                   hd.hd_CP,
                                   direccion = hogares.getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, e.est_Nombre, pais.pais_Nombre_Corto, hd.hd_CP)
-            }).ToList();
+                                }).ToList();
                 var query4 = (from hp in context.Hogar_Persona
                               join p in context.Persona
                               on hp.per_Id_Persona equals p.per_Id_Persona
@@ -649,6 +651,16 @@ namespace IECE_WebApi.Controllers
                     domicilio = query3,
                     miembros = query4                    
                 });
+
+                //List<string> oficios = new List<string>();
+                //foreach(var item in query1)
+                //{
+                //    if (item.ProfesionOficio2[0].pro_Sub_Categoria!="")
+                //    {
+                //        oficios.Add(item.ProfesionOficio1[0].pro_Sub_Categoria);
+                //    }
+                //}
+               
             }
             return Ok(query);
         }
@@ -2350,10 +2362,10 @@ namespace IECE_WebApi.Controllers
                              where hp1.per_Id_Persona == per_Id_Persona
                              select hp1).ToList();
 
-                //Se guardan el Hogar Anterior en una Variable hdInicial
+                //Se guardan el Id del Hogar Anterior en una Variable hdInicial
                 int hdInicial = objhp[0].hd_Id_Hogar;
 
-                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR ANTERIOR
+                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR ANTERIOR incluyendo la persona en proceso de Revinculación
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
                                         join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
                                         where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
@@ -2377,7 +2389,7 @@ namespace IECE_WebApi.Controllers
                 // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO RECEPTOR
                 RestructuraJerarquiasAlta(per_Id_Persona, hp_Jerarquia);
 
-                // GENERA REGISTRO HISTORICO DE LA EDICION DE LA PERSONA
+                // GENERA REGISTRO HISTORICO DE LA EDICION - REVINCULACIÓN DE LA PERSONA
                 int ct = datosPersona.per_Bautizado ? 11201 : 12201;
                 hte.RegistroHistorico(per_Id_Persona, datosPersona.sec_Id_Sector, ct, "REVINCULACION A OTRO HOGAR", fechayhora, usu_Id_Usuario);
 
@@ -2394,7 +2406,7 @@ namespace IECE_WebApi.Controllers
 
                 if (bautizados == 1) //Si la persona era la última bautizada en el Hogar se debe de dar de Baja el Hogar y los NB que haya en él
                 {
-                    // OBTIENE LOS MIEMBROS DEL HOGAR Anterior
+                    // OBTIENE LOS MIEMBROS NO BAUTIZADOS ACTIVOS DEL HOGAR Anterior, en el que ya no se encuentra la Persona Revinculada
                     var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
                                              join per in context.Persona on hp1.per_Id_Persona equals per.per_Id_Persona
                                              where hp1.hd_Id_Hogar == hdInicial && per.per_Activo == true
@@ -2404,17 +2416,9 @@ namespace IECE_WebApi.Controllers
                                                  hp_Id_Hogar_Persona = hp1.hp_Id_Hogar_Persona
                                              }).ToList();
 
+                    //Se revincula a cada Persona No Bautizada al Nuevo Hogar al cual fue Revinculado el Padre o Tutor.
                     foreach (var p in miembrosDelHogar2)
                     {
-                        //// SE INACTIVAN LAS PERSONAS DEL DOMICILIO ANTERIOR PORQUE YA NO HAY PERSONAS BAUTIZADAS
-                        //var persona = context.Persona.FirstOrDefault(per => per.per_Id_Persona == p.per_Id_Persona);
-                        //persona.per_Activo = false;
-                        //context.Persona.Update(persona);
-                        //context.SaveChanges();
-
-                        //// SE GENERA REGISTRO DE BAJA POR PADRES
-                        //hte.RegistroHistorico(persona.per_Id_Persona, persona.sec_Id_Sector, 12106, "BAJA POR PADRES", fechayhora, usu_Id_Usuario);
-
                         // CONSULTA EL Registro HOGAR_PERSONA de cada NO Bautizado
                         var objhp2 = (from hp1 in context.Hogar_Persona
                                       where hp1.per_Id_Persona == p.per_Id_Persona
@@ -2422,7 +2426,7 @@ namespace IECE_WebApi.Controllers
 
                         // Vincula A LA PERSONA NO BAUTIZADA EN EL NUEVO DOMICILIO A DONDE SE REVINCULÓ AL PADRE?MADRE
                         objhp2[0].hd_Id_Hogar = hd_Id_Hogar;
-                        objhp2[0].hp_Jerarquia = objhp2[0].hp_Jerarquia;
+                        //objhp2[0].hp_Jerarquia = objhp2[0].hp_Jerarquia;
                         objhp2[0].usu_Id_Usuario = usu_Id_Usuario;
                         objhp2[0].Fecha_Registro = fechayhora;
                         context.Hogar_Persona.Update(objhp2[0]);
@@ -2448,11 +2452,13 @@ namespace IECE_WebApi.Controllers
                         fechayhora,
                         usu_Id_Usuario
                     );
+                }else // Si no había más Bautizados en el Hogar Anterior
+                {
+                    // RESETEA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR EMPEZANDO CON LA 1
+                    AseguraJerarquias(hdInicial);
                 }
-                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO ANTERIOR
-                AseguraJerarquias(hdInicial);
 
-                // RESTRUCTURA LAS JERARQUIAS EN EL DOMICILIO NUEVO
+                // RESTRUCTURA/RESETEA LAS JERARQUIAS EN EL DOMICILIO NUEVO EMPEZANDO CON LA 1
                 AseguraJerarquias(hd_Id_Hogar);
 
                 return Ok(new
