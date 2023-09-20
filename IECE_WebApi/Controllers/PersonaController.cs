@@ -2357,7 +2357,7 @@ namespace IECE_WebApi.Controllers
             try
             {
                 Historial_Transacciones_EstadisticasController hte = new Historial_Transacciones_EstadisticasController(context);
-                // CONSULTA EL HOGAR AL QUE PERTENECE LA PERSONA
+                // CONSULTA EL HOGAR ORIGINAL AL QUE PERTENECE LA PERSONA
                 var objhp = (from hp1 in context.Hogar_Persona
                              where hp1.per_Id_Persona == per_Id_Persona
                              select hp1).ToList();
@@ -2365,7 +2365,7 @@ namespace IECE_WebApi.Controllers
                 //Se guardan el Id del Hogar Anterior en una Variable hdInicial
                 int hdInicial = objhp[0].hd_Id_Hogar;
 
-                // OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR ANTERIOR incluyendo la persona en proceso de Revinculación
+                //OBTIENE LOS MIEMBROS ACTIVOS DEL HOGAR ANTERIOR incluyendo la persona en proceso de Revinculación
                 var miembrosDelHogar = (from hp in context.Hogar_Persona
                                         join per in context.Persona on hp.per_Id_Persona equals per.per_Id_Persona
                                         where hp.hd_Id_Hogar == objhp[0].hd_Id_Hogar && per.per_Activo == true
@@ -2404,8 +2404,9 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-                if (bautizados == 1) //Si la persona era la última bautizada en el Hogar se debe de dar de Baja el Hogar y los NB que haya en él
-                {
+                if (bautizados == 1 && hdInicial != hd_Id_Hogar) //Si la persona era la última bautizada y No se está revinculando al mismo Hogar, 
+                {                                                //en el Hogar se debe de dar de Baja el Hogar y los NB que haya en él
+
                     // OBTIENE LOS MIEMBROS NO BAUTIZADOS ACTIVOS DEL HOGAR Anterior, en el que ya no se encuentra la Persona Revinculada
                     var miembrosDelHogar2 = (from hp1 in context.Hogar_Persona
                                              join per in context.Persona on hp1.per_Id_Persona equals per.per_Id_Persona

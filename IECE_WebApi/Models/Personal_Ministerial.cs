@@ -13,6 +13,7 @@ namespace IECE_WebApi.Models
         public bool pem_Activo { get; set; }
         public Nullable<int> per_Id_Miembro { get; set; }
         public string pem_Nombre { get; set; }
+        public string pem_Nombre_Sin_Acentos { get; set; }
         public Nullable<DateTime> pem_Fecha_Nacimiento { get; set; }
         public int sec_Id_Congregacion { get; set; }
         public string pem_Grado_Ministerial { get; set; }

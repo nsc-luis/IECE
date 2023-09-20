@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
-
+using IECE_WebApi.Helpers;
 
 namespace IECE_WebApi.Controllers
 {
@@ -743,6 +743,8 @@ namespace IECE_WebApi.Controllers
                     elementoMinisterial.pem_Activo = true;
                     elementoMinisterial.per_Id_Miembro = vnm.id_Persona;
                     elementoMinisterial.pem_Nombre = vnm.nombre_Persona;
+                    var nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(vnm.nombre_Persona);
+                    elementoMinisterial.pem_Nombre_Sin_Acentos = nombreCompleto;
                     elementoMinisterial.pem_Fecha_Nacimiento = persona.per_Fecha_Nacimiento;
                     elementoMinisterial.sec_Id_Congregacion = persona.sec_Id_Sector;
                     elementoMinisterial.pem_Grado_Ministerial = "AUXILIAR";
@@ -1592,6 +1594,47 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     mensaje = ex
+                });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GenerarNombreCompleto()
+        {
+            try
+            {
+                // Obtiene listado de personas
+                var personas = (from p in context.Personal_Ministerial select p).ToList();
+
+                // A cada persona le los acentos en nombre y apellidos y
+                // guarda el nombre completo en el campo per_Nombre_Completo
+                foreach (var p in personas)
+                {
+                    var nombre = ManejoDeApostrofes.QuitarApostrofe2(p.pem_Nombre);
+                    
+                    // Genera nombre completo
+                    p.pem_Nombre_Sin_Acentos = $"{nombre}";
+
+                    // Guarda cambios
+                    context.Personal_Ministerial.Update(p);
+                    context.SaveChanges();
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    personas
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
                 });
             }
         }
