@@ -761,18 +761,20 @@ namespace IECE_WebApi.Controllers
                     context.Personal_Ministerial.Add(elementoMinisterial);
                     context.SaveChanges();
 
+                    //Se crea el Registro Histórico de la Alta de Auxiliar .
                     Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
                     rt.RegistroHistorico(
                      elementoMinisterial.pem_Id_Ministro,
                      elementoMinisterial.sec_Id_Congregacion,
                      "ALTA DE NUEVO PERSONAL MINISTERIAL",
                      null,
-                     "ALTA AUXILIAR",
+                     "AUXILIAR",
                      vnm.fechaTransaccion,
                      vnm.usu_Id_Usuario,
                      vnm.usu_Id_Usuario
                     );
 
+                    //Se envía email al Obispo y a soporte de la Alta de Auxiliar que está gestionando el Pastor.
                     SendMailController smc = new SendMailController(context);
                     smc.AltaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, vnm.usu_Id_Usuario);
                 }                             
@@ -812,7 +814,7 @@ namespace IECE_WebApi.Controllers
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
-                                           where D.dis_Id_Distrito == dis_Id_Distrito && P.per_Activo == true
+                                           where D.dis_Id_Distrito == dis_Id_Distrito && PM.pem_Activo == true
                                            select new { 
                                            pem_Id_Ministro = PM.pem_Id_Ministro,
                                            pem_Nombre = PM.pem_Nombre, 
@@ -860,7 +862,7 @@ namespace IECE_WebApi.Controllers
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
-                                           where P.sec_Id_Sector == sec_Id_Sector && P.per_Activo == true
+                                           where P.sec_Id_Sector == sec_Id_Sector && PM.pem_Activo == true
                                            select PM).ToList();
                 return Ok(new
                 {
@@ -1510,6 +1512,10 @@ namespace IECE_WebApi.Controllers
                      ab.usu_Id_Usuario,
                      ab.usu_Id_Usuario
                     );
+
+                    //Se envía email al Obispo y a soporte de la Baja de Auxiliar que está gestionando el Pastor.
+                    SendMailController smc = new SendMailController(context);
+                    smc.BajaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, ab.usu_Id_Usuario);
                 }
 
                 return Ok

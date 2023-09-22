@@ -1669,6 +1669,36 @@ namespace IECE_WebApi.Controllers
                     RestructuraJerarquiasBaja(per_Id_Persona);
                 }
 
+                // VERIFICA SI LA PERSONA PERTENECÍA AL PERSONAL MINISTERIAL PARA DARLA DE BAJA EN LA TABLA PERSONAL MINISTERIAL
+                var pm = context.Personal_Ministerial.FirstOrDefault(pem => pem.per_Id_Miembro == per_Id_Persona && pem.pem_Activo == true);
+
+                if (pm != null) //Si encuentra que la Persona Excomulgada pertenece al Personal Ministerial.
+                {
+                    if (pm.pem_Grado_Ministerial == "AUXILIAR") //Si es AUXILIAR se gestiona la Baja desde la IECE Membresía. Si no, sólo se enviará email a Soporte
+                    {                    
+                        pm.pem_Activo = false;
+                        context.Personal_Ministerial.Update(pm);
+                        context.SaveChanges();
+
+                        //Registra la Transacción Ministerial
+                        Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
+                        rt.RegistroHistorico(
+                         pm.pem_Id_Ministro,
+                         pm.sec_Id_Congregacion,
+                         "BAJA DE PERSONAL MINISTERIAL",
+                         "EXCOMUNIÓN",
+                         "",
+                         fechaExcomunion,
+                         usu_Id_Usuario,
+                         usu_Id_Usuario
+                        );
+                    }
+
+                    //Se envía email al Obispo y a soporte de la Baja de Auxiliar por Excomunión.
+                    SendMailController smc = new SendMailController(context);
+                    smc.BajaDeAuxiliarExcomunion(pm.pem_Id_Ministro, usu_Id_Usuario);
+                }
+
                 return Ok(new
                 {
                     status = "success",
@@ -1768,6 +1798,37 @@ namespace IECE_WebApi.Controllers
                 {
                     // Restructura las Jerarquías y las arregla para que sean consecutivas dejando a la persona dada de baja al final en la jerarquía del Hogar.
                     RestructuraJerarquiasBaja(bnbad.personaSeleccionada);
+                }
+
+
+                // VERIFICA SI LA PERSONA PERTENECÍA AL PERSONAL MINISTERIAL PARA DARLA DE BAJA EN LA TABLA PERSONAL MINISTERIAL
+                var pm = context.Personal_Ministerial.FirstOrDefault(pem => pem.per_Id_Miembro == bnbad.personaSeleccionada && pem.pem_Activo == true);
+
+                if (pm != null) //Si encuentra que la Persona Excomulgada pertenece al Personal Ministerial.
+                {
+                    if (pm.pem_Grado_Ministerial == "AUXILIAR" ) //Si es AUXILIAR se gestiona la Baja desde la IECE Membresía. Si no, sólo se enviará email a Soporte
+                    {
+                        pm.pem_Activo = false;
+                        context.Personal_Ministerial.Update(pm);
+                        context.SaveChanges();
+
+                        //Registra la Transacción Ministerial
+                        Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
+                        rt.RegistroHistorico(
+                         pm.pem_Id_Ministro,
+                         pm.sec_Id_Congregacion,
+                         "BAJA DE PERSONAL MINISTERIAL",
+                         "DEFUNCIÓN",
+                         "",
+                         bnbad.fechaTransaccion,
+                         bnbad.idUsuario,
+                         bnbad.idUsuario
+                        );
+                    }
+
+                    //Se envía email al Obispo y a soporte de la Baja de Auxiliar por Excomunión.
+                    SendMailController smc = new SendMailController(context);
+                    smc.BajaDeAuxiliarDefuncion(pm.pem_Id_Ministro, bnbad.idUsuario);
                 }
 
                 return Ok(new
