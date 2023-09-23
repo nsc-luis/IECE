@@ -72,9 +72,24 @@ namespace IECE_WebApi.Controllers
             public int sec_Id_Sector { get; set; }
             public int usu_Id_Usuario { get; set; }
             public string causaDeBaja { get; set; }
-
             public DateTime fechaTransaccion { get; set; }
         }
+
+        public class PersonalAdministrativo
+        {
+            public string cargo { get; set; }
+            public Personal_Ministerial datosPersonalMinisterial { get; set; }
+        }
+
+        public class infoNuevaAsignacion
+        {
+            public int pem_Id_Ministro { get; set; }
+            public int dis_Id_Distrito { get; set; }
+            public int sec_Id_Sector { get; set; }
+            public int idUsuario { get; set; }
+            public string puesto { get; set; }
+        }
+
 
         // GET: api/Personal_Ministerial
         // METODO PARA LISTAR PERSONAL MINISTERIAL
@@ -790,12 +805,28 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //Traerá sólo al Personal Ministerial que tenga vinculado un ID de Persona.
                 var PersonalMinisterial = (from PM in context.Personal_Ministerial
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
                                            where D.dis_Id_Distrito == dis_Id_Distrito && P.per_Activo == true
-                                           select PM).ToList();
+                                           select new { 
+                                           pem_Id_Ministro = PM.pem_Id_Ministro,
+                                           pem_Nombre = PM.pem_Nombre, 
+                                           pem_Grado_Ministerial = PM.pem_Grado_Ministerial,
+                                           per_Id_Persona = P.per_Id_Persona,
+                                           per_Activo=   P.per_Activo,
+                                           per_En_Comunion = P.per_En_Comunion,
+                                           per_Vivo= P.per_Vivo,
+                                           sec_Id_Sector = P.sec_Id_Sector,
+                                           per_Nombre = P.per_Nombre,
+                                           per_Apellido_Paterno = P.per_Apellido_Paterno,
+                                           per_Apellido_Materno = P.per_Apellido_Materno,
+                                           per_Apellido_Casada=P.per_Apellido_Casada,
+                                           apellidoPrincipal = (P.per_Apellido_Casada == "" || P.per_Apellido_Casada == null) ? P.per_Apellido_Paterno : (P.per_Apellido_Casada + "* " + P.per_Apellido_Paterno),
+                                           per_Bautizado = P.per_Bautizado
+                                           }).ToList();
                 return Ok(new
                 {
                     status = "success",
@@ -932,26 +963,77 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        
 
-        // GET: api/PersonalMinisterial
-        // Personal administrativo por Sector
+        // GET: api/PersonalMinisterial/GetPersonalAdministrativoBySector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetPersonalAdministrativoBySector(int sec_Id_Sector)
+        public IActionResult GetPersonalAdministrativoSecundarioBySector(int sec_Id_Sector)
         {
             try
             {
-                var administrativo = (from a in context.Personal_Ministerial
-                                  where a.sec_Id_Congregacion == sec_Id_Sector
-                                  && a.pem_Activo
-                                  select a).ToList();
+                List<PersonalAdministrativo> administrativoSecundario = new List<PersonalAdministrativo>();
+
+
+                PersonalAdministrativo pastor = new PersonalAdministrativo();
+                Personal_Ministerial pastor1 = (from pm in context.Personal_Ministerial
+                                                    join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Pastor
+                                                    where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                    && pm.pem_Activo
+                                                    select pm).FirstOrDefault();
+
+                pastor.cargo = "PASTOR";
+                pastor.datosPersonalMinisterial = pastor1;
+                administrativoSecundario.Add(pastor);
+
+
+                PersonalAdministrativo secretario = new PersonalAdministrativo();
+                Personal_Ministerial secretario1 = (from pm in context.Personal_Ministerial
+                                                   join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Secretario
+                                                    where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                    && pm.pem_Activo
+                                                    select pm).FirstOrDefault();
+
+                secretario.cargo = "SECRETARIO";
+                secretario.datosPersonalMinisterial = secretario1;
+                administrativoSecundario.Add(secretario);
+
+                PersonalAdministrativo subsecretario = new PersonalAdministrativo();
+                Personal_Ministerial subSecretario1 = (from pm in context.Personal_Ministerial
+                                                   join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_SubSecretario
+                                                   where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                   && pm.pem_Activo
+                                                   select pm).FirstOrDefault();
+                subsecretario.cargo = "SUBSECRETARIO";
+                subsecretario.datosPersonalMinisterial = subSecretario1;
+                administrativoSecundario.Add(subsecretario);
+
+                PersonalAdministrativo tesorero = new PersonalAdministrativo ();
+                Personal_Ministerial tesorero1 = (from pm in context.Personal_Ministerial
+                                                      join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Tesorero
+                                                      where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                      && pm.pem_Activo
+                                                      select pm).FirstOrDefault();
+                tesorero.cargo = "TESORERO";
+                tesorero.datosPersonalMinisterial = tesorero1;
+                administrativoSecundario.Add(tesorero);
+
+                PersonalAdministrativo subtesorero = new PersonalAdministrativo();
+                Personal_Ministerial subTesorero1 = (from pm in context.Personal_Ministerial
+                                                      join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_SubTesorero
+                                                      where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                      && pm.pem_Activo
+                                                      select pm).FirstOrDefault();
+                subtesorero.cargo = "SUBTESORERO";
+                subtesorero.datosPersonalMinisterial = subTesorero1;
+                administrativoSecundario.Add(subtesorero);
+
+
                 return Ok(new
                 {
                     status = "success",
-                    administrativo = administrativo
-                });
+                    administrativo = administrativoSecundario
+                }); ;
             }
             catch (Exception ex)
             {
@@ -962,6 +1044,111 @@ namespace IECE_WebApi.Controllers
                 });
             }
         }
+
+
+        // GET: api/PersonalMinisterial/GetPersonalAdministrativoSecundarioByDistrito
+        [Route("[action]/{dis_Id_Distrito}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalAdministrativoSecundarioByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                List<PersonalAdministrativo> administrativoSecundario = new List<PersonalAdministrativo>();
+
+
+                PersonalAdministrativo obispo =  new PersonalAdministrativo();
+                Personal_Ministerial obispo1 = (from pm in context.Personal_Ministerial
+                                                join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                                                join d in context.Distrito on pm.pem_Id_Ministro equals d.pem_Id_Obispo
+                                                where d.dis_Id_Distrito == dis_Id_Distrito
+                                                && pm.pem_Activo
+                                                select pm).FirstOrDefault();
+
+                obispo.cargo = "OBISPO";
+                obispo.datosPersonalMinisterial = obispo1;
+                administrativoSecundario.Add(obispo);
+
+
+                PersonalAdministrativo obispoSuplente = new PersonalAdministrativo();
+                Personal_Ministerial obispoSuplente1 = (from pm in context.Personal_Ministerial
+                                                join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                                                join d in context.Distrito on pm.pem_Id_Ministro equals d.pem_Id_Obispo_Suplente
+                                                where d.dis_Id_Distrito == dis_Id_Distrito
+                                                && pm.pem_Activo
+                                                select pm).FirstOrDefault();
+
+                obispoSuplente.cargo = "OBISPO SUPLENTE";
+                obispoSuplente.datosPersonalMinisterial = obispoSuplente1;
+                administrativoSecundario.Add(obispoSuplente);
+
+                PersonalAdministrativo secreatario = new PersonalAdministrativo();
+                Personal_Ministerial secreatario1 = (from pm in context.Personal_Ministerial
+                                                        join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                                                        join d in context.Distrito on pm.pem_Id_Ministro equals d.pem_Id_Secretario
+                                                        where d.dis_Id_Distrito == dis_Id_Distrito
+                                                        && pm.pem_Activo
+                                                        select pm).FirstOrDefault();
+
+                secreatario.cargo = "SECRETARIO";
+                secreatario.datosPersonalMinisterial = secreatario1;
+                administrativoSecundario.Add(secreatario);
+
+
+                PersonalAdministrativo subsecreatario = new PersonalAdministrativo();
+                Personal_Ministerial subsecreatario1 = (from pm in context.Personal_Ministerial
+                                                     join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                                                     join d in context.Distrito on pm.pem_Id_Ministro equals d.pem_Id_Sub_Secretario
+                                                     where d.dis_Id_Distrito == dis_Id_Distrito
+                                                     && pm.pem_Activo
+                                                     select pm).FirstOrDefault();
+
+                subsecreatario.cargo = "SUBSECRETARIO";
+                subsecreatario.datosPersonalMinisterial = subsecreatario1;
+                administrativoSecundario.Add(subsecreatario);
+
+
+                PersonalAdministrativo tesorero = new PersonalAdministrativo();
+                Personal_Ministerial tesorero1 = (from pm in context.Personal_Ministerial
+                                                        join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                                                        join d in context.Distrito on pm.pem_Id_Ministro equals d.pem_Id_Tesorero
+                                                        where d.dis_Id_Distrito == dis_Id_Distrito
+                                                        && pm.pem_Activo
+                                                        select pm).FirstOrDefault();
+
+                tesorero.cargo = "TESORERO";
+                tesorero.datosPersonalMinisterial = tesorero1;
+                administrativoSecundario.Add(tesorero);
+
+                PersonalAdministrativo subtesorero = new PersonalAdministrativo();
+                Personal_Ministerial subtesorero1 = (from pm in context.Personal_Ministerial
+                                                  join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                                                  join d in context.Distrito on pm.pem_Id_Ministro equals d.pem_Id_Sub_Tesorero
+                                                  where d.dis_Id_Distrito == dis_Id_Distrito
+                                                  && pm.pem_Activo
+                                                  select pm).FirstOrDefault();
+
+                subtesorero.cargo = "SUBTESORERO";
+                subtesorero.datosPersonalMinisterial = subtesorero1;
+                administrativoSecundario.Add(subtesorero);
+
+
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = administrativoSecundario
+                }); ;
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
 
         // POST: api/Personal_Ministerial
         // ALTA DE AUXILIAR EN EL SECTOR
@@ -1064,6 +1251,183 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     mensaje = ex
+                });
+            }
+        }
+
+        // POST api/SetPersonalAdministrativoBySector
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetPersonalAdministrativoBySector(infoNuevaAsignacion info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                switch (info.puesto)
+                {
+                    case "SECRETARIO":
+                        sector.pem_Id_Secretario = info.pem_Id_Ministro;
+                        break;
+                    case "SUBSECRETARIO":
+                        sector.pem_Id_SubSecretario = info.pem_Id_Ministro;
+                        break;
+                    case "TESORERO":
+                        sector.pem_Id_Tesorero = info.pem_Id_Ministro;
+                        break;
+                    case "SUBTESORERO":
+                        sector.pem_Id_SubTesorero = info.pem_Id_Ministro;
+                        break;
+                }
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                SendMailController smc = new SendMailController(context);
+                smc.CambioDePersonalAdministrativo(info.pem_Id_Ministro, info.puesto, info.idUsuario);
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // POST api/SetPersonalAdministrativoByDistrito
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult SetPersonalAdministrativoByDistrito(infoNuevaAsignacion info)
+        {
+            try
+            {
+                var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == info.dis_Id_Distrito);
+                switch (info.puesto)
+                {
+                    case "SECRETARIO":
+                        distrito.pem_Id_Secretario = info.pem_Id_Ministro;
+                        break;
+                    case "SUBSECRETARIO":
+                        distrito.pem_Id_Sub_Secretario = info.pem_Id_Ministro;
+                        break;
+                    case "TESORERO":
+                        distrito.pem_Id_Tesorero = info.pem_Id_Ministro;
+                        break;
+                    case "SUBTESORERO":
+                        distrito.pem_Id_Sub_Tesorero = info.pem_Id_Ministro;
+                        break;
+                }
+                context.Distrito.Update(distrito);
+                context.SaveChanges();
+
+                //SendMailController smc = new SendMailController(context);
+                //smc.CambioDePersonalAdministrativo(info.pem_Id_Ministro, info.puesto, info.idUsuario);
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        //POST: api/Personal_Ministerial/removerAsignacionDeAdministracion/{idSector}/{puesto}
+        [Route("[action]/{idSector}/{puesto}")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult RemoverAsignacionDeAdministracion(int idSector, string puesto)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == idSector);
+                switch (puesto)
+                {
+                    case "SECRETARIO":
+                        sector.pem_Id_Secretario = null;
+                        break;
+                    case "SUBSECRETARIO":
+                        sector.pem_Id_SubSecretario = null;
+                        break;
+                    case "TESORERO":
+                        sector.pem_Id_Tesorero = null;
+                        break;
+                    case "SUBTESORERO":
+                        sector.pem_Id_SubTesorero = null;
+                        break;
+                }
+
+                context.Sector.Update(sector);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+        //POST: api/Personal_Ministerial/RemoverAsignacionDeAdministracionDistrital/{idDistrito}/{puesto}
+        [Route("[action]/{idDistrito}/{puesto}")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult RemoverAsignacionDeAdministracionDistrital(int idDistrito, string puesto)
+        {
+            try
+            {
+                var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == idDistrito);
+                switch (puesto)
+                {
+                    case "SECRETARIO":
+                        distrito.pem_Id_Secretario = null;
+                        break;
+                    case "SUBSECRETARIO":
+                        distrito.pem_Id_Sub_Secretario = null;
+                        break;
+                    case "TESORERO":
+                        distrito.pem_Id_Tesorero = null;
+                        break;
+                    case "SUBTESORERO":
+                        distrito.pem_Id_Sub_Tesorero = null;
+                        break;
+                }
+
+                context.Distrito.Update(distrito);
+                context.SaveChanges();
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
                 });
             }
         }
@@ -1181,7 +1545,7 @@ namespace IECE_WebApi.Controllers
                 context.Distrito.Update(distrito);
                 context.SaveChanges();
 
-                //Notä: No se grabará el registro historico porque desde Secretaría General lo harán cuando llegue el acta del Cambio de Administración por reglamento.
+                //Nota: No se grabará el registro historico porque desde Secretaría General lo harán cuando llegue el acta del Cambio de Administración por reglamento.
                 /*{Registro_TransaccionesController registroTransacciones = new Registro_TransaccionesController(context);
                 registroTransacciones.RegistroHistorico(info.pem_Id_Ministro, 0, "DESIGNACIÓN DE CARGO ADMINISTRATIVO", "SECRETARIO", info.comentario, info.fecha, 0, info.idUsuario);*/
 

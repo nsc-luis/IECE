@@ -291,5 +291,86 @@ namespace IECE_WebApi.Controllers
         }
 
 
+        // GET: /api/Sector/GetPersonalAdministrativoBySector/sec_Id_Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalAdministrativoBySector(int sec_Id_Sector)
+        {
+            try
+            {
+                //Consulta de la Tabla de PersonalMinisterial el Pastor de un Sector.
+                var pastor = (from s in context.Sector
+                             join pem in context.Personal_Ministerial on s.pem_Id_Pastor equals pem.pem_Id_Ministro
+                             join p in context.Persona on pem.per_Id_Miembro equals p.per_Id_Persona into pastorMiembros
+                             from pastorMiembro in pastorMiembros.DefaultIfEmpty()
+                             where s.sec_Id_Sector == sec_Id_Sector
+                             select new
+                             {
+                                 pem_Id_Pastor = s.pem_Id_Pastor,
+                                 pem_Id_Ministro = pem.pem_Id_Ministro,
+                                 pem_Nombre = pem.pem_Nombre,
+                                 pem_emailIECE = pem.pem_emailIECE,
+                                 pem_email_Personal = pem.pem_email_Personal,
+                                 pem_Grado_Ministerial = pem.pem_Grado_Ministerial
+                             }).ToList();
+
+                //Consulta de la Tabla de Personal Ministerial al Secretario de Sector.
+                var secretario = (from s in context.Sector
+                                  join pem in context.Personal_Ministerial on s.pem_Id_Secretario equals pem.pem_Id_Ministro
+                                  join p in context.Persona on pem.per_Id_Miembro equals p.per_Id_Persona into pastorMiembros
+                                  from pm in pastorMiembros.DefaultIfEmpty()
+                                  where s.sec_Id_Sector == sec_Id_Sector
+                                  select new
+                                  {
+                                      Secretario_Id = s.pem_Id_Secretario,
+                                      pem_Id_Ministro = pem.pem_Id_Ministro,
+                                      pem_Nombre = pem.pem_Nombre,
+                                      pem_emailIECE = pem.pem_emailIECE,
+                                      pem_email_Personal = pem.pem_email_Personal,
+                                      pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
+                                      Id_Persona = pm != null ? pm.per_Id_Persona : 0,
+                                      per_Nombre = pm != null ? (pm.per_Nombre + ' ' + pm.per_Apellido_Paterno + ' ' + (pm.per_Apellido_Materno != null ? pm.per_Apellido_Materno : "")):""
+                                  }).ToList();
+
+                //Consulta de la Tabla de Personal Ministerial al Tesorero de Sector.
+                var tesorero = (from s in context.Sector
+                                  join pem in context.Personal_Ministerial on s.pem_Id_Tesorero equals pem.pem_Id_Ministro
+                                join p in context.Persona on pem.per_Id_Miembro equals p.per_Id_Persona into pastorMiembros
+                                from pm in pastorMiembros.DefaultIfEmpty()
+                                where s.sec_Id_Sector == sec_Id_Sector
+                                  select new
+                                  {
+                                      Secretario_Id = s.pem_Id_Secretario,
+                                      pem_Id_Ministro = pem.pem_Id_Ministro,
+                                      pem_Nombre = pem.pem_Nombre,
+                                      pem_emailIECE = pem.pem_emailIECE,
+                                      pem_email_Personal = pem.pem_email_Personal,
+                                      pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
+                                      per_Id_Persona = pm.per_Id_Persona,
+                                      per_Nombre = pm.per_Nombre + ' ' + pm.per_Apellido_Paterno + ' ' + (pm.per_Apellido_Materno != null ? pm.per_Apellido_Materno : "")
+                                  }).ToList();
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        pastor = pastor,
+                        secretario=secretario,
+                        tesorero = tesorero
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new
+                    {
+                        status = "error",
+                        mensaje = ex.Message
+                    });
+            }
+        }
+
+
     }
 }

@@ -19,6 +19,8 @@ namespace IECE_WebApi.Models
         public Nullable<DateTime> sec_Fecha_Inicio_Pastorado_Actual { get; set; }
         public Nullable<int> pem_Id_Secretario { get; set; }
         public Nullable<int> pem_Id_Tesorero { get; set; }
+        public Nullable<int> pem_Id_SubSecretario { get; set; }
+        public Nullable<int> pem_Id_SubTesorero { get; set; }
         public Nullable<DateTime> sec_Fecha_Organizacion { get; set; }
         public Nullable<int> sec_Membresia { get; set; }
         /* public string sec_Soc_Juvenil { get; set; }

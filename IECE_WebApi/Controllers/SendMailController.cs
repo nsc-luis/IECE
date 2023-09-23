@@ -390,7 +390,7 @@ namespace IECE_WebApi.Controllers
                         destinatario = "soporte@iece.mx",
                         asunto = "IECE WebApp. Solicitud de Nuevo Estado.",
                         mensaje = "<html><body>Paz de Dios. <br />" +
-                            $"El ministro <strong>{ministro.pem_Nombre}</strong> a ingresado un Nuevo Estado " +
+                            $"El hermano <strong>{ministro.pem_Nombre}</strong> a ingresado un Nuevo Estado " +
                             $"para el País {pais.pais_Nombre}, la cual es: " +
                             $"<ul><li><strong>{nvoEstado}</strong></li>" +
                             $"<li>Para la persona: <strong>{persona.per_Nombre} {persona.per_Apellido_Paterno}</strong></li></ul>" +
@@ -481,7 +481,7 @@ namespace IECE_WebApi.Controllers
                     destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de Tesorero de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Tesorero " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Tesorero " +
                         $"del Sector <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{tesorero.pem_Nombre}</strong>." +
                         "<br />Sin mas por el momento, " +
@@ -563,11 +563,91 @@ namespace IECE_WebApi.Controllers
                     destinatario = emailDestinatario,
                     asunto = "IECE WebApp. Notificación de Cambio de Secretario de Sector.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Secretario " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha establecido como Secretario " +
                         $"del sector <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{secretario.pem_Nombre}</strong>." +
                         "<br /><br />Sin mas por el momento, " +
-                        "<br />Dios bendiga!" +
+                        "<br />Dios lo bendiga!" +
+                        "</body></html>"
+                };
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = datosEnvioCorreo.smtpServer;
+                smtp.Port = datosEnvioCorreo.puerto;
+                smtp.EnableSsl = datosEnvioCorreo.encriptacion;
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress(datosEnvioCorreo.remitente);
+                message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
+                message.Bcc.Add(new MailAddress("nsc_luis@nscco.com.mx"));
+                //message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                message.Subject = datosEnvioCorreo.asunto;
+                message.IsBodyHtml = datosEnvioCorreo.formato;
+                message.Body = datosEnvioCorreo.mensaje;
+                smtp.Send(message);
+                return Ok(new
+                {
+                    status = "success",
+                    mensaje = message
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "errro",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST /api/CambioDeSecretario/{idNvoSecretario}/{usu_Id_Usuario}
+        [HttpPost]
+        [Route("[action]/{idNvoSecretario}/{usu_Id_Usuario}")]
+        [EnableCors("AllowOrign")]
+        public IActionResult CambioDePersonalAdministrativo(
+            int idPersonaConNvaAsignacion,
+            string puesto,
+            int usu_Id_Usuario)
+        {
+
+            try
+            {
+                var usuario = (from mu in context.Ministro_Usuario
+                               join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                               join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                               where pm.pem_Id_Ministro == usu_Id_Usuario
+                               select new
+                               {
+                                   pm.pem_Nombre,
+                                   pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
+                                   s.sec_Id_Sector,
+                                   s.sec_Alias
+                               }).ToList();
+                var asignacion = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == idPersonaConNvaAsignacion);
+
+                string emailDestinatario = usuario[0].pem_emailIECE == "" ? usuario[0].pem_email_Personal : usuario[0].pem_emailIECE;
+                emailDestinatario = emailDestinatario == "" ? "soporte@iece.mx" : emailDestinatario;
+
+                datos datosEnvioCorreo = new datos
+                {
+                    smtpServer = SMTPSERVER,
+                    puerto = PUERTO,
+                    remitente = REMITENTE,
+                    password = EMAILPASSWORD,
+                    encriptacion = ENCRIPTACION,
+                    formato = FORMATO,
+                    destinatario = emailDestinatario,
+                    asunto = "IECE WebApp. Notificación de Cambio de personal administrativo de Sector.",
+                    mensaje = "<html><body>Paz de Dios. <br />" +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha establecido como {puesto} " +
+                        $"del sector <strong>{usuario[0].sec_Alias}</strong> " +
+                        $"al hermano <strong>{asignacion.pem_Nombre}</strong>." +
+                        "<br /><br />Sin mas por el momento, " +
+                        "<br />Dios lo bendiga!" +
                         "</body></html>"
                 };
                 SmtpClient smtp = new SmtpClient();
@@ -641,7 +721,7 @@ namespace IECE_WebApi.Controllers
                     destinatario = obispo.pem_emailIECE,
                     asunto = "IECE WebApp. Notificación de Alta de un Auxiliar en su Distrito.",
                     mensaje = "<html><body>Paz de Dios. <br />" +
-                        $"El ministro <strong> {usuario[0].pem_Nombre} </strong> ha dado de Alta como Auxiliar " +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha dado de Alta como Auxiliar " +
                         $"en el Sector de <strong>{usuario[0].sec_Alias}</strong> " +
                         $"al hermano <strong>{auxiliar.pem_Nombre}</strong>." +
                         "<br />Sin mas por el momento, " +
