@@ -58,7 +58,7 @@ namespace IECE_WebApi.Controllers
                 List<OrganismoInternoCompleto> organismosInternos = new List<OrganismoInternoCompleto>();
 
                 var oi = context.Organismo_Interno.ToList();
-                foreach(var orgInt in oi)
+                foreach (var orgInt in oi)
                 {
                     var oid = context.Organismo_Interno_Detalle.FirstOrDefault(orgIntDet => orgIntDet.oid_Id == orgInt.org_Id);
                     organismosInternos.Add(new OrganismoInternoCompleto { oi = orgInt, oid = oid });
@@ -97,18 +97,25 @@ namespace IECE_WebApi.Controllers
                 {
                     var oid = context.Organismo_Interno_Detalle.FirstOrDefault(orgIntDet => orgIntDet.org_Id == orgInt.org_Id);
 
-                    organismosInternos.Add(new infoPersonasDelOI
+                    if (oid != null)
                     {
-                        oi = orgInt,
-                        oid = oid,
-                        presidente = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Presidente),
-                        vicePresidente = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Vice_Presidente),
-                        secretario = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Secretario),
-                        subSecretario = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Sub_Secretario),
-                        tesorero = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Tesorero),
-                        subTesorero = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Sub_Tesorero),
-                        director = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Director)
-                    });
+                        organismosInternos.Add(new infoPersonasDelOI
+                        {
+                            oi = orgInt,
+                            oid = oid,
+                            presidente = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Presidente),
+                            vicePresidente = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Vice_Presidente),
+                            secretario = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Secretario),
+                            subSecretario = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Sub_Secretario),
+                            tesorero = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Tesorero),
+                            subTesorero = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Sub_Tesorero),
+                            director = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Director)
+                        });
+                    }
+                    else
+                    {
+                        oid = null;
+                    }
                 }
 
                 return Ok(new
@@ -133,10 +140,11 @@ namespace IECE_WebApi.Controllers
         [EnableCors("AllowOrigin")]
         public IActionResult GetMujeresBySector(int sec_Id_Sector)
         {
-            try {
+            try
+            {
                 var mujeres = (from p in context.Persona
                                where p.per_Activo
-                               && p.per_Categoria == "ADULTO_MUJER" 
+                               && p.per_Categoria == "ADULTO_MUJER"
                                && p.per_Vivo
                                && p.sec_Id_Sector == sec_Id_Sector
                                select new
@@ -169,7 +177,7 @@ namespace IECE_WebApi.Controllers
             {
                 var jovenes = (from p in context.Persona
                                where p.per_Activo
-                               && p.per_Categoria.Contains(@"/JOVEN/")
+                               && p.per_Categoria.Contains("JOVEN")
                                && p.per_Vivo
                                && p.sec_Id_Sector == sec_Id_Sector
                                select new
@@ -177,8 +185,7 @@ namespace IECE_WebApi.Controllers
                                    p.per_Id_Persona,
                                    p.per_Nombre,
                                    p.per_Apellido_Paterno,
-                                   p.per_Apellido_Materno,
-                                   p.per_Apellido_Casada
+                                   p.per_Apellido_Materno
                                }).ToList();
                 return Ok(new { status = "success", jovenes });
             }
@@ -201,18 +208,18 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var ninos = (from p in context.Persona
-                               where p.per_Activo
-                               && p.per_Categoria.Contains(@"/NIÑ/")
-                               && p.per_Vivo
-                               && p.sec_Id_Sector == sec_Id_Sector
-                               select new
-                               {
-                                   p.per_Id_Persona,
-                                   p.per_Nombre,
-                                   p.per_Apellido_Paterno,
-                                   p.per_Apellido_Materno,
-                                   p.per_Apellido_Casada
-                               }).ToList();
+                             where p.per_Activo
+                             && p.per_Categoria.Contains("NIÑ")
+                             && p.per_Vivo
+                             && p.sec_Id_Sector == sec_Id_Sector
+                             select new
+                             {
+                                 p.per_Id_Persona,
+                                 p.per_Nombre,
+                                 p.per_Apellido_Paterno,
+                                 p.per_Apellido_Materno,
+                                 p.per_Apellido_Casada
+                             }).ToList();
                 return Ok(new { status = "success", ninos });
             }
             catch (Exception ex)
@@ -259,7 +266,7 @@ namespace IECE_WebApi.Controllers
         // POST api/<Organismo_InternoController>
         [HttpPost]
         [EnableCors("AllowOrigin")]
-            public IActionResult Post([FromBody] OrganismoInternoCompleto organismoInternoCompleto)
+        public IActionResult Post([FromBody] OrganismoInternoCompleto organismoInternoCompleto)
         {
             try
             {
@@ -328,27 +335,35 @@ namespace IECE_WebApi.Controllers
         // DELETE api/<Organismo_InternoController>/5
         [HttpDelete("{id}")]
         [EnableCors("AllowOrigin")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
-            //try
-            //{
-            //    var organismoInterno = context.Organismo_Interno.FirstOrDefault(oi => oi.org_Id == id);
-            //    context.Organismo_Interno.Remove(organismoInterno);
-            //    context.SaveChanges();
-            //    return Ok(new
-            //    {
-            //        status = "success",
-            //        organismoInterno
-            //    });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return Ok(new
-            //    {
-            //        status = "error",
-            //        mensaje = ex.Message
-            //    });
-            //}
+            try
+            {
+                var organismoInterno = context.Organismo_Interno.FirstOrDefault(oi => oi.org_Id == id);
+                context.Organismo_Interno.Remove(organismoInterno);
+                context.SaveChanges();
+
+                var orgIntDetalle = context.Organismo_Interno_Detalle.FirstOrDefault(oid => oid.org_Id == id);
+                if (orgIntDetalle != null)
+                {
+                    context.Organismo_Interno_Detalle.Remove(orgIntDetalle);
+                    context.SaveChanges();
+                }
+                
+                return Ok(new
+                {
+                    status = "success",
+                    organismoInterno
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
         }
     }
 }
