@@ -1259,7 +1259,7 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST api/GetPersonalAdministrativoBySector
+        // POST api/SetPersonalAdministrativoBySector
         [Route("[action]")]
         [HttpPost]
         [EnableCors("AllowOrigin")]
