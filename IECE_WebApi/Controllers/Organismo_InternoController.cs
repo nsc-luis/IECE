@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,26 +26,22 @@ namespace IECE_WebApi.Controllers
         }
         private DateTime fechayhora = DateTime.UtcNow;
 
-        // Objeto para agrupar los organismos internos con detalle
-        public class OrganismoInternoCompleto
-        {
-            public virtual Organismo_Interno oi { get; set; }
-            public virtual Organismo_Interno_Detalle oid { get; set; }
-        }
-
         // Objeto de personas del organismo interno
         public class infoPersonasDelOI
         {
             public virtual Organismo_Interno oi { get; set; }
-            public virtual Organismo_Interno_Detalle oid { get; set; }
             public Persona presidente { get; set; }
             public Persona vicePresidente { get; set; }
             public Persona secretario { get; set; }
             public Persona subSecretario { get; set; }
             public Persona tesorero { get; set; }
             public Persona subTesorero { get; set; }
-            public Persona director { get; set; }
+        }
 
+        public class AsignacionDeCargo
+        {
+            public string cargo { get; set; }
+            public int per_Id_Persona { get; set; }
         }
 
         // GET: api/<Organismo_InternoController>
@@ -54,15 +51,8 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                // Instancia objeto de los organimos internos con detalle
-                List<OrganismoInternoCompleto> organismosInternos = new List<OrganismoInternoCompleto>();
+                var organismosInternos = context.Organismo_Interno.ToList();
 
-                var oi = context.Organismo_Interno.ToList();
-                foreach (var orgInt in oi)
-                {
-                    var oid = context.Organismo_Interno_Detalle.FirstOrDefault(orgIntDet => orgIntDet.oid_Id == orgInt.org_Id);
-                    organismosInternos.Add(new OrganismoInternoCompleto { oi = orgInt, oid = oid });
-                }
                 return Ok(new
                 {
                     status = "success",
@@ -95,27 +85,16 @@ namespace IECE_WebApi.Controllers
                           select orgInt).ToList();
                 foreach (var orgInt in oi)
                 {
-                    var oid = context.Organismo_Interno_Detalle.FirstOrDefault(orgIntDet => orgIntDet.org_Id == orgInt.org_Id);
-
-                    if (oid != null)
+                    organismosInternos.Add(new infoPersonasDelOI
                     {
-                        organismosInternos.Add(new infoPersonasDelOI
-                        {
-                            oi = orgInt,
-                            oid = oid,
-                            presidente = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Presidente),
-                            vicePresidente = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Vice_Presidente),
-                            secretario = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Secretario),
-                            subSecretario = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Sub_Secretario),
-                            tesorero = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Tesorero),
-                            subTesorero = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Sub_Tesorero),
-                            director = context.Persona.FirstOrDefault(p => p.per_Id_Persona == oid.oid_Director)
-                        });
-                    }
-                    else
-                    {
-                        oid = null;
-                    }
+                        oi = orgInt,
+                        presidente = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Presidente) : null,
+                        vicePresidente = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Vice_Presidente) : null,
+                        secretario = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Secretario) : null,
+                        subSecretario = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Secretario) : null,
+                        tesorero = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Tesorero) : null,
+                        subTesorero = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Tesorero) : null
+                    });
                 }
 
                 return Ok(new
@@ -240,12 +219,34 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var orgInt = context.Organismo_Interno.FirstOrDefault(oi => oi.org_Id == id);
-                var organismoInternoDetalle = context.Organismo_Interno_Detalle.FirstOrDefault(oid => oid.org_Id == id);
-                OrganismoInternoCompleto organismoInterno = new OrganismoInternoCompleto
+
+                return Ok(new
                 {
-                    oi = orgInt,
-                    oid = organismoInternoDetalle
-                };
+                    status = "success",
+                    orgInt
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST api/<Organismo_InternoController>
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult Post([FromBody] Organismo_Interno organismoInterno)
+        {
+            try
+            {
+                organismoInterno.org_Fecha_Captura = fechayhora;
+
+                context.Organismo_Interno.Add(organismoInterno);
+                context.SaveChanges();
 
                 return Ok(new
                 {
@@ -263,57 +264,37 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        // POST api/<Organismo_InternoController>
-        [HttpPost]
-        [EnableCors("AllowOrigin")]
-        public IActionResult Post([FromBody] OrganismoInternoCompleto organismoInternoCompleto)
-        {
-            try
-            {
-                var organismoInterno = organismoInternoCompleto.oi;
-                var organismoInternoDetalle = organismoInternoCompleto.oid;
-                organismoInterno.org_Fecha_Captura = fechayhora;
-
-                context.Organismo_Interno.Add(organismoInterno);
-                context.SaveChanges();
-
-                organismoInternoDetalle.org_Id = organismoInterno.org_Id;
-                context.Organismo_Interno_Detalle.Add(organismoInternoDetalle);
-                context.SaveChanges();
-
-                return Ok(new
-                {
-                    status = "success",
-                    organismoInternoCompleto
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    status = "error",
-                    mensaje = ex.Message
-                });
-            }
-        }
-
         // PUT api/<Organismo_InternoController>/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult Put(int id, [FromBody] OrganismoInternoCompleto organismoInternoCompleto)
+        public IActionResult Put(int id, [FromBody] AsignacionDeCargo asignacion)
         {
             try
             {
-                var organismoInterno = organismoInternoCompleto.oi;
-                var organismoInternoDetalle = organismoInternoCompleto.oid;
-
-                organismoInterno.org_Id = id;
+                var organismoInterno = context.Organismo_Interno.FirstOrDefault(o => o.org_Id == id);
                 organismoInterno.org_Fecha_Captura = fechayhora;
+                switch(asignacion.cargo)
+                {
+                    case "presidente":
+                        organismoInterno.org_Presidente = asignacion.per_Id_Persona;
+                        break;
+                    case "vicePresidente":
+                        organismoInterno.org_Vice_Presidente = asignacion.per_Id_Persona;
+                        break;
+                    case "secretario":
+                        organismoInterno.org_Secretario = asignacion.per_Id_Persona;
+                        break;
+                    case "subSecretario":
+                        organismoInterno.org_Sub_Secretario = asignacion.per_Id_Persona;
+                        break;
+                    case "tesorero":
+                        organismoInterno.org_Tesorero = asignacion.per_Id_Persona;
+                        break;
+                    case "subTesorero":
+                        organismoInterno.org_Sub_Tesorero = asignacion.per_Id_Persona;
+                        break;
+                }
                 context.Organismo_Interno.Update(organismoInterno);
-                context.SaveChanges();
-
-                organismoInternoDetalle.org_Id = id;
-                context.Organismo_Interno_Detalle.Update(organismoInternoDetalle);
                 context.SaveChanges();
 
                 return Ok(new
@@ -342,13 +323,6 @@ namespace IECE_WebApi.Controllers
                 var organismoInterno = context.Organismo_Interno.FirstOrDefault(oi => oi.org_Id == id);
                 context.Organismo_Interno.Remove(organismoInterno);
                 context.SaveChanges();
-
-                var orgIntDetalle = context.Organismo_Interno_Detalle.FirstOrDefault(oid => oid.org_Id == id);
-                if (orgIntDetalle != null)
-                {
-                    context.Organismo_Interno_Detalle.Remove(orgIntDetalle);
-                    context.SaveChanges();
-                }
                 
                 return Ok(new
                 {

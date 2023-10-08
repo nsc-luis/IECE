@@ -14,6 +14,11 @@ namespace IECE_WebApi.Models
         public string org_Nombre { get; set; }
         public Nullable<DateTime> org_Fecha_Organizacion { get; set; }
         public Nullable<DateTime> org_Fecha_Captura { get; set; }
-        public Nullable<int> org_Usuario { get; set; }
+        public Nullable<int> org_Presidente { get; set; }
+        public Nullable<int> org_Vice_Presidente { get; set; }
+        public Nullable<int> org_Secretario { get; set; }
+        public Nullable<int> org_Sub_Secretario { get; set; }
+        public Nullable<int> org_Tesorero { get; set; }
+        public Nullable<int> org_Sub_Tesorero { get; set; }
     }
 }
