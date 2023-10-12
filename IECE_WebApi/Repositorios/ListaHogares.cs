@@ -177,7 +177,7 @@ namespace IECE_WebApi.Repositorios
                                                   orderby (hp.hp_Jerarquia)
                                                   select new IntegrantesHogar
                                                   {
-                                                    nombre = ((p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)) + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "") + " " + p.per_Nombre,
+                                                    nombre = ((p.per_Apellido_Casada == null || p.per_Apellido_Casada == "") ? (p.per_Apellido_Paterno) : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno)) + " " + (p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "") + " " + p.per_Nombre,
                                                     cel=p.per_Telefono_Movil,
                                                     nacimiento=p.per_Fecha_Nacimiento,
                                                     edad= (fechayhora - p.per_Fecha_Nacimiento).Days / 365,

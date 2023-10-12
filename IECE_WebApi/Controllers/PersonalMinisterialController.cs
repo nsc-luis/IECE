@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
-
+using IECE_WebApi.Helpers;
 
 namespace IECE_WebApi.Controllers
 {
@@ -743,6 +743,8 @@ namespace IECE_WebApi.Controllers
                     elementoMinisterial.pem_Activo = true;
                     elementoMinisterial.per_Id_Miembro = vnm.id_Persona;
                     elementoMinisterial.pem_Nombre = vnm.nombre_Persona;
+                    var nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(vnm.nombre_Persona);
+                    elementoMinisterial.pem_Nombre_Sin_Acentos = nombreCompleto;
                     elementoMinisterial.pem_Fecha_Nacimiento = persona.per_Fecha_Nacimiento;
                     elementoMinisterial.sec_Id_Congregacion = persona.sec_Id_Sector;
                     elementoMinisterial.pem_Grado_Ministerial = "AUXILIAR";
@@ -759,18 +761,20 @@ namespace IECE_WebApi.Controllers
                     context.Personal_Ministerial.Add(elementoMinisterial);
                     context.SaveChanges();
 
+                    //Se crea el Registro Histórico de la Alta de Auxiliar .
                     Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
                     rt.RegistroHistorico(
                      elementoMinisterial.pem_Id_Ministro,
                      elementoMinisterial.sec_Id_Congregacion,
                      "ALTA DE NUEVO PERSONAL MINISTERIAL",
                      null,
-                     "ALTA AUXILIAR",
+                     "AUXILIAR",
                      vnm.fechaTransaccion,
                      vnm.usu_Id_Usuario,
                      vnm.usu_Id_Usuario
                     );
 
+                    //Se envía email al Obispo y a soporte de la Alta de Auxiliar que está gestionando el Pastor.
                     SendMailController smc = new SendMailController(context);
                     smc.AltaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, vnm.usu_Id_Usuario);
                 }                             
@@ -810,7 +814,7 @@ namespace IECE_WebApi.Controllers
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
-                                           where D.dis_Id_Distrito == dis_Id_Distrito && P.per_Activo == true
+                                           where D.dis_Id_Distrito == dis_Id_Distrito && PM.pem_Activo == true
                                            select new { 
                                            pem_Id_Ministro = PM.pem_Id_Ministro,
                                            pem_Nombre = PM.pem_Nombre, 
@@ -858,7 +862,7 @@ namespace IECE_WebApi.Controllers
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
-                                           where P.sec_Id_Sector == sec_Id_Sector && P.per_Activo == true
+                                           where P.sec_Id_Sector == sec_Id_Sector && PM.pem_Activo == true
                                            select PM).ToList();
                 return Ok(new
                 {
@@ -1508,6 +1512,10 @@ namespace IECE_WebApi.Controllers
                      ab.usu_Id_Usuario,
                      ab.usu_Id_Usuario
                     );
+
+                    //Se envía email al Obispo y a soporte de la Baja de Auxiliar que está gestionando el Pastor.
+                    SendMailController smc = new SendMailController(context);
+                    smc.BajaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, ab.usu_Id_Usuario);
                 }
 
                 return Ok
@@ -1592,6 +1600,47 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "error",
                     mensaje = ex
+                });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GenerarNombreCompleto()
+        {
+            try
+            {
+                // Obtiene listado de personas
+                var personas = (from p in context.Personal_Ministerial select p).ToList();
+
+                // A cada persona le los acentos en nombre y apellidos y
+                // guarda el nombre completo en el campo per_Nombre_Completo
+                foreach (var p in personas)
+                {
+                    var nombre = ManejoDeApostrofes.QuitarApostrofe2(p.pem_Nombre);
+                    
+                    // Genera nombre completo
+                    p.pem_Nombre_Sin_Acentos = $"{nombre}";
+
+                    // Guarda cambios
+                    context.Personal_Ministerial.Update(p);
+                    context.SaveChanges();
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    personas
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
                 });
             }
         }
