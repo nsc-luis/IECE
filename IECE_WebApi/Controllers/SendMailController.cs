@@ -761,5 +761,253 @@ namespace IECE_WebApi.Controllers
                 });
             }
         }
+
+
+        // POST /api/BajaDeAuxiliar/{idNvoAuxiliar}/{usu_Id_Usuario}
+        [HttpPost]
+        [Route("[action]/{idNvoAuxiliar}/{usu_Id_Usuario}")]
+        [EnableCors("AllowOrign")]
+        public IActionResult BajaDeAuxiliar(
+            int idNvoAuxiliar,
+            int usu_Id_Usuario)
+        {
+            try
+            {
+                var usuario = (from mu in context.Ministro_Usuario
+                               join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                               join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                               join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                               where pm.pem_Id_Ministro == usu_Id_Usuario
+                               select new
+                               {
+                                   pm.pem_Nombre,
+                                   pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
+                                   s.sec_Id_Sector,
+                                   s.sec_Alias,
+                                   d.pem_Id_Obispo
+                               }).ToList();
+                var auxiliar = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == idNvoAuxiliar);
+                var obispo = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == usuario[0].pem_Id_Obispo);
+
+                datos datosEnvioCorreo = new datos
+                {
+                    smtpServer = SMTPSERVER,
+                    puerto = PUERTO,
+                    remitente = REMITENTE,
+                    password = EMAILPASSWORD,
+                    encriptacion = ENCRIPTACION,
+                    formato = FORMATO,
+                    destinatario = obispo.pem_emailIECE,
+                    asunto = "IECE WebApp. Notificación de Baja de un Auxiliar en su Distrito.",
+                    mensaje = "<html><body>Paz de Dios. <br />" +
+                        $"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha dado de Baja como Auxiliar " +
+                        $"en el Sector de <strong>{usuario[0].sec_Alias}</strong> " +
+                        $"al hermano <strong>{auxiliar.pem_Nombre}</strong>." +
+                        "<br />Sin mas por el momento, " +
+                        "<br />Dios lo bendiga!" +
+                        "</body></html>"
+                };
+
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = datosEnvioCorreo.smtpServer;
+                smtp.Port = datosEnvioCorreo.puerto;
+                smtp.EnableSsl = datosEnvioCorreo.encriptacion;
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
+
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress(datosEnvioCorreo.remitente);
+                message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
+                message.Bcc.Add(new MailAddress("soporte@iece.mx"));
+                //message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                message.Subject = datosEnvioCorreo.asunto;
+
+                message.IsBodyHtml = datosEnvioCorreo.formato;
+                message.Body = datosEnvioCorreo.mensaje;
+
+                smtp.Send(message);
+                return Ok(new
+                {
+                    status = "success",
+                    mensaje = message
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "errro",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+        // POST /api/BajaDeAuxiliar/{idNvoAuxiliar}/{usu_Id_Usuario}
+        [HttpPost]
+        [Route("[action]/{idNvoAuxiliar}/{usu_Id_Usuario}")]
+        [EnableCors("AllowOrign")]
+        public IActionResult BajaDeAuxiliarExcomunion(
+            int idNvoAuxiliar,
+            int usu_Id_Usuario)
+        {
+            try
+            {
+                var usuario = (from mu in context.Ministro_Usuario
+                               join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                               join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                               join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                               where pm.pem_Id_Ministro == usu_Id_Usuario
+                               select new
+                               {
+                                   pm.pem_Nombre,
+                                   pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
+                                   s.sec_Id_Sector,
+                                   s.sec_Alias,
+                                   d.pem_Id_Obispo
+                               }).ToList();
+                var auxiliar = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == idNvoAuxiliar);
+                var obispo = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == usuario[0].pem_Id_Obispo);
+
+                datos datosEnvioCorreo = new datos
+                {
+                    smtpServer = SMTPSERVER,
+                    puerto = PUERTO,
+                    remitente = REMITENTE,
+                    password = EMAILPASSWORD,
+                    encriptacion = ENCRIPTACION,
+                    formato = FORMATO,
+                    destinatario = obispo.pem_emailIECE,
+                    asunto = "IECE WebApp. Notificación de Baja de un Auxiliar por Excomunión.",
+                    mensaje = "<html><body>Paz de Dios. <br />" +
+                        //$"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha dado de Baja como Auxiliar por Excomunión " +
+                        $"En el Sector de <strong>{usuario[0].sec_Alias}</strong> se ha dado de Baja del Personal Ministerial, por Excomunión " +
+                        $"al Auxiliar <strong>{auxiliar.pem_Nombre}</strong>." +
+                        "<br />Sin mas por el momento, " +
+                        "<br />Dios lo bendiga!" +
+                        "</body></html>"
+                };
+
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = datosEnvioCorreo.smtpServer;
+                smtp.Port = datosEnvioCorreo.puerto;
+                smtp.EnableSsl = datosEnvioCorreo.encriptacion;
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
+
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress(datosEnvioCorreo.remitente);
+                message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
+                message.Bcc.Add(new MailAddress("soporte@iece.mx"));
+                //message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                message.Subject = datosEnvioCorreo.asunto;
+
+                message.IsBodyHtml = datosEnvioCorreo.formato;
+                message.Body = datosEnvioCorreo.mensaje;
+
+                smtp.Send(message);
+                return Ok(new
+                {
+                    status = "success",
+                    mensaje = message
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "errro",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // POST /api/BajaDeAuxiliar/{idNvoAuxiliar}/{usu_Id_Usuario}
+        [HttpPost]
+        [Route("[action]/{idNvoAuxiliar}/{usu_Id_Usuario}")]
+        [EnableCors("AllowOrign")]
+        public IActionResult BajaDeAuxiliarDefuncion(
+            int idNvoAuxiliar,
+            int usu_Id_Usuario)
+        {
+            try
+            {
+                var usuario = (from mu in context.Ministro_Usuario
+                               join pm in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pm.pem_Id_Ministro
+                               join s in context.Sector on pm.sec_Id_Congregacion equals s.sec_Id_Sector
+                               join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                               where pm.pem_Id_Ministro == usu_Id_Usuario
+                               select new
+                               {
+                                   pm.pem_Nombre,
+                                   pm.pem_Id_Ministro,
+                                   pm.pem_emailIECE,
+                                   pm.pem_email_Personal,
+                                   s.sec_Id_Sector,
+                                   s.sec_Alias,
+                                   d.pem_Id_Obispo
+                               }).ToList();
+                var auxiliar = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == idNvoAuxiliar);
+                var obispo = context.Personal_Ministerial.FirstOrDefault(pem => pem.pem_Id_Ministro == usuario[0].pem_Id_Obispo);
+
+                datos datosEnvioCorreo = new datos
+                {
+                    smtpServer = SMTPSERVER,
+                    puerto = PUERTO,
+                    remitente = REMITENTE,
+                    password = EMAILPASSWORD,
+                    encriptacion = ENCRIPTACION,
+                    formato = FORMATO,
+                    destinatario = obispo.pem_emailIECE,
+                    asunto = "IECE WebApp. Notificación de Baja de un Auxiliar por Defunción.",
+                    mensaje = "<html><body>Paz de Dios. <br />" +
+                        //$"El hermano <strong> {usuario[0].pem_Nombre} </strong> ha dado de Baja como Auxiliar por Excomunión " +
+                        $"En el Sector de <strong>{usuario[0].sec_Alias}</strong> se ha dado de Baja del Personal Ministerial, por Defunción " +
+                        $"al Auxiliar <strong>{auxiliar.pem_Nombre}</strong>." +
+                        "<br />Sin mas por el momento, " +
+                        "<br />Dios lo bendiga!" +
+                        "</body></html>"
+                };
+
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = datosEnvioCorreo.smtpServer;
+                smtp.Port = datosEnvioCorreo.puerto;
+                smtp.EnableSsl = datosEnvioCorreo.encriptacion;
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Credentials = new NetworkCredential(datosEnvioCorreo.remitente, datosEnvioCorreo.password);
+
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress(datosEnvioCorreo.remitente);
+                message.To.Add(new MailAddress(datosEnvioCorreo.destinatario));
+                message.Bcc.Add(new MailAddress("soporte@iece.mx"));
+                //message.ReplyToList.Add(new MailAddress(objeto.remitente));
+                message.Subject = datosEnvioCorreo.asunto;
+
+                message.IsBodyHtml = datosEnvioCorreo.formato;
+                message.Body = datosEnvioCorreo.mensaje;
+
+                smtp.Send(message);
+                return Ok(new
+                {
+                    status = "success",
+                    mensaje = message
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "errro",
+                    mensaje = ex.Message
+                });
+            }
+        }
     }
 }

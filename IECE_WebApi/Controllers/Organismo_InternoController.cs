@@ -30,6 +30,7 @@ namespace IECE_WebApi.Controllers
         public class infoPersonasDelOI
         {
             public virtual Organismo_Interno oi { get; set; }
+            public Sector sector { get; set; }
             public Persona presidente { get; set; }
             public Persona vicePresidente { get; set; }
             public Persona secretario { get; set; }
@@ -88,12 +89,62 @@ namespace IECE_WebApi.Controllers
                     organismosInternos.Add(new infoPersonasDelOI
                     {
                         oi = orgInt,
-                        presidente = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Presidente) : null,
-                        vicePresidente = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Vice_Presidente) : null,
-                        secretario = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Secretario) : null,
-                        subSecretario = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Secretario) : null,
-                        tesorero = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Tesorero) : null,
-                        subTesorero = orgInt.org_Presidente != null ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Tesorero) : null
+                        sector = context.Sector.FirstOrDefault(sec => sec.sec_Id_Sector == orgInt.org_Id_Sector),
+                        presidente = orgInt.org_Presidente != null || orgInt.org_Presidente != 0? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Presidente) : null,
+                        vicePresidente = orgInt.org_Vice_Presidente != null || orgInt.org_Vice_Presidente !=0? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Vice_Presidente) : null,
+                        secretario = orgInt.org_Secretario != null || orgInt.org_Secretario !=0? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Secretario):null,
+                        subSecretario = orgInt.org_Sub_Secretario != null || orgInt.org_Sub_Secretario !=0? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Secretario) : null,
+                        tesorero = orgInt.org_Tesorero != null || orgInt.org_Tesorero !=0? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Tesorero) : null,
+                        subTesorero = orgInt.org_Sub_Tesorero != null || orgInt.org_Sub_Tesorero !=0? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Tesorero) : null
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    organismosInternos
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        // GET: api/GetBySector/9
+        [HttpGet]
+        [Route("[action]/{dis_Id_Distrito}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetByDistrito(int dis_Id_Distrito)
+        {
+            try
+            {
+                // Instancia objeto de los organimos internos con detalle
+                List<infoPersonasDelOI> organismosInternos = new List<infoPersonasDelOI>();
+
+                var oi = (from orgInt in context.Organismo_Interno
+                          join sec in context.Sector on orgInt.org_Id_Sector equals sec.sec_Id_Sector
+                          join dis in context.Distrito on sec.dis_Id_Distrito equals dis.dis_Id_Distrito
+                          where dis.dis_Id_Distrito ==dis_Id_Distrito && sec.sec_Tipo_Sector=="SECTOR"
+                          orderby sec.sec_Id_Sector
+                          select orgInt).ToList();
+
+                foreach (var orgInt in oi)
+                {
+                    organismosInternos.Add(new infoPersonasDelOI
+                    {
+                        oi = orgInt,
+                        sector = context.Sector.FirstOrDefault(sec=>sec.sec_Id_Sector == orgInt.org_Id_Sector),
+                        presidente = orgInt.org_Presidente != null || orgInt.org_Presidente != 0 ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Presidente) : null,
+                        vicePresidente = orgInt.org_Vice_Presidente != null || orgInt.org_Vice_Presidente != 0 ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Vice_Presidente) : null,
+                        secretario = orgInt.org_Secretario != null || orgInt.org_Secretario != 0 ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Secretario) : null,
+                        subSecretario = orgInt.org_Sub_Secretario != null || orgInt.org_Sub_Secretario != 0 ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Secretario) : null,
+                        tesorero = orgInt.org_Tesorero != null || orgInt.org_Tesorero != 0 ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Tesorero) : null,
+                        subTesorero = orgInt.org_Sub_Tesorero != null || orgInt.org_Sub_Tesorero != 0 ? context.Persona.FirstOrDefault(p => p.per_Id_Persona == orgInt.org_Sub_Tesorero) : null
                     });
                 }
 
@@ -132,7 +183,8 @@ namespace IECE_WebApi.Controllers
                                    p.per_Nombre,
                                    p.per_Apellido_Paterno,
                                    p.per_Apellido_Materno,
-                                   p.per_Apellido_Casada
+                                   p.per_Apellido_Casada,
+                                   p.per_Nombre_Completo
                                }).ToList();
                 return Ok(new { status = "success", mujeres });
             }
@@ -164,7 +216,8 @@ namespace IECE_WebApi.Controllers
                                    p.per_Id_Persona,
                                    p.per_Nombre,
                                    p.per_Apellido_Paterno,
-                                   p.per_Apellido_Materno
+                                   p.per_Apellido_Materno,
+                                   p.per_Nombre_Completo
                                }).ToList();
                 return Ok(new { status = "success", jovenes });
             }
@@ -197,7 +250,8 @@ namespace IECE_WebApi.Controllers
                                  p.per_Nombre,
                                  p.per_Apellido_Paterno,
                                  p.per_Apellido_Materno,
-                                 p.per_Apellido_Casada
+                                 p.per_Apellido_Casada,
+                                 p.per_Nombre_Completo
                              }).ToList();
                 return Ok(new { status = "success", ninos });
             }
@@ -328,6 +382,215 @@ namespace IECE_WebApi.Controllers
                 {
                     status = "success",
                     organismoInterno
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+
+
+
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult QuitarEspaciosEnBlanco()
+        {
+            try
+            {
+                // Obtiene listado de personas
+                var orgInt = (from oi in context.Organismo_Interno select oi).ToList();
+
+                // A cada persona le los acentos en nombre y apellidos y
+                // guarda el nombre completo en el campo per_Nombre_Completo
+                foreach (var oi in orgInt)
+                {
+                    // Genera nombre completo
+                    oi.org_Categoria = oi.org_Categoria.Trim();
+                    oi.org_Nombre = oi.org_Nombre.Trim();
+                    oi.org_Tipo_Organismo = oi.org_Tipo_Organismo.Trim();
+
+                    if (oi.org_Nombre == "ELIZABETH" || oi.org_Nombre == "ELIZABET" || oi.org_Nombre == "ELISABETH")
+                    {
+                        oi.org_Nombre = "ELISABET";
+                    }
+
+                    if (oi.org_Nombre == "REYNA ESTHER" || oi.org_Nombre == "REINA ESTER" )
+                    {
+                        oi.org_Nombre = "REINA ESTHER";
+                    }
+
+                    if (oi.org_Nombre == "NOHEMI" || oi.org_Nombre == "NOHEMÍ")
+                    {
+                        oi.org_Nombre = "NOEMI";
+                    }
+
+                    if (oi.org_Nombre == "LOYDA" )
+                    {
+                        oi.org_Nombre = "LOIDA";
+                    }
+
+                    if (oi.org_Nombre == "JOCABETH")
+                    {
+                        oi.org_Nombre = "JOCABED";
+                    }
+
+                    if (oi.org_Nombre == "ROMANTI-EZER" || oi.org_Nombre == "ROMANTI-EZER")
+                    {
+                        oi.org_Nombre = "ROMAMTI-EZER";
+                    }
+
+                    if (oi.org_Categoria == "em")
+                    {
+                        oi.org_Categoria = "FEMENIL";
+                    }
+
+                    if (oi.org_Nombre == "SAREPTHA DE SIDON")
+                    {
+                        oi.org_Nombre = "SAREPTA DE SIDÓN";
+                    }
+
+                    if (oi.org_Nombre == "OBED EDOM")
+                    {
+                        oi.org_Nombre = "OBED-EDOM";
+                    }
+
+                    if (oi.org_Nombre == "ROSA DE SARON")
+                    {
+                        oi.org_Nombre = "ROSA DE SARÓN";
+                    }
+
+                    if (oi.org_Nombre == "PRINCIPES DE SION" || oi.org_Nombre == "PRÍNCIPES DE SION" || oi.org_Nombre == "PRINCIPES DE SIÓN")
+                    {
+                        oi.org_Nombre = "PRÍNCIPES DE SIÓN";
+                    }
+
+                    if (oi.org_Nombre == "CAMINANTES DE EMMAUS")
+                    {
+                        oi.org_Nombre = "CAMINANTES DE EMMAÚS";
+                    }
+
+                    if (oi.org_Nombre == "DISCIPULOS DE EMMAUN")
+                    {
+                        oi.org_Nombre = "DISCÍPULOS DE EMMAÚS";
+                    }
+
+                    if (oi.org_Nombre == "MARIA DE NAZARET" || oi.org_Nombre == "MARIA DE NAZARETH" || oi.org_Nombre == "MARÍA DE NAZARETH")
+                    {
+                        oi.org_Nombre = "MARÍA DE NAZARET";
+                    }
+
+                    if (oi.org_Nombre == "MARIA MAGDALENA" || oi.org_Nombre == "MRÍA MAGDALENA")
+                    {
+                        oi.org_Nombre = "MARÍA MAGDALENA";
+                    }
+
+                    if (oi.org_Nombre == "REY JOSIAS" || oi.org_Nombre == "REY JOSIAS")
+                    {
+                        oi.org_Nombre = "REY JOSÍAS";
+                    }
+
+                    if (oi.org_Nombre == "MONTE DE SION" )
+                    {
+                        oi.org_Nombre = "MONTE DE SIÓN";
+                    }
+
+                    if (oi.org_Nombre == "PRINCIPE JONATAN" || oi.org_Nombre == "PRÍNCIPE JONATAN" || oi.org_Nombre == "PRINCIPE JONATHAN")
+                    {
+                        oi.org_Nombre = "PRÍNCIPE JONATHÁN";
+                    }
+
+                    if (oi.org_Nombre == "SION DEL GRAN REY")
+                    {
+                        oi.org_Nombre = "SIÓN DEL GRAN REY";
+                    }
+
+                    if (oi.org_Nombre == "CAUDILLO MOISES")
+                    {
+                        oi.org_Nombre = "CAUDILLO MOISÉS";
+                    }
+
+                    if (oi.org_Nombre == "CAUDILLO JOSUE")
+                    {
+                        oi.org_Nombre = "CAUDILLO JOSUÉ";
+                    }
+
+                    if (oi.org_Nombre == "LEGISLADOR MOISES")
+                    {
+                        oi.org_Nombre = "LEGISLADOR MOISÉS";
+                    }
+
+                    if (oi.org_Nombre == "NIÑO MOISES")
+                    {
+                        oi.org_Nombre = "NIÑO MOISÉS";
+                    }
+
+                    if (oi.org_Nombre == "HIJAS DE SION")
+                    {
+                        oi.org_Nombre = "HIJAS DE SIÓN";
+                    }
+
+                    if (oi.org_Nombre == "REY SALOMON")
+                    {
+                        oi.org_Nombre = "REY SALOMÓN";
+                    }
+
+                    if (oi.org_Nombre == "HEREDAD DE JEHOVA")
+                    {
+                        oi.org_Nombre = "HEREDAD DE JEHOVÁ";
+                    }
+
+                    if (oi.org_Nombre == "DEBORA")
+                    {
+                        oi.org_Nombre = "DÉBORA";
+                    }
+
+                    if (oi.org_Nombre == "LOS JUSTOS RECABITAS")
+                    {
+                        oi.org_Nombre = "LOS JUSTOS RECHABITAS";
+                    }
+
+                    if (oi.org_Nombre == "PRIS" || oi.org_Nombre == "PRICSILA")
+                    {
+                        oi.org_Nombre = "PRISCILA";
+                    }
+
+                    if (oi.org_Nombre == "ANA LA PROFETIZA")
+                    {
+                        oi.org_Nombre = "ANA LA PROFETISA";
+                    }
+
+                    if (oi.org_Nombre == "DAMARIS")
+                    {
+                        oi.org_Nombre = "DÁMARIS";
+                    }
+
+                    if (oi.org_Nombre == "SALOME")
+                    {
+                        oi.org_Nombre = "SALOMÉ";
+                    }
+
+                    if (oi.org_Nombre == "GENESIS")
+                    {
+                        oi.org_Nombre = "GÉNESIS";
+                    }
+
+                    // Guarda cambios
+                    context.Organismo_Interno.Update(oi);
+                    context.SaveChanges();
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    orgInt
                 });
             }
             catch (Exception ex)
