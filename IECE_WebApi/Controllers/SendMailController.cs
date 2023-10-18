@@ -57,7 +57,7 @@ namespace IECE_WebApi.Controllers
         string EMAILPASSWORD = global.passEmail;
         string SMTPSERVER = global.smtpEmail;
         int PUERTO = 587;
-        bool ENCRIPTACION = false;
+        bool ENCRIPTACION = true;
         bool FORMATO = true;
 
         // POST api/<controller>
@@ -273,7 +273,7 @@ namespace IECE_WebApi.Controllers
                 message.Subject = objeto.asunto;
                 message.IsBodyHtml = FORMATO;
                 message.Body = objeto.mensaje;
-                smtp.Send(message);
+                 smtp.Send(message);
                 return Ok(
                     new
                     {
@@ -353,7 +353,7 @@ namespace IECE_WebApi.Controllers
             {
                 return Ok(new
                 {
-                    status = "errro",
+                    status = "error",
                     mensaje = ex.Message
                 });
             }
