@@ -504,7 +504,7 @@ namespace IECE_WebApi.Controllers
             {
                 List<Distrito> distritos = new List<Distrito>();
                 var d1 = (from d in context.Distrito
-                             where d.pem_Id_Obispo == idMinistro
+                             where d.pem_Id_Obispo == idMinistro && d.dis_Activo==true
                              select d).ToList();
 
                 var d2 = (from s in context.Sector
@@ -982,7 +982,7 @@ namespace IECE_WebApi.Controllers
                 PersonalAdministrativo pastor = new PersonalAdministrativo();
                 Personal_Ministerial pastor1 = (from pm in context.Personal_Ministerial
                                                     join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Pastor
-                                                    where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                    where s.sec_Id_Sector == sec_Id_Sector
                                                     && pm.pem_Activo
                                                     select pm).FirstOrDefault();
 
