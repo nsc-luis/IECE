@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Helpers;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,13 +25,14 @@ namespace IECE_WebApi.Controllers
 
         public class datos
         {
+            public string destinatario { get; set; }
             public string smtpServer { get; set; }
-            public int puerto { get; set; }
+            public int email { get; set; }
             public string remitente { get; set; }
+            public int puerto { get; set; }
             public string password { get; set; }
             public bool encriptacion { get; set; }
             public bool formato { get; set; }
-            public string destinatario { get; set; }
             public string asunto { get; set; }
             public string mensaje { get; set; }
         }
@@ -59,6 +57,7 @@ namespace IECE_WebApi.Controllers
         int PUERTO = 587;
         bool ENCRIPTACION = true;
         bool FORMATO = true;
+
 
         // POST api/<controller>
         [HttpPost]
@@ -263,7 +262,7 @@ namespace IECE_WebApi.Controllers
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                 smtp.Credentials = new NetworkCredential(REMITENTE, EMAILPASSWORD);
                 MailMessage message = new MailMessage();
-                message.From = new MailAddress(objeto.remitente);
+                message.From = new MailAddress(global.remitenteEmail);
                 foreach (string destinatario in destinatarios)
                 {
                     message.To.Add(new MailAddress(destinatario));
@@ -287,7 +286,7 @@ namespace IECE_WebApi.Controllers
                     new
                     {
                         status = "error",
-                        mensaje = ex.Message
+                        mensaje = ex
                     });
             }
         }

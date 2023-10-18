@@ -11,5 +11,8 @@ namespace IECE_WebApi
         public static string remitenteEmail = "[CORREO_REMITIENTE]";
         public static string passEmail = "[LA_CONTRASENA]";
         public static string smtpMailServer = "[EL_SERVIDOR_SMTP]";
+        public static int puertoEmail = 25;
+        public static bool encriptacionEmail = true;
+        public static bool formatoEmail = true;
     }
 }
