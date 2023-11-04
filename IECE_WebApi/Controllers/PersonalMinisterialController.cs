@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
 using IECE_WebApi.Helpers;
+using System.IO;
 
 namespace IECE_WebApi.Controllers
 {
@@ -88,6 +89,34 @@ namespace IECE_WebApi.Controllers
             public int sec_Id_Sector { get; set; }
             public int idUsuario { get; set; }
             public string puesto { get; set; }
+        }
+
+        public class personalMinisterialConFoto : Personal_Ministerial
+        {
+            public byte[] Imagen { get; set; }
+            public string MIMEType { get; set; }
+
+        }
+
+        public class personalMinisterialConFotoDto : Personal_Ministerial
+        {
+            public int per_Id_Persona { get; set; }
+
+            public int sec_Id_Sector { get; set; }
+
+            public string sector { get; set; }
+            public bool per_Activo { get; set; }
+            public bool per_En_Comunion { get; set; }
+            public bool per_Vivo { get; set; }
+            public string per_Nombre { get; set; }
+            public string per_Apellido_Paterno { get; set; }
+            public string per_Apellido_Materno { get; set; }
+            public string per_Apellido_Casada { get; set; }
+            public string apellidoPrincipal { get; set; }
+            public bool per_Bautizado { get; set; }
+            public byte[] imagen { get; set; }
+            public string MIMEType { get; set; }
+
         }
 
 
@@ -815,7 +844,9 @@ namespace IECE_WebApi.Controllers
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
                                            where D.dis_Id_Distrito == dis_Id_Distrito && PM.pem_Activo == true
-                                           select new { 
+                                           orderby S.sec_Numero, PM.pem_Nombre
+                                           select new 
+                                           { 
                                            pem_Id_Ministro = PM.pem_Id_Ministro,
                                            pem_Nombre = PM.pem_Nombre, 
                                            pem_Grado_Ministerial = PM.pem_Grado_Ministerial,
@@ -824,17 +855,61 @@ namespace IECE_WebApi.Controllers
                                            per_En_Comunion = P.per_En_Comunion,
                                            per_Vivo= P.per_Vivo,
                                            sec_Id_Sector = P.sec_Id_Sector,
+                                           sec_Tipo_Sector = S.sec_Tipo_Sector,
+                                           sec_Numero =S.sec_Numero,
+                                           sec_Alias = S.sec_Alias,
                                            per_Nombre = P.per_Nombre,
                                            per_Apellido_Paterno = P.per_Apellido_Paterno,
                                            per_Apellido_Materno = P.per_Apellido_Materno,
                                            per_Apellido_Casada=P.per_Apellido_Casada,
                                            apellidoPrincipal = (P.per_Apellido_Casada == "" || P.per_Apellido_Casada == null) ? P.per_Apellido_Paterno : (P.per_Apellido_Casada + "* " + P.per_Apellido_Paterno),
-                                           per_Bautizado = P.per_Bautizado
+                                           per_Bautizado = P.per_Bautizado,
+                                               pem_Foto_Ministro = (PM.pem_Foto_Ministro != null) ? PM.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos") : "c:\\DoctosCompartidos\\FotosMinisterial\\SinFoto.jpg",
                                            }).ToList();
+
+                var personasConImagenes = new List<personalMinisterialConFotoDto>();
+
+                foreach (var persona in PersonalMinisterial)
+                {
+                    var imagenPath = persona.pem_Foto_Ministro; // Ruta de la imagen en el servidor
+                    var mimeType = "image/jpg"; // Establece el tipo MIME adecuado
+
+                    if (System.IO.File.Exists(imagenPath))
+                    {
+                        // Lee los datos binarios de la imagen
+                        var imagenBytes = System.IO.File.ReadAllBytes(imagenPath);
+
+                        personasConImagenes.Add(new personalMinisterialConFotoDto
+                        {
+                            pem_Id_Ministro = persona.pem_Id_Ministro,
+                            pem_Nombre = persona.pem_Nombre,
+                            pem_Grado_Ministerial = persona.pem_Grado_Ministerial,
+                            per_Id_Persona = persona.per_Id_Persona,
+                            per_Activo = persona.per_Activo,
+                            per_En_Comunion = persona.per_En_Comunion,
+                            per_Vivo = persona.per_Vivo,
+                            sec_Id_Sector = persona.sec_Id_Sector,
+                            sector= persona.sec_Tipo_Sector + " " + persona.sec_Numero,
+                            per_Nombre = persona.per_Nombre,
+                            per_Apellido_Paterno = persona.per_Apellido_Paterno,
+                            per_Apellido_Materno = persona.per_Apellido_Materno,
+                            per_Apellido_Casada = persona.per_Apellido_Casada,
+                            apellidoPrincipal = persona.apellidoPrincipal,
+                            per_Bautizado = persona.per_Bautizado,
+                            pem_Foto_Ministro = persona.pem_Foto_Ministro,
+                            imagen = imagenBytes,
+                            MIMEType = mimeType
+                        });
+                    }
+                }
+
+
+
+
                 return Ok(new
                 {
                     status = "success",
-                    administrativo = PersonalMinisterial
+                    administrativo = personasConImagenes
                 });
             }
             catch (Exception ex)
@@ -855,7 +930,9 @@ namespace IECE_WebApi.Controllers
         [HttpGet]
         [EnableCors("AllowOrigin")]
         public IActionResult GetPersonalMinisterialBySector(int sec_Id_Sector)
+                        
         {
+
             try
             {
                 var PersonalMinisterial = (from PM in context.Personal_Ministerial
@@ -863,7 +940,80 @@ namespace IECE_WebApi.Controllers
                                            join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
                                            where P.sec_Id_Sector == sec_Id_Sector && PM.pem_Activo == true
-                                           select PM).ToList();
+                                           orderby S.sec_Numero, PM.pem_Grado_Ministerial,PM.pem_Nombre
+                                           select new
+                                           {
+                                              pem_Id_Ministro = PM.pem_Id_Ministro,
+                                              pem_Nombre = PM.pem_Nombre,
+                                              pem_Grado_Ministerial= PM.pem_Grado_Ministerial,
+                                              pem_Foto_Ministro = (PM.pem_Foto_Ministro != null) ? PM.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos"): "c:\\DoctosCompartidos\\FotosMinisterial\\SinFoto.jpg",
+                                           }).ToList();
+
+                var personasConImagenes = new List<personalMinisterialConFoto>();
+
+                foreach (var persona in PersonalMinisterial)
+                {
+                    var imagenPath = persona.pem_Foto_Ministro; // Ruta de la imagen en el servidor
+                    var mimeType = "image/jpg"; // Establece el tipo MIME adecuado
+
+                    if (System.IO.File.Exists(imagenPath))
+                    {
+                        // Lee los datos binarios de la imagen
+                        var imagenBytes = System.IO.File.ReadAllBytes(imagenPath);
+
+                        personasConImagenes.Add(new personalMinisterialConFoto
+                        {
+                            pem_Id_Ministro = persona.pem_Id_Ministro,
+                            pem_Nombre = persona.pem_Nombre,
+                            pem_Grado_Ministerial = persona.pem_Grado_Ministerial,
+                            Imagen = imagenBytes,
+                            MIMEType = mimeType
+                        });
+                    }
+                }
+
+
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = personasConImagenes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Personal_Ministerial
+        // Personal Ministerial por Sector, vinculado con un Id_Miembro
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetPersonalMinisterialBySector2(int sec_Id_Sector)
+
+        {
+
+            try
+            {
+                var PersonalMinisterial = (from PM in context.Personal_Ministerial
+                                           join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
+                                           join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
+                                           join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
+                                           where P.sec_Id_Sector == sec_Id_Sector && PM.pem_Activo == true
+                                           select new
+                                           {
+                                               pem_Id_Ministro = PM.pem_Id_Ministro,
+                                               pem_Nombre = PM.pem_Nombre,
+                                               pem_Grado_Ministerial = PM.pem_Grado_Ministerial,
+                                               pem_Foto_Ministro = (PM.pem_Foto_Ministro != null) ? PM.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos") : "c:\\DoctosCompartidos\\FotosMinisterial\\SinFoto.jpg",
+                                           }).ToList();
+
+
                 return Ok(new
                 {
                     status = "success",
@@ -880,8 +1030,6 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-
-
         // GET: api/Personal_Ministerial
         // AUXILIARES POR SECTOR
         [Route("[action]/{sec_Id_Sector}")]
@@ -893,7 +1041,7 @@ namespace IECE_WebApi.Controllers
             {
                 var auxiliares = (from a in context.Personal_Ministerial
                                   where a.sec_Id_Congregacion == sec_Id_Sector
-                                  && a.pem_Activo && a.pem_Grado_Ministerial == "AUXILIAR"
+                                  && a.pem_Activo && (a.pem_Grado_Ministerial == "AUXILIAR" || a.pem_Grado_Ministerial == "DIÁCONO A PRUEBA")
                                   select a).ToList();
                 return Ok(new
                 {

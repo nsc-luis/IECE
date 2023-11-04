@@ -82,30 +82,7 @@ namespace IECE_WebApi.Controllers
         //    }
         //}
 
-        [HttpGet("{idPersona}")]
-        [EnableCors("AllowOrigin")]
-        public IActionResult Get(int idPersona)
-        {
-            try
-            {
-                // CONSULTA DATOS DE LA PERSONA
-                var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == idPersona);
-
-                // CONSULTA IMAGEN DE LA FOTO
-                var foto = context.Foto.FirstOrDefault(f => f.idFoto == p.idFoto);
-                string path = Path.Combine($"{foto.path}{foto.guid}{foto.extension}");
-                byte[] imageByteData = System.IO.File.ReadAllBytes(path);
-                return File(imageByteData, foto.mimeType);
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    status = "error",
-                    mensaje = ex.Message
-                });
-            }
-        }
+         
 
         [HttpGet]
         [Route("[action]")]
@@ -139,8 +116,16 @@ namespace IECE_WebApi.Controllers
             {
                 // CONSULTA IMAGEN DE LA FOTO
                 var ministro = context.Personal_Ministerial.FirstOrDefault(f => f.pem_Id_Ministro == pem_Id_Ministro);
-
-                var fotoUrl = ministro.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos"); //Para Server
+                var fotoUrl = "";
+                if (ministro.pem_Foto_Ministro != null )
+                {
+                    fotoUrl =  ministro.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos"); //Para Server
+                }
+                else
+                {
+                    fotoUrl = "c:\\DoctosCompartidos\\FotosMinisterial\\SinFoto.jpg"; //Para Server
+                }
+                    
                 //var fotoUrl = ministro.pem_Foto_Ministro; //Para cuando está corriendo en Servidor Local
                 byte[] imageByteData = System.IO.File.ReadAllBytes(fotoUrl);
                 return File(imageByteData, "image/jpg");
