@@ -17,12 +17,10 @@ namespace IECE_WebApi.Controllers
     public class Registro_TransaccionesController : ControllerBase
     {
         private readonly AppDbContext context;
-
         public Registro_TransaccionesController(AppDbContext context)
         {
             this.context = context;
         }
-
 
         private DateTime fechayhora = DateTime.UtcNow;
 
@@ -79,7 +77,6 @@ namespace IECE_WebApi.Controllers
                     public int CAMBIODEDOMINTERNO { get; set; }
                     public int CAMBIODEDOMEXTERNO { get; set; }
                     public int BAJAHOGAR { get; set; }
-
                 }
                 public class noBautizados
                 {
@@ -89,7 +86,6 @@ namespace IECE_WebApi.Controllers
                     public int CAMBIODEDOMICILIOEXTERNO { get; set; }
                     public int PASAAPERSONALBAUTIZADO { get; set; }
                     public int PORBAJADEPADRES { get; set; }
-
                 }
             }
         }
@@ -182,7 +178,7 @@ namespace IECE_WebApi.Controllers
                 var pb = personas.Where(
                     p => p.per_Bautizado == true
                     && p.per_En_Comunion == true
-                    && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+                    && p.per_Fecha_Bautismo <= mesActualDelReporte).ToList();
 
                 int personasBautizadas = pb.Count;
 
@@ -202,7 +198,7 @@ namespace IECE_WebApi.Controllers
                 var pnb = personas.Where(
                     p => p.per_Bautizado == false
                     && p.per_En_Comunion == false
-                    && p.per_Fecha_Nacimiento < mesActualDelReporte).ToList();
+                    && p.per_Fecha_Nacimiento <= mesActualDelReporte).ToList();
 
                 int personasNoBautizadas = pnb.Count;
 
@@ -221,10 +217,39 @@ namespace IECE_WebApi.Controllers
                 // HISTORIAL DE TRANSACCIONES ESTADISTICAS
                 // historial transacciones estadisticas del sector y mes de consulta
                 var hteDelMesConsultado = (from hte in context.Historial_Transacciones_Estadisticas
-                                           where (hte.hte_Fecha_Transaccion > new DateTime(fhte.year, fhte.mes, 1)
-                                           && hte.hte_Fecha_Transaccion < mesActualDelReporte)
+                                           where (hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
+                                           && hte.hte_Fecha_Transaccion <= mesActualDelReporte)
                                            && hte.sec_Sector_Id == fhte.sec_Id_Sector
                                            select hte).ToList();
+
+                // historial transacciones estadisticas del sector despues del mes consultado
+                var hteDespuesDelMesConsultado = (from hte in context.Historial_Transacciones_Estadisticas
+                                                  where hte.hte_Fecha_Transaccion > mesActualDelReporte
+                                                  && hte.sec_Sector_Id == fhte.sec_Id_Sector
+                                                  select hte).ToList();
+                // altas posteriores
+                int[] codAlta = { 11001, 11002, 11003, 11004, 11005, 12001, 12002, 12003, 12004 };
+                int altasPosteriores = 0;
+                foreach (var ca in codAlta)
+                {
+                    var a = hteDespuesDelMesConsultado.Where(hte=>hte.ct_Codigo_Transaccion == ca).ToList();
+                    if(a.Count() > 0)
+                    {
+                        altasPosteriores++;
+                    }
+                }
+                // bajas posteriores
+                int[] codBaja = { 11101, 11102, 11103, 11004, 11005, 12101, 12102, 12103, 12104, 12105, 12106 };
+                int bajasPosteriores = 0;
+                foreach (var ca in codBaja)
+                {
+                    var a = hteDespuesDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                    if (a.Count() > 0)
+                    {
+                        bajasPosteriores++;
+                    }
+                }
+
 
                 // ALTAS BAUTIZADOS
                 // alta por bautismo
@@ -312,8 +337,8 @@ namespace IECE_WebApi.Controllers
                 {
                     NUEVOINGRESO = anbni,
                     REACTIVACION = anbr,
-                    CAMBIODEDOMINTERNO=anbcdi,
-                    CAMBIODEDOMEXTERNO=anbce
+                    CAMBIODEDOMINTERNO = anbcdi,
+                    CAMBIODEDOMEXTERNO = anbce
                 };
 
                 HistTransEstBySectorMes.bajas.bautizados bajasBautizados = new HistTransEstBySectorMes.bajas.bautizados
@@ -341,6 +366,8 @@ namespace IECE_WebApi.Controllers
                     status = "success",
                     personasBautizadas,
                     personasNoBautizadas,
+                    bautizadasAlPrincipioDelMes = personasBautizadas - altasPosteriores,
+                    noBautizadasAlPrincipioDelMes = personasNoBautizadas - bajasPosteriores,
                     hogares,
                     altasBautizados,
                     altasNoBautizados,
