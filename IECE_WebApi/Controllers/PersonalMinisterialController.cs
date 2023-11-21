@@ -841,7 +841,7 @@ namespace IECE_WebApi.Controllers
                 //Traerá sólo al Personal Ministerial que tenga vinculado un ID de Persona.
                 var PersonalMinisterial = (from PM in context.Personal_Ministerial
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
-                                           join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
+                                           join S in context.Sector on PM.sec_Id_Congregacion equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
                                            where D.dis_Id_Distrito == dis_Id_Distrito && PM.pem_Activo == true
                                            orderby S.sec_Numero, PM.pem_Nombre
@@ -864,7 +864,7 @@ namespace IECE_WebApi.Controllers
                                            per_Apellido_Casada=P.per_Apellido_Casada,
                                            apellidoPrincipal = (P.per_Apellido_Casada == "" || P.per_Apellido_Casada == null) ? P.per_Apellido_Paterno : (P.per_Apellido_Casada + "* " + P.per_Apellido_Paterno),
                                            per_Bautizado = P.per_Bautizado,
-                                               pem_Foto_Ministro = (PM.pem_Foto_Ministro != null) ? PM.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos") : "c:\\DoctosCompartidos\\FotosMinisterial\\SinFoto.jpg",
+                                           pem_Foto_Ministro = (PM.pem_Foto_Ministro != null) ? PM.pem_Foto_Ministro.Replace("\\\\192.168.0.11", "c:\\DoctosCompartidos") : "c:\\DoctosCompartidos\\FotosMinisterial\\SinFoto.jpg",
                                            }).ToList();
 
                 var personasConImagenes = new List<personalMinisterialConFotoDto>();
@@ -932,12 +932,11 @@ namespace IECE_WebApi.Controllers
         public IActionResult GetPersonalMinisterialBySector(int sec_Id_Sector)
                         
         {
-
             try
             {
                 var PersonalMinisterial = (from PM in context.Personal_Ministerial
                                            join P in context.Persona on PM.per_Id_Miembro equals P.per_Id_Persona
-                                           join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
+                                           join S in context.Sector on PM.sec_Id_Congregacion equals S.sec_Id_Sector
                                            join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
                                            where P.sec_Id_Sector == sec_Id_Sector && PM.pem_Activo == true
                                            orderby S.sec_Numero, PM.pem_Grado_Ministerial,PM.pem_Nombre
@@ -1644,26 +1643,36 @@ namespace IECE_WebApi.Controllers
                                            where min.pem_Id_Ministro == ab.id_Ministro
                                            select min).FirstOrDefault();
 
-                    //Inactiva al Auxiliar y lo graba.
-                    elementoMinisterial.pem_Activo = false;
-                    context.SaveChanges();
+                    if (ab.causaDeBaja != "CAMBIO DE DOMICILIO") //Si la Baja NO es por cambio de Domicilio, se dara de Baja de la Tabla Personal Ministerial.
+                    {
+                        //Inactiva al Auxiliar y lo graba.
+                        elementoMinisterial.pem_Activo = false;
+                        context.SaveChanges();
 
-                    //Registra la Transacción Ministerial
-                    Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
-                    rt.RegistroHistorico(
-                     elementoMinisterial.pem_Id_Ministro,
-                     elementoMinisterial.sec_Id_Congregacion,
-                     "BAJA DE PERSONAL MINISTERIAL",
-                     ab.causaDeBaja,
-                     "",
-                     ab.fechaTransaccion,
-                     ab.usu_Id_Usuario,
-                     ab.usu_Id_Usuario
-                    );
+                        //Registra la Transacción Ministerial
+                        Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
+                        rt.RegistroHistorico(
+                         elementoMinisterial.pem_Id_Ministro,
+                         elementoMinisterial.sec_Id_Congregacion,
+                         "BAJA DE PERSONAL MINISTERIAL",
+                         ab.causaDeBaja,
+                         "",
+                         ab.fechaTransaccion,
+                         ab.usu_Id_Usuario,
+                         ab.usu_Id_Usuario
+                        );
 
-                    //Se envía email al Obispo y a soporte de la Baja de Auxiliar que está gestionando el Pastor.
-                    SendMailController smc = new SendMailController(context);
-                    smc.BajaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, ab.usu_Id_Usuario);
+                        //Se envía email al Obispo y a soporte de la Baja de Auxiliar que está gestionando el Pastor.
+                        SendMailController smc = new SendMailController(context);
+                        smc.BajaDeAuxiliar(elementoMinisterial.pem_Id_Ministro, ab.usu_Id_Usuario);
+                    } else 
+                    //Si la Baja es por cambio de Domicilio, sólo cambiará el campo "Id_Sector" a Null. Esperando a que otro Sector lo Vincule.
+                    {
+                        //Inactiva al Auxiliar y lo graba.
+                        elementoMinisterial.sec_Id_Congregacion = 0;
+                        context.SaveChanges();
+                    }
+                    
                 }
 
                 return Ok
