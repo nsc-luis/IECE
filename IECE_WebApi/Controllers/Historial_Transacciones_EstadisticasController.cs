@@ -148,6 +148,7 @@ namespace IECE_WebApi.Controllers
                                select per).ToList();
 
                 Persona p = persona[0];
+
                 switch (altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.ct_Codigo_Transaccion)
                 {
                     case 11002: // Restitución Bautizado
@@ -254,6 +255,29 @@ namespace IECE_WebApi.Controllers
                 hp.usu_Id_Usuario = altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id;
                 context.Hogar_Persona.Update(hp);
                 context.SaveChanges();
+
+                // VERIFICA SI LA PERSONA PERTENECÍA AL PERSONAL MINISTERIAL PARA CAMBIAR SU CONGREGACIÓN EN LA TABLA PERSONAL MINISTERIAL, esta parte es Temporar ya que desaparecerá el campo "Id_Congregacion" cuando ya esté toda la membresía registrada.
+                var pm = context.Personal_Ministerial.FirstOrDefault(pem => pem.per_Id_Miembro == p.per_Id_Persona && pem.pem_Activo == true);
+
+                if (pm != null) //Si encuentra que la Persona Cambiada de Domicilio pertenece al Personal Ministerial, le cambia el Sector/Congregació
+                {
+                    pm.sec_Id_Congregacion = p.sec_Id_Sector;
+                    context.Personal_Ministerial.Update(pm);
+                    context.SaveChanges();
+
+                    //Registra la Transacción Ministerial
+                    Registro_TransaccionesController rt = new Registro_TransaccionesController(context);
+                    rt.RegistroHistorico(
+                     pm.pem_Id_Ministro,
+                     pm.sec_Id_Congregacion,
+                     "EDICIÓN GENERAL DE DATOS DE PERSONAL MINISTERIAL",
+                     "CAMBIO DE SECTOR",
+                     "",
+                     altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.hte_Fecha_Transaccion,
+                    altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id,
+                     altaCambioDomicilioRestitucionReactivacion_nuevoDomicilio.Usu_Usuario_Id
+                     );
+                }
 
                 return Ok(new
                 {
@@ -604,6 +628,16 @@ namespace IECE_WebApi.Controllers
                             // se genera registro historico de la persona
                             RegistroHistorico(acdrr_he.idPersona, p.sec_Id_Sector, ct, acdrr_he.comentario, acdrr_he.fecha, acdrr_he.idMinistro);
                         break;
+                }
+
+                // VERIFICA SI LA PERSONA PERTENECÍA AL PERSONAL MINISTERIAL PARA CAMBIAR SU CONGREGACIÓN EN LA TABLA PERSONAL MINISTERIAL, esta parte es Temporar ya que desaparecerá el campo "Id_Congregacion" cuando ya esté toda la membresía registrada.
+                var pm = context.Personal_Ministerial.FirstOrDefault(pem => pem.per_Id_Miembro == p.per_Id_Persona && pem.pem_Activo == true);
+
+                if (pm != null) //Si encuentra que la Persona Cambiada de Domicilio pertenece al Personal Ministerial, le cambia el Sector/Congregació
+                {
+                        pm.sec_Id_Congregacion = p.sec_Id_Sector;
+                        context.Personal_Ministerial.Update(pm);
+                        context.SaveChanges();
                 }
 
                 return Ok(new
