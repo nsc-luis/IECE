@@ -222,34 +222,51 @@ namespace IECE_WebApi.Controllers
                                            && hte.sec_Sector_Id == fhte.sec_Id_Sector
                                            select hte).ToList();
 
-                // historial transacciones estadisticas del sector despues del mes consultado
-                var hteDespuesDelMesConsultado = (from hte in context.Historial_Transacciones_Estadisticas
-                                                  where hte.hte_Fecha_Transaccion > mesActualDelReporte
-                                                  && hte.sec_Sector_Id == fhte.sec_Id_Sector
-                                                  select hte).ToList();
-                // altas posteriores
+                // altas bautizados del mes
                 int[] codAlta = { 11001, 11002, 11003, 11004, 11005, 12001, 12002, 12003, 12004 };
-                int altasPosteriores = 0;
+                int movAltaBautizado = 0;
                 foreach (var ca in codAlta)
                 {
-                    var a = hteDespuesDelMesConsultado.Where(hte=>hte.ct_Codigo_Transaccion == ca).ToList();
-                    if(a.Count() > 0)
-                    {
-                        altasPosteriores++;
-                    }
-                }
-                // bajas posteriores
-                int[] codBaja = { 11101, 11102, 11103, 11004, 11005, 12101, 12102, 12103, 12104, 12105, 12106 };
-                int bajasPosteriores = 0;
-                foreach (var ca in codBaja)
-                {
-                    var a = hteDespuesDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                    var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
                     if (a.Count() > 0)
                     {
-                        bajasPosteriores++;
+                        movAltaBautizado++;
+                    }
+                }
+                // bajas bautizados del mes
+                int[] codBaja = { 11101, 11102, 11103, 11004, 11005, 12101, 12102, 12103, 12104, 12105, 12106 };
+                int movBajaBautizado = 0;
+                foreach (var ca in codBaja)
+                {
+                    var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                    if (a.Count() > 0)
+                    {
+                        movBajaBautizado++;
                     }
                 }
 
+                // altas no bautizados del mes
+                int[] codAltaNB = { 12001, 12002, 12003, 12004 };
+                int movAltaNB = 0;
+                foreach (var ca in codAltaNB)
+                {
+                    var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                    if (a.Count() > 0)
+                    {
+                        movAltaNB++;
+                    }
+                }
+                // bajas no bautizados del mes
+                int[] codBajaNB = { 12101, 12102, 12103, 12104, 12105, 12106 };
+                int movBajaNB = 0;
+                foreach (var ca in codBajaNB)
+                {
+                    var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                    if (a.Count() > 0)
+                    {
+                        movBajaNB++;
+                    }
+                }
 
                 // ALTAS BAUTIZADOS
                 // alta por bautismo
@@ -366,9 +383,10 @@ namespace IECE_WebApi.Controllers
                     status = "success",
                     personasBautizadas,
                     personasNoBautizadas,
-                    bautizadasAlPrincipioDelMes = personasBautizadas - altasPosteriores,
-                    noBautizadasAlPrincipioDelMes = personasNoBautizadas - bajasPosteriores,
+                    personasBautizadasAlFinalDelMes = personasBautizadas + movAltaBautizado - movBajaBautizado,
+                    personasNoBautizadasAlFinalDelMes = personasNoBautizadas + movAltaNB - movBajaNB,
                     hogares,
+                    hogaresAlFinalDelMes = hogares + ah - bh,
                     altasBautizados,
                     altasNoBautizados,
                     bajasBautizados,
