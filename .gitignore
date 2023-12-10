@@ -4,6 +4,7 @@ IECE_WebApi/Migrations/
 IECE_WebApi/.vs/
 IECE_WebApi/bin/
 IECE_WebApi/obj/
+IECE_WebApi/Properties/
 .vs/
 IECE_WebApi/Temp/*.pdf
 IECE_WebApi/Temp/*.docx
