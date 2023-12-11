@@ -2091,6 +2091,17 @@ namespace IECE_WebApi.Controllers
                         // Restructura las Jerarquías y las arregla para que sean consecutivas dejando a la persona dada de baja al final en la jerarquía del Hogar.
                         RestructuraJerarquiasBaja(mbpcd.idPersona);
                     }
+
+
+                    // VERIFICA SI LA PERSONA PERTENECÍA AL PERSONAL MINISTERIAL PARA CAMBIAR SU CONGREGACIÓN EN LA TABLA PERSONAL MINISTERIAL, esta parte es Temporar ya que desaparecerá el campo "Id_Congregacion" cuando ya esté toda la membresía registrada.
+                    var pm = context.Personal_Ministerial.FirstOrDefault(pem => pem.per_Id_Miembro == p.per_Id_Persona && pem.pem_Activo == true);
+
+                    if (pm != null) //Si encuentra que la Persona Excomulgada pertenece al Personal Ministerial.
+                    {
+                            pm.sec_Id_Congregacion = 0;
+                            context.Personal_Ministerial.Update(pm);
+                            context.SaveChanges();
+                    }
                 }
 
                 return Ok(new
@@ -2865,6 +2876,24 @@ namespace IECE_WebApi.Controllers
                 // MODIFICACION DE INFO DE LA PERSONA
                 context.Entry(persona).State = EntityState.Modified;
                 context.SaveChanges();
+
+
+                // VERIFICA SI LA PERSONA PERTENECÍA AL PERSONAL MINISTERIAL PARA ACTUALIZAR SUS DATOS EN LA TABLA PERSONAL MINISTERIAL.
+                var pm = context.Personal_Ministerial.FirstOrDefault(pem => pem.per_Id_Miembro == persona.per_Id_Persona && pem.pem_Activo == true);
+
+                if (pm != null) //Si encuentra que la Persona Cambiada de Domicilio pertenece al Personal Ministerial, le cambia el Sector/Congregació
+                {
+                    if (persona.per_Telefono_Movil !=null)
+                    {
+                        pm.pem_Cel1 = persona.per_Telefono_Movil;
+                    }
+                    if (persona.per_Email_Personal != null)
+                    {
+                        pm.pem_Cel1 = persona.per_Email_Personal;
+                    }
+                    context.Personal_Ministerial.Update(pm);
+                    context.SaveChanges();
+                }
 
                 return Ok(
                     new

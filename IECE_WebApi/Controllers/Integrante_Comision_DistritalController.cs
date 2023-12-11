@@ -85,10 +85,11 @@ namespace IECE_WebApi.Controllers
         }
 
         // POST: api/Integrante_Comision_Distrital
-        [HttpPost]
+        
         [Route("[action]")]
+        [HttpPost]
         [EnableCors("AllowOrigin")]
-        public IActionResult PostIntegrante_Comision_Distrital(Integrante_Comision_Distrital integrante_Comision_Distrital)
+        public IActionResult PostIntegrante_Comision_Distrital([FromBody]Integrante_Comision_Distrital integrante_Comision_Distrital)
         {
             Integrante_Comision_Distrital NuevoIntegrante = integrante_Comision_Distrital;
 

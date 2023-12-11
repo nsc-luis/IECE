@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using IECE_WebApi.Contexts;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace IECE_WebApi.Controllers
 {
@@ -96,7 +98,7 @@ namespace IECE_WebApi.Controllers
         [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
-        public IActionResult PostIntegrante_Comision_Local(Integrante_Comision_Local integrante_Comision_Local)
+        public IActionResult PostIntegrante_Comision_Local([FromBody]Integrante_Comision_Local integrante_Comision_Local)
         {
             Integrante_Comision_Local NuevoIntegrante = integrante_Comision_Local;
 
@@ -140,10 +142,6 @@ namespace IECE_WebApi.Controllers
                     mensaje = ex.Message
                 });
             }
-
-
-
-
         }
 
         // DELETE: api/Integrante_Comision_Local/5

@@ -46,5 +46,9 @@ namespace IECE_WebApi.Contexts
         public DbSet<Comision_Distrital> Comision_Distrital { get; set; }
         public DbSet<Integrante_Comision_Distrital> Integrante_Comision_Distrital { get; set; }
         public DbSet<Organismo_Interno> Organismo_Interno { get; set; }
+        public DbSet<Templo> Templo { get; set; }
+        public DbSet<Domicilio> Domicilio { get; set; }
+        public DbSet<CasaPastoral> CasaPastoral { get; set; }
+        public DbSet<Mision_Sector> Mision_Sector { get; set; }
     }
 }
