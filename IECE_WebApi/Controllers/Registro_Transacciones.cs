@@ -222,6 +222,8 @@ namespace IECE_WebApi.Controllers
                                            && hte.sec_Sector_Id == fhte.sec_Id_Sector
                                            select hte).ToList();
 
+                // posible duplisidad para futuras altas
+
                 // altas bautizados del mes
                 int[] codAlta = { 11001, 11002, 11003, 11004, 11005, 12001, 12002, 12003, 12004 };
                 int movAltaBautizado = 0;
