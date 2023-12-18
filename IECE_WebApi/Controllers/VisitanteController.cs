@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using System;
 using System.Linq;
 
@@ -28,7 +29,8 @@ namespace IECE_WebApi.Controllers
         public class VisitanteNota
         {
             public virtual Visitante visitante { get; set; }
-            public virtual Nota nota { get; set; }
+            public string N_Nota { get; set; }
+            public DateTime N_Fecha_Nota { get; set; }
         }
 
         [HttpGet]
@@ -63,14 +65,35 @@ namespace IECE_WebApi.Controllers
             try
             {
                 Visitante visitante = vn.visitante;
+                var contador = (from vp in context.Visitante
+                                where vp.sec_Id_Sector == visitante.sec_Id_Sector
+                                orderby vp.Vp_Numero_Lista ascending
+                                select vp).ToList();
+
+                if (contador.Count < 1) { visitante.Vp_Numero_Lista = 1; }
+                if (contador.Count != visitante.Vp_Numero_Lista)
+                {
+                    for (int i = visitante.Vp_Numero_Lista; i <= contador.Count; i++)
+                    {
+
+                    }
+                }
+
                 visitante.Vp_Activo = true;
                 visitante.Fecha_Registro = fechayhora;
+                visitante.Vp_Numero_Lista = contador.Count > 0 ? contador.LastOrDefault().Vp_Numero_Lista + 1 : 1;
                 context.Visitante.Add(visitante);
                 context.SaveChanges();
 
-                Nota nota = vn.nota;
-                nota.Fecha_Registro = fechayhora;
-                nota.Vp_Id_Visitante = visitante.Vp_Id_Visitante;
+                Nota nota = new Nota()
+                {
+                    Vp_Id_Visitante = visitante.Vp_Id_Visitante,
+                    N_Nota = vn.N_Nota,
+                    N_Fecha_Nota = vn.N_Fecha_Nota,
+                    Fecha_Registro = fechayhora,
+                    Usu_Id_Usuario = visitante.Usu_Id_Usuario
+                };
+
                 context.Nota.Add(nota);
                 context.SaveChanges();
 
@@ -91,19 +114,13 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        [HttpPut("{Vp_Id_Visitante}")]
+        [HttpPut]
         [EnableCors("AllowOrigin")]
-        public IActionResult Put([FromBody] Visitante v, int Vp_Id_Visitante)
+        public IActionResult Put([FromBody] Visitante visitante)
         {
             try
             {
-                var visitante = context.Visitante.FirstOrDefault(vp => vp.Vp_Id_Visitante == Vp_Id_Visitante);
-                visitante.Vp_Direccion = v.Vp_Direccion;
-                visitante.Vp_Numero_Lista = v.Vp_Numero_Lista;
-                visitante.Vp_Tipo_Visitante = v.Vp_Tipo_Visitante;
-                visitante.Vp_Nombre = v.Vp_Nombre;
-                visitante.Vp_Telefono_Contacto = v.Vp_Telefono_Contacto;
-                context.Visitante.Update(visitante);
+                context.Entry(visitante).State = EntityState.Modified;
                 context.SaveChanges();
 
                 return Ok(new
