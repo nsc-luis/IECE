@@ -2889,7 +2889,7 @@ namespace IECE_WebApi.Controllers
                     }
                     if (persona.per_Email_Personal != null)
                     {
-                        pm.pem_Cel1 = persona.per_Email_Personal;
+                        pm.pem_email_Personal = persona.per_Email_Personal;
                     }
                     context.Personal_Ministerial.Update(pm);
                     context.SaveChanges();
