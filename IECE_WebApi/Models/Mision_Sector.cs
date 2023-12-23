@@ -12,6 +12,6 @@ namespace IECE_WebApi.Models
         public bool ms_Activo { get; set; }
         public int sec_Id_Sector { get; set; }
         public DateTime ms_Fecha_Captura { get; set; }
-        public int Usu_Usuario { get; set; }
+        public int usu_Id_Usuario { get; set; }
     }
 }
