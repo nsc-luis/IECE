@@ -106,6 +106,47 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/Sector/GetMsionesDeDistrito/dis_Id_Distrito
+        [Route("[action]/{dto}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetMsionesDeDistrito(int dto)
+        {
+            try
+            {
+                var query = (from sec in context.Sector
+                             join dis in context.Distrito
+                             on sec.dis_Id_Distrito equals dis.dis_Id_Distrito
+                             where sec.dis_Id_Distrito == dto && sec.sec_Tipo_Sector == "MISIÓN"
+                             orderby sec.sec_Id_Sector ascending
+                             select new
+                             {
+                                 sec_Id_Sector = sec.sec_Id_Sector,
+                                 ms_Alias = sec.sec_Alias,
+                                 sec_Tipo_Sector = sec.sec_Tipo_Sector,
+                                 ms_Numero = sec.sec_Numero,
+                                 pem_Id_Pastor = sec.pem_Id_Pastor != null ? 0 : sec.pem_Id_Pastor
+                             }).ToList();
+                return Ok(
+                    new
+                    {
+                        status = true,
+                        misiones = query
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new
+                    {
+                        status = false,
+                        mensaje = ex.Message
+                    }
+                );
+            }
+        }
+
         // GET: /api/Sector/GetPastorBySector/sec_Id_Sector
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
