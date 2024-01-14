@@ -1140,10 +1140,12 @@ namespace IECE_WebApi.Controllers
 
                 PersonalAdministrativo secretario = new PersonalAdministrativo();
                 Personal_Ministerial secretario1 = (from pm in context.Personal_Ministerial
-                                                   join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Secretario
-                                                    where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                    join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Secretario
+                                                    where s.sec_Id_Sector == sec_Id_Sector
                                                     && pm.pem_Activo
                                                     select pm).FirstOrDefault();
+
+               
 
                 secretario.cargo = "SECRETARIO";
                 secretario.datosPersonalMinisterial = secretario1;
@@ -1152,7 +1154,7 @@ namespace IECE_WebApi.Controllers
                 PersonalAdministrativo subsecretario = new PersonalAdministrativo();
                 Personal_Ministerial subSecretario1 = (from pm in context.Personal_Ministerial
                                                    join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_SubSecretario
-                                                   where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                   where s.sec_Id_Sector == sec_Id_Sector
                                                    && pm.pem_Activo
                                                    select pm).FirstOrDefault();
                 subsecretario.cargo = "SUBSECRETARIO";
@@ -1162,7 +1164,7 @@ namespace IECE_WebApi.Controllers
                 PersonalAdministrativo tesorero = new PersonalAdministrativo ();
                 Personal_Ministerial tesorero1 = (from pm in context.Personal_Ministerial
                                                       join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_Tesorero
-                                                      where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                      where s.sec_Id_Sector == sec_Id_Sector
                                                       && pm.pem_Activo
                                                       select pm).FirstOrDefault();
                 tesorero.cargo = "TESORERO";
@@ -1172,7 +1174,7 @@ namespace IECE_WebApi.Controllers
                 PersonalAdministrativo subtesorero = new PersonalAdministrativo();
                 Personal_Ministerial subTesorero1 = (from pm in context.Personal_Ministerial
                                                       join s in context.Sector on pm.pem_Id_Ministro equals s.pem_Id_SubTesorero
-                                                      where pm.sec_Id_Congregacion == sec_Id_Sector
+                                                      where s.sec_Id_Sector == sec_Id_Sector
                                                       && pm.pem_Activo
                                                       select pm).FirstOrDefault();
                 subtesorero.cargo = "SUBTESORERO";
