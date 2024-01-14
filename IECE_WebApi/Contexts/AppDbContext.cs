@@ -50,5 +50,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Domicilio> Domicilio { get; set; }
         public DbSet<CasaPastoral> CasaPastoral { get; set; }
         public DbSet<Mision_Sector> Mision_Sector { get; set; }
+        public DbSet<Visitante> Visitante { get; set; }
+        public DbSet<Nota> Nota { get; set; }
     }
 }
