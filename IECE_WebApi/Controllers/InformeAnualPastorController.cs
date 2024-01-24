@@ -29,7 +29,28 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                return Ok(_context.Informe.ToList());
+                var meses = new Dictionary<int, string>
+                {
+                    {0, "Desconocido"},
+                    {1, "Enero"},
+                    {2, "Febrero"},
+                    {3, "Marzo"},
+                    {4, "Abril"},
+                    {5, "Mayo"},
+                    {6, "Junio"},
+                    {7, "Julio"},
+                    {8, "Agosto"},
+                    {9, "Septiembre"},
+                    {10, "Octubre"},
+                    {11, "Noviembre"},
+                    {12, "Diciembre"}
+                };
+                return Ok(_context.Informe.Select(s => new
+                {
+                    IdInforme = s.IdInforme,
+                    Anio = s.Anio,
+                    Mes = meses[s.Mes],
+                }).ToList());
             }
             catch (Exception ex)
             {
@@ -62,8 +83,44 @@ namespace IECE_WebApi.Controllers
 
         // POST api/<InformeAnualPastorController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        [EnableCors("AllowOrigin")]
+        public IActionResult Post([FromBody] Informe data)
         {
+            try
+            {
+
+                List<Informe> informes = _context.Informe
+                    .Where(s => s.Anio == data.Anio)
+                    .ToList();
+
+                bool informeExiste = informes.Any(a => a.Mes == data.Mes);
+                if (informeExiste)
+                {
+                    return BadRequest($"Ya existe un informe para el mes {data.Mes}");
+                }
+
+                Informe informe = new Informe
+                {
+                    IdTipoUsuario = data.IdTipoUsuario,
+                    Mes = data.Mes,
+                    Anio = data.Anio,
+                    IdDistrito = data.IdDistrito,
+                    IdSector = data.IdSector,
+                    LugarReunion = data.LugarReunion,
+                    FechaReunion = data.FechaReunion,
+                    Status = data.Status,
+                    Usu_Id_Usuario = data.Usu_Id_Usuario,
+                    FechaRegistro = DateTime.Now
+                };
+                _context.Informe.Add(informe);
+                _context.SaveChanges();
+                return Ok(informe);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex);
+            }
         }
 
         // PUT api/<InformeAnualPastorController>/5
