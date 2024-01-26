@@ -65,8 +65,35 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                Informe informe = _context.Informe
+                var meses = new Dictionary<int, string>
+                {
+                    {0, "Desconocido"},
+                    {1, "Enero"},
+                    {2, "Febrero"},
+                    {3, "Marzo"},
+                    {4, "Abril"},
+                    {5, "Mayo"},
+                    {6, "Junio"},
+                    {7, "Julio"},
+                    {8, "Agosto"},
+                    {9, "Septiembre"},
+                    {10, "Octubre"},
+                    {11, "Noviembre"},
+                    {12, "Diciembre"}
+                };
+                var informe = _context.Informe
                     .Where(w => w.IdInforme == id)
+                    .Select(s => new
+                    {
+                        IdInforme = s.IdInforme,
+                        IdTipoUsuario = s.IdTipoUsuario,
+                        Mes = meses[s.Mes].ToUpper(),
+                        Anio = s.Anio,
+                        IdDistrito = s.IdDistrito,
+                        IdSector = s.IdSector,
+                        LugarReunion = s.LugarReunion,
+                        Status = s.Status,
+                    })
                     .FirstOrDefault();
 
                 if(informe == null)
