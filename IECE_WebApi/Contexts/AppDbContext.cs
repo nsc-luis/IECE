@@ -53,5 +53,7 @@ namespace IECE_WebApi.Contexts
         public DbSet<Visitante> Visitante { get; set; }
         public DbSet<Nota> Nota { get; set; }
         public DbSet<Informe> Informe { get; set; }
+        public DbSet<VisitasPastor> VisitasPastor { get; set; }
+        public DbSet<CultosSector> CultosSector { get; set; }
     }
 }

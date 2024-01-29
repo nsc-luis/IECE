@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -152,8 +153,43 @@ namespace IECE_WebApi.Controllers
 
         // PUT api/<InformeAnualPastorController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [EnableCors("AllowOrigin")]
+        public IActionResult Put([FromBody] InformePastorPutViewModel data)
         {
+            try
+            {
+                VisitasPastor visitasPastor = _context.VisitasPastor.Where(w => w.IdInformePastor == data.IdInforme).FirstOrDefault();
+                if (visitasPastor == null)
+                {
+                    var addVisitasPastor = new VisitasPastor
+                    {
+                        IdInformePastor = data.IdInforme,
+                        PorPastor = data.VisitasPastor.PorPastor,
+                        PorAncianosAux = data.VisitasPastor.PorAncianosAux,
+                        PorDiaconos = data.VisitasPastor.PorDiaconos,
+                        PorAuxiliares = data.VisitasPastor.PorAuxiliares,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now,
+                    };
+                    _context.VisitasPastor.Add(addVisitasPastor);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    visitasPastor = data.VisitasPastor;
+                    _context.Entry(visitasPastor).State = EntityState.Modified;
+                    _context.SaveChanges();
+                }
+                //CultosSector cultosSector = _context.CultosSector.Where(w => w.IdInforme == data.IdInforme).FirstOrDefault();
+
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex);
+            }
         }
 
         // DELETE api/<InformeAnualPastorController>/5
