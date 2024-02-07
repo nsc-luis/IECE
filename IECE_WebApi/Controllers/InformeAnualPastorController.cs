@@ -66,6 +66,7 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                InformePastorViewModel informeVM = new InformePastorViewModel();
                 var meses = new Dictionary<int, string>
                 {
                     {0, "Desconocido"},
@@ -82,26 +83,85 @@ namespace IECE_WebApi.Controllers
                     {11, "Noviembre"},
                     {12, "Diciembre"}
                 };
-                var informe = _context.Informe
+                Informe informe = _context.Informe
                     .Where(w => w.IdInforme == id)
-                    .Select(s => new
-                    {
-                        IdInforme = s.IdInforme,
-                        IdTipoUsuario = s.IdTipoUsuario,
-                        Mes = meses[s.Mes].ToUpper(),
-                        Anio = s.Anio,
-                        IdDistrito = s.IdDistrito,
-                        IdSector = s.IdSector,
-                        LugarReunion = s.LugarReunion,
-                        Status = s.Status,
-                    })
                     .FirstOrDefault();
 
                 if(informe == null)
                 {
                     return NotFound("El informe no se encontró");
                 }
-                return Ok(informe);
+
+                informeVM.IdInforme = informe.IdInforme;
+                informeVM.IdTipoUsuario = informe.IdTipoUsuario;
+                informeVM.IdDistrito = informe.IdDistrito;
+                informeVM.IdSector = informe.IdSector;
+                informeVM.LugarReunion = informe.LugarReunion;
+                informeVM.FechaReunion = informe.FechaReunion;
+                informeVM.Status = informe.Status;
+                informeVM.Usu_Id_Usuario = informe.Usu_Id_Usuario;
+                informeVM.FechaRegistro = informe.FechaRegistro;
+                informeVM.Mes = informe.Mes;
+                informeVM.Anio = informe.Anio;
+
+                VisitasPastor visitasPastor = _context.VisitasPastor
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if(visitasPastor != null)
+                {
+                    informeVM.VisitasPastor = visitasPastor;
+                }
+
+                CultosSector cultosSector = _context.CultosSector
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (cultosSector != null)
+                {
+                    informeVM.CultosSector = cultosSector;
+                }
+
+                EstudiosSector estudiosSector = _context.EstudiosSector
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoEstudio == 1)
+                    .FirstOrDefault();
+
+                if (estudiosSector != null)
+                {
+                    informeVM.EstudiosSector = estudiosSector;
+                }
+
+                EstudiosSector conferenciasSector = _context.EstudiosSector
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoEstudio == 2)
+                    .FirstOrDefault();
+
+                if (conferenciasSector != null)
+                {
+                    informeVM.ConferenciasSector = conferenciasSector;
+                }
+
+
+                TrabajoEvangelismo trabajoEvangelismo = _context.TrabajoEvangelismo
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (trabajoEvangelismo != null)
+                {
+                    informeVM.TrabajoEvangelismo = trabajoEvangelismo;
+                }
+
+                List<CultosMisionSector> cultosMisionSector = _context.CultosMisionSector
+                    .Where(w => w.IdInforme == id)
+                    .ToList();
+
+                if (cultosMisionSector != null)
+                {
+                    informeVM.CultosMisionSector = cultosMisionSector;
+                }
+
+                return Ok(informeVM);
             }
             catch (Exception ex)
             {
@@ -154,16 +214,16 @@ namespace IECE_WebApi.Controllers
         // PUT api/<InformeAnualPastorController>/5
         [HttpPut("{id}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult Put([FromBody] InformePastorPutViewModel data)
+        public IActionResult Put([FromBody] InformePastorViewModel data)
         {
             try
             {
-                VisitasPastor visitasPastor = _context.VisitasPastor.Where(w => w.IdInformePastor == data.IdInforme).FirstOrDefault();
+                VisitasPastor visitasPastor = _context.VisitasPastor.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
                 if (visitasPastor == null)
                 {
                     var addVisitasPastor = new VisitasPastor
                     {
-                        IdInformePastor = data.IdInforme,
+                        IdInforme = data.IdInforme,
                         PorPastor = data.VisitasPastor.PorPastor,
                         PorAncianosAux = data.VisitasPastor.PorAncianosAux,
                         PorDiaconos = data.VisitasPastor.PorDiaconos,
@@ -177,10 +237,154 @@ namespace IECE_WebApi.Controllers
                 else
                 {
                     visitasPastor = data.VisitasPastor;
-                    _context.Entry(visitasPastor).State = EntityState.Modified;
+                    _context.VisitasPastor.Update(visitasPastor);
                     _context.SaveChanges();
                 }
-                //CultosSector cultosSector = _context.CultosSector.Where(w => w.IdInforme == data.IdInforme).FirstOrDefault();
+
+                CultosSector cultosSector = _context.CultosSector.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if(cultosSector == null)
+                {
+                    var addCultosSector = new CultosSector
+                    {
+                        IdInforme = data.IdInforme,
+                        Ordinarios = data.CultosSector.Ordinarios,
+                        Especiales = data.CultosSector.Especiales,
+                        DeAvivamiento = data.CultosSector.DeAvivamiento,
+                        DeAniversario = data.CultosSector.DeAniversario,
+                        PorElDistrito = data.CultosSector.PorElDistrito,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.CultosSector.Add(addCultosSector);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    cultosSector = data.CultosSector;
+                    _context.CultosSector.Update(cultosSector);
+                    _context.SaveChanges();
+                }
+
+                EstudiosSector estudiosSector = _context.EstudiosSector
+                    .Where(w => w.IdInforme == data.IdInforme)
+                    .Where(w => w.IdTipoEstudio == 1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+                if (estudiosSector == null)
+                {
+                    var addEstudiosSector = new EstudiosSector
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoEstudio = 1,
+                        EscuelaDominical = data.EstudiosSector.EscuelaDominical,
+                        Varonil = data.EstudiosSector.Varonil,
+                        Femenil = data.EstudiosSector.Femenil,
+                        Juvenil = data.EstudiosSector.Juvenil,
+                        Infantil = data.EstudiosSector.Infantil,
+                        Iglesia = data.EstudiosSector.Iglesia,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.EstudiosSector.Add(addEstudiosSector);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    estudiosSector = data.EstudiosSector;
+                    _context.EstudiosSector.Update(estudiosSector);
+                    _context.SaveChanges();
+                }
+
+                EstudiosSector conferenciasSector = _context.EstudiosSector
+                    .Where(w => w.IdInforme == data.IdInforme)
+                    .Where(w => w.IdTipoEstudio == 2)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+                if (conferenciasSector == null)
+                {
+                    var addConferenciasSector = new EstudiosSector
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoEstudio = 2,
+                        EscuelaDominical = data.ConferenciasSector.EscuelaDominical,
+                        Varonil = data.ConferenciasSector.Varonil,
+                        Femenil = data.ConferenciasSector.Femenil,
+                        Juvenil = data.ConferenciasSector.Juvenil,
+                        Infantil = data.ConferenciasSector.Infantil,
+                        Iglesia = data.ConferenciasSector.Iglesia,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.EstudiosSector.Add(addConferenciasSector);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    conferenciasSector = data.ConferenciasSector;
+                    _context.EstudiosSector.Update(conferenciasSector);
+                    _context.SaveChanges();
+                }
+
+
+                TrabajoEvangelismo trabajoEvangelismo = _context.TrabajoEvangelismo.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (trabajoEvangelismo == null)
+                {
+                    var addTrabajoEvangelismo = new TrabajoEvangelismo
+                    {
+                        IdInforme = data.IdInforme,
+                        HogaresVisitados = data.TrabajoEvangelismo.HogaresVisitados,
+                        HogaresConquistados = data.TrabajoEvangelismo.HogaresConquistados,
+                        CultosPorLaLocalidad = data.TrabajoEvangelismo.CultosPorLaLocalidad,
+                        CultosDeHogar = data.TrabajoEvangelismo.CultosDeHogar,
+                        Campanias = data.TrabajoEvangelismo.Campanias,
+                        AperturaDeMisiones = data.TrabajoEvangelismo.AperturaDeMisiones,
+                        VisitantesPermanentes = data.TrabajoEvangelismo.VisitantesPermanentes,
+                        Bautismos = data.TrabajoEvangelismo.Bautismos,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.TrabajoEvangelismo.Add(addTrabajoEvangelismo);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    trabajoEvangelismo = data.TrabajoEvangelismo;
+                    _context.TrabajoEvangelismo.Update(trabajoEvangelismo);
+                    _context.SaveChanges();
+                }
+
+                foreach (var item in data.CultosMisionSector)
+                {
+                    if (item.Cultos > 0)
+                    {
+                        CultosMisionSector cultoMisionSector = _context.CultosMisionSector
+                            .Where(w => w.IdInforme == data.IdInforme)
+                            .Where(w => w.Ms_Id_MisionSector == item.Ms_Id_MisionSector)
+                            .AsNoTracking()
+                            .FirstOrDefault();
+                        if (cultoMisionSector == null)
+                        {
+                            var addCultosMisionSector = new CultosMisionSector
+                            {
+                                IdInforme = data.IdInforme,
+                                Ms_Id_MisionSector = item.Ms_Id_MisionSector,
+                                Cultos = item.Cultos,
+                                Usu_Id_Usuario = data.Usu_Id_Usuario,
+                                FechaRegistro = DateTime.Now
+                            };
+                            _context.CultosMisionSector.Add(addCultosMisionSector);
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            cultoMisionSector.Cultos = item.Cultos;
+                            _context.CultosMisionSector.Update(cultoMisionSector);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+
+
 
                 return Ok();
 

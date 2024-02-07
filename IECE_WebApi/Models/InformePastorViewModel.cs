@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IECE_WebApi.Models
 {
-    public class InformePastorPutViewModel
+    public class InformePastorViewModel
     {
         public int IdInforme { get; set; }
         public int IdTipoUsuario { get; set; }
@@ -15,7 +15,9 @@ namespace IECE_WebApi.Models
         public DateTime FechaReunion { get; set; }
         public int Status { get; set; }
         public int Usu_Id_Usuario { get; set; }
-        public DateTime FechaRegistro { get; set; }
+        public DateTime? FechaRegistro { get; set; }
+        public int Mes { get; set; }
+        public int Anio { get; set; }
 
         public VisitasPastor VisitasPastor { get; set; }
         public CultosSector CultosSector { get; set; }
