@@ -1671,7 +1671,7 @@ namespace IECE_WebApi.Controllers
                     //Si la Baja es por cambio de Domicilio, sólo cambiará el campo "Id_Sector" a Null. Esperando a que otro Sector lo Vincule.
                     {
                         //Inactiva al Auxiliar y lo graba.
-                        elementoMinisterial.sec_Id_Congregacion = 0;
+                        //elementoMinisterial.sec_Id_Congregacion = 0; Habíamos pensado en dejar la congregación en Cero, pero crea efectos en algunos reportes.
                         context.SaveChanges();
                     }
                     
