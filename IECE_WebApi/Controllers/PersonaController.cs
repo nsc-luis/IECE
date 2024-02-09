@@ -1036,6 +1036,7 @@ namespace IECE_WebApi.Controllers
                                   p.per_Nombre,
                                   p.per_Apellido_Paterno,
                                   p.per_Apellido_Materno,
+                                  p.per_Nombre_Completo,
                                   p.per_Fecha_Nacimiento,
                                   edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
                                   p.per_RFC_Sin_Homo,
@@ -2135,7 +2136,7 @@ namespace IECE_WebApi.Controllers
                 var apellidoCasada = persona.per_Apellido_Casada != null && persona.per_Apellido_Casada != "" ? persona.per_Apellido_Casada + "*" : "";
                 var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + persona.per_Apellido_Paterno) : persona.per_Apellido_Paterno;
                 var apellidoMaterno = persona.per_Apellido_Materno != null ? persona.per_Apellido_Materno : "";
-                var nombreCompleto = persona.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;                
+                var nombreCompleto = persona.per_Nombre.Trim() + " " + apellidoPrincipal.Trim() + " " + apellidoMaterno.Trim();                
                 nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
                 persona.per_Nombre_Completo = nombreCompleto;
 
@@ -2264,7 +2265,7 @@ namespace IECE_WebApi.Controllers
                 var apellidoCasada = p.per_Apellido_Casada != null && p.per_Apellido_Casada != "" ? p.per_Apellido_Casada + "*" : "";
                 var apellidoPrincipal = (apellidoCasada != "") ? (apellidoCasada + " " + p.per_Apellido_Paterno) : p.per_Apellido_Paterno;
                 var apellidoMaterno = p.per_Apellido_Materno != null ? p.per_Apellido_Materno : "";
-                var nombreCompleto = p.per_Nombre + " " + apellidoPrincipal + " " + apellidoMaterno;
+                var nombreCompleto = p.per_Nombre.Trim() + " " + apellidoPrincipal.Trim() + " " + apellidoMaterno.Trim();
                 nombreCompleto = ManejoDeApostrofes.QuitarApostrofe2(nombreCompleto);
                 p.per_Nombre_Completo = nombreCompleto;
 
