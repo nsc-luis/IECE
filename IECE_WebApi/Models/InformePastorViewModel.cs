@@ -17,6 +17,7 @@ namespace IECE_WebApi.Models
         public int Usu_Id_Usuario { get; set; }
         public DateTime? FechaRegistro { get; set; }
         public int Mes { get; set; }
+        public string NombreMes { get; set; }
         public int Anio { get; set; }
 
         public VisitasPastor VisitasPastor { get; set; }
@@ -25,6 +26,7 @@ namespace IECE_WebApi.Models
         public EstudiosSector ConferenciasSector { get; set; }
         public List<CultosMisionSector> CultosMisionSector { get; set; }
         public TrabajoEvangelismo TrabajoEvangelismo { get; set; }
+        public Organizaciones Organizaciones { get; set; }
     }
 
 }

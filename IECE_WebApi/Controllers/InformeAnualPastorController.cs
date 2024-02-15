@@ -102,6 +102,7 @@ namespace IECE_WebApi.Controllers
                 informeVM.Usu_Id_Usuario = informe.Usu_Id_Usuario;
                 informeVM.FechaRegistro = informe.FechaRegistro;
                 informeVM.Mes = informe.Mes;
+                informeVM.NombreMes = meses[informe.Mes];
                 informeVM.Anio = informe.Anio;
 
                 VisitasPastor visitasPastor = _context.VisitasPastor
@@ -159,6 +160,15 @@ namespace IECE_WebApi.Controllers
                 if (cultosMisionSector != null)
                 {
                     informeVM.CultosMisionSector = cultosMisionSector;
+                }
+
+                Organizaciones organizaciones = _context.Organizaciones
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (organizaciones != null)
+                {
+                    informeVM.Organizaciones = organizaciones;
                 }
 
                 return Ok(informeVM);
@@ -384,7 +394,31 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-
+                Organizaciones organizaciones  = _context.Organizaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (organizaciones == null)
+                {
+                    var addOrganizaciones = new Organizaciones
+                    {
+                        IdInforme = data.IdInforme,
+                        SociedadFemenil = data.Organizaciones.SociedadFemenil,
+                        SociedadJuvenil = data.Organizaciones.SociedadJuvenil,
+                        DepartamentoFemenil = data.Organizaciones.DepartamentoFemenil,
+                        DepartamentoJuvenil = data.Organizaciones.DepartamentoJuvenil,
+                        DepartamentoInfantil = data.Organizaciones.DepartamentoInfantil,
+                        Coros = data.Organizaciones.Coros,
+                        GruposDeCanto = data.Organizaciones.GruposDeCanto,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Organizaciones.Add(addOrganizaciones);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    organizaciones = data.Organizaciones;
+                    _context.Organizaciones.Update(organizaciones);
+                    _context.SaveChanges();
+                }
 
                 return Ok();
 

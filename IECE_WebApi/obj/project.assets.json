@@ -14765,6 +14765,7 @@
       "Magick.NET-Q16-AnyCPU >= 12.2.0",
       "Microsoft.AspNetCore.App >= 2.2.0",
       "Microsoft.AspNetCore.Razor.Design >= 2.2.0",
+      "Microsoft.EntityFrameworkCore.SqlServer >= 2.2.0",
       "Microsoft.NETCore.App >= 2.2.0",
       "Microsoft.Office.Interop.Word >= 15.0.4797.1004",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 2.2.3",
@@ -14838,6 +14839,10 @@
           },
           "Microsoft.AspNetCore.Razor.Design": {
             "suppressParent": "All",
+            "target": "Package",
+            "version": "[2.2.0, )"
+          },
+          "Microsoft.EntityFrameworkCore.SqlServer": {
             "target": "Package",
             "version": "[2.2.0, )"
           },

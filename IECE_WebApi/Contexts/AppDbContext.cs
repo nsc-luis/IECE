@@ -58,5 +58,17 @@ namespace IECE_WebApi.Contexts
         public DbSet<EstudiosSector> EstudiosSector { get; set; }
         public DbSet<TrabajoEvangelismo> TrabajoEvangelismo { get; set; }
         public DbSet<CultosMisionSector> CultosMisionSector { get; set; }
+        public DbSet<AdquisicionesDistrito> AdquisicionesDistrito { get; set; }
+        public DbSet<AdquisicionesSector> AdquisicionesSector { get; set; }
+        public DbSet<Construcciones> Construcciones { get; set; }
+        public DbSet<Dedicaciones> Dedicaciones { get; set; }
+        public DbSet<LlamamientoDePersonal> LlamamientoDePersonal { get; set; }
+        public DbSet<MovimientoEconomico> MovimientoEconomico { get; set; }
+        public DbSet<Ordenaciones> Ordenaciones { get; set; }
+        public DbSet<Organizaciones> Organizaciones { get; set; }
+        public DbSet<OtrasActividades> OtrasActividades { get; set; }
+        public DbSet<RegularizacionPrediosTemplos> RegularizacionPrediosTemplos { get; set; }
+        public DbSet<SesionesReunionesDistrito> SesionesReunionesDistrito { get; set; }
+        public DbSet<SesionesReunionesSector> SesionesReunionesSector { get; set; }
     }
 }
