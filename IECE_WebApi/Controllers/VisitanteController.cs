@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace IECE_WebApi.Controllers
@@ -27,6 +28,11 @@ namespace IECE_WebApi.Controllers
 
         private DateTime fechayhora = DateTime.UtcNow;
 
+        public class VisitantesYSuSector
+        {
+            public virtual Visitante visitante { get; set; }
+            public virtual Sector sector { get; set; }
+        }
         public class VisitanteNota
         {
             public virtual Visitante visitante { get; set; }
@@ -64,15 +70,15 @@ namespace IECE_WebApi.Controllers
                 .OrderBy(v => v.vp_Numero_Lista)
                 .ToList();
             int numeroDeLista = 0;
-            if (prioridad == 0)
+            if (prioridad == 0) //Si viene sin especificar el Numero de Lista Deseado
             {
-                if (visitantes.Count == 0)
+                if (visitantes.Count == 0) //Si no hay aun registrados visitantes de este Tipo en este Sector
                 {
                     numeroDeLista = 1;
                 }
-                else
+                else //Si ya hay visitantes de este Tipo Registrados en ese Sector
                 {
-                    if (prioridad == 1)
+                    if (prioridad == 1) //Si se quiere ponerlo como prioridad 1
                     {
                         numeroDeLista = 1;
                         foreach (var frequenter in visitantes)
@@ -157,14 +163,65 @@ namespace IECE_WebApi.Controllers
         [HttpGet]
         [Route("[action]/{sec_Id_Sector}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult VisitanteBySector(int sec_Id_Sector)
+        public IActionResult VisitantesBySector(int sec_Id_Sector)
         {
+
+
             try
             {
-                var visitantes = context.Visitante
-                    .Where(v => v.sec_Id_Sector == sec_Id_Sector /*&& v.vp_Activo == true*/)
-                    .OrderBy(v => v.vp_Numero_Lista)
-                    .ToList();
+                //var sector = context.Sector.FirstOrDefault(sec =>sec.sec_Id_Sector == sec_Id_Sector);
+                //var visitantes = context.Visitante
+                //    .Where(v => v.sec_Id_Sector == sec_Id_Sector && v.vp_Activo == true)
+                //    .OrderByDescending(v => v.vp_Tipo_Visitante)
+                //    .ThenBy(v => v.vp_Nombre)
+                //    .ToList();
+
+                var visitantes = (from V in context.Visitante
+                                           join S in context.Sector on V.sec_Id_Sector equals S.sec_Id_Sector
+                                           join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
+                                           where V.sec_Id_Sector == sec_Id_Sector && V.vp_Activo == true
+                                           orderby S.sec_Tipo_Sector descending,S.sec_Numero, V.vp_Nombre
+                                           select new VisitantesYSuSector
+                                           {
+                                            sector = S,
+                                            visitante = V
+                                           }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    visitantes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]/{dis_Id_Distrito}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult VisitantesByDistrito(int dis_Id_Distrito)
+        {
+
+
+            try
+            {
+                var visitantes = (from V in context.Visitante
+                                  join S in context.Sector on V.sec_Id_Sector equals S.sec_Id_Sector
+                                  join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
+                                  where S.dis_Id_Distrito == dis_Id_Distrito && V.vp_Activo == true
+                                  orderby S.sec_Tipo_Sector descending, S.sec_Numero, V.vp_Nombre
+                                  select new VisitantesYSuSector
+                                  {
+                                      sector = S,
+                                      visitante = V
+                                  }).ToList();
+
                 return Ok(new
                 {
                     status = "success",

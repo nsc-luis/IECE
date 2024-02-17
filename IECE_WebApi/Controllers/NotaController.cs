@@ -32,7 +32,7 @@ namespace IECE_WebApi.Controllers
             {
                 var notas = (from n in context.Nota
                              where n.vp_Id_Visitante == idVisitante
-                             orderby n.n_Fecha_Nota descending
+                             orderby n.n_Fecha_Nota
                              select n).ToList();
                 return Ok(new
                 {
