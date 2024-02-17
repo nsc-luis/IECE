@@ -5,6 +5,10 @@ IECE_WebApi/.vs/
 IECE_WebApi/bin/
 IECE_WebApi/obj/
 IECE_WebApi/Properties/
+<<<<<<< HEAD
+=======
+IECE_WebApi/.config/
+>>>>>>> solo_api
 .vs/
 IECE_WebApi/Temp/*.pdf
 IECE_WebApi/Temp/*.docx
