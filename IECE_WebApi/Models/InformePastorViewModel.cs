@@ -27,6 +27,9 @@ namespace IECE_WebApi.Models
         public List<CultosMisionSector> CultosMisionSector { get; set; }
         public TrabajoEvangelismo TrabajoEvangelismo { get; set; }
         public Organizaciones Organizaciones { get; set; }
+        public AdquisicionesSector AdquisicionesSector { get; set ; }
+        public SesionesReunionesSector Sesiones { get; set; }
+        public SesionesReunionesSector Reuniones { get; set; }
     }
 
 }

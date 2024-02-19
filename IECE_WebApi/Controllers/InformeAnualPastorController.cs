@@ -171,6 +171,35 @@ namespace IECE_WebApi.Controllers
                     informeVM.Organizaciones = organizaciones;
                 }
 
+                AdquisicionesSector adquisicionesSector = _context.AdquisicionesSector
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (adquisicionesSector != null)
+                {
+                    informeVM.AdquisicionesSector = adquisicionesSector;
+                }
+
+                SesionesReunionesSector reunionesSector = _context.SesionesReunionesSector
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoSesionReunion == 1)
+                    .FirstOrDefault();
+
+                if (reunionesSector != null)
+                {
+                    informeVM.Reuniones = reunionesSector;
+                }
+
+                SesionesReunionesSector sesionesSector = _context.SesionesReunionesSector
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoSesionReunion == 2)
+                    .FirstOrDefault();
+
+                if (sesionesSector != null)
+                {
+                    informeVM.Sesiones = sesionesSector;
+                }
+
                 return Ok(informeVM);
             }
             catch (Exception ex)
@@ -417,6 +446,82 @@ namespace IECE_WebApi.Controllers
                 {
                     organizaciones = data.Organizaciones;
                     _context.Organizaciones.Update(organizaciones);
+                    _context.SaveChanges();
+                }
+
+                AdquisicionesSector adquisicionesSector = _context.AdquisicionesSector.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (adquisicionesSector == null)
+                {
+                    var addAdquisicionesSector = new AdquisicionesSector
+                    {
+                        IdInforme = data.IdInforme,
+                        Predios = data.AdquisicionesSector.Predios,
+                        Casas = data.AdquisicionesSector.Casas,
+                        Edificios = data.AdquisicionesSector.Edificios,
+                        Templos = data.AdquisicionesSector.Templos,
+                        Vehiculos = data.AdquisicionesSector.Vehiculos,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.AdquisicionesSector.Add(addAdquisicionesSector);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    adquisicionesSector = data.AdquisicionesSector;
+                    _context.AdquisicionesSector.Update(adquisicionesSector);
+                    _context.SaveChanges();
+                }
+
+                SesionesReunionesSector reunionesSector = _context.SesionesReunionesSector.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 1).AsNoTracking().FirstOrDefault();
+                if (reunionesSector == null)
+                {
+                    var addReunionesSector = new SesionesReunionesSector
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoSesionReunion = 1,
+                        EnElDistrito = data.Reuniones.EnElDistrito,
+                        ConElPersonalDocente = data.Reuniones.ConElPersonalDocente,
+                        ConSociedadesFemeniles = data.Reuniones.ConSociedadesFemeniles,
+                        ConSociedadesJuveniles = data.Reuniones.ConSociedadesJuveniles,
+                        ConDepartamentosInfantiles = data.Reuniones.ConDepartamentosInfantiles,
+                        ConCorosYGruposDeCanto = data.Reuniones.ConCorosYGruposDeCanto,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.SesionesReunionesSector.Add(addReunionesSector);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    reunionesSector = data.Reuniones;
+                    _context.SesionesReunionesSector.Update(reunionesSector);
+                    _context.SaveChanges();
+                }
+
+                SesionesReunionesSector sesionesSector = _context.SesionesReunionesSector.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 2).AsNoTracking().FirstOrDefault();
+                if (sesionesSector == null)
+                {
+                    var addSesionesSector = new SesionesReunionesSector
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoSesionReunion = 2,
+                        EnElDistrito = data.Reuniones.EnElDistrito,
+                        ConElPersonalDocente = data.Reuniones.ConElPersonalDocente,
+                        ConSociedadesFemeniles = data.Reuniones.ConSociedadesFemeniles,
+                        ConSociedadesJuveniles = data.Reuniones.ConSociedadesJuveniles,
+                        ConDepartamentosInfantiles = data.Reuniones.ConDepartamentosInfantiles,
+                        ConCorosYGruposDeCanto = data.Reuniones.ConCorosYGruposDeCanto,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.SesionesReunionesSector.Add(addSesionesSector);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    sesionesSector = data.Sesiones;
+                    _context.SesionesReunionesSector.Update(sesionesSector);
                     _context.SaveChanges();
                 }
 
