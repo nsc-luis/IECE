@@ -168,6 +168,18 @@ namespace IECE_WebApi.Controllers
                 SubConsultas.movimientosEstadisticosReporteBySector consulta = new SubConsultas.movimientosEstadisticosReporteBySector();
                 consulta = subConsultas.SubMovimientosEstadisticosReporteBySector(fhte);
 
+                DateTime fechaInicial = new DateTime(fhte.year, fhte.mes, 1);
+                DateTime fechaFinal = fechaInicial.AddMonths(1);
+                fechaFinal = fechaFinal.AddDays(-1);
+                Historial_Transacciones_EstadisticasController.FechasSectorDistrito fsd = new Historial_Transacciones_EstadisticasController.FechasSectorDistrito
+                {
+                    idSectorDistrito = fhte.sec_Id_Sector,
+                    fechaInicial = fechaInicial,
+                    fechaFinal = fechaFinal
+                };
+
+                var detalle = subConsultas.SubHistorialPorFechaSector(fsd);
+
                 return Ok(new
                 {
                     status = "success",
@@ -177,10 +189,14 @@ namespace IECE_WebApi.Controllers
                     consulta.personasNoBautizadasAlFinalDelMes,
                     consulta.hogares,
                     consulta.hogaresAlFinalDelMes,
+                    consulta.matrimonios,
+                    consulta.legalizaciones,
+                    consulta.presentaciones,
                     consulta.altasBautizados,
                     consulta.altasNoBautizados,
                     consulta.bajasBautizados,
-                    consulta.bajasNoBautizados
+                    consulta.bajasNoBautizados,
+                    detalle
                 });
             }
             catch (Exception ex)
@@ -188,7 +204,7 @@ namespace IECE_WebApi.Controllers
                 return Ok(new
                 {
                     status = "error",
-                    mensaje = ex
+                    mensaje = ex.Message
                 });
             }
         }

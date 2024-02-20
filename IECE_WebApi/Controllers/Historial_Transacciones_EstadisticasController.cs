@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using IECE_WebApi.Contexts;
+using IECE_WebApi.Helpers;
 using IECE_WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static IECE_WebApi.Helpers.SubConsultas;
 
 namespace IECE_WebApi.Controllers
 {
@@ -819,32 +821,8 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                var query = (from hte in context.Historial_Transacciones_Estadisticas
-                             join cte in context.Codigo_Transacciones_Estadisticas
-                             on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
-                             join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
-                             where hte.sec_Sector_Id == fsd.idSectorDistrito
-                             && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
-                             orderby cte.ct_Tipo ascending
-                             select new
-                             {
-                                 hte.hte_Id_Transaccion,
-                                 hte.ct_Codigo_Transaccion,
-                                 cte.ct_Grupo,
-                                 cte.ct_Tipo,
-                                 cte.ct_Subtipo,
-                                 per.per_Nombre,
-                                 per.per_Apellido_Paterno,
-                                 per.per_Apellido_Materno,
-                                 per.per_Apellido_Casada,
-                                 apellidoPrincipal = (per.per_Apellido_Casada == "" || per.per_Apellido_Casada == null) ? per.per_Apellido_Paterno : (per.per_Apellido_Casada + "* " + per.per_Apellido_Paterno),
-                                 per.per_Bautizado,
-                                 per.per_Categoria,
-                                 hte.hte_Comentario,
-                                 hte.hte_Fecha_Transaccion,
-                                 hte.dis_Distrito_Alias,
-                                 hte.sec_Sector_Alias
-                             }).ToList();
+                SubConsultas subConsultas = new SubConsultas(context);
+                List<HistorialPorFechaSector> query = subConsultas.SubHistorialPorFechaSector(fsd);
 
                 return Ok(new
                 {

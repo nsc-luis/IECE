@@ -15,6 +15,8 @@ using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 using System.IO;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 
 namespace IECE_WebApi.Controllers
 {
@@ -40,14 +42,14 @@ namespace IECE_WebApi.Controllers
         {
             var bm = bookmarks.FirstOrDefault(bms => bms.Name == NombreMarcador);
             Run r = bm.Parent.InsertAfter(new Run(), bm);
-            RunProperties rp = new RunProperties();
+            DocumentFormat.OpenXml.Wordprocessing.RunProperties rp = new DocumentFormat.OpenXml.Wordprocessing.RunProperties();
             if (bold)
             {
-                rp.AppendChild<Bold>(new Bold());
+                rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Bold());
             }
             if (underline)
             {
-                rp.AppendChild<Underline>(new Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
+                rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
             }
             if (fontFamily != "")
             {
@@ -55,14 +57,14 @@ namespace IECE_WebApi.Controllers
             }
             if (fontSize != "")
             {
-                rp.AppendChild(new FontSize { Val = new StringValue(fontSize) });
+                rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.FontSize { Val = new StringValue(fontSize) });
             }
             if (underline)
             {
-                rp.AppendChild<Underline>(new Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
+                rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
             }
             r.AppendChild(rp);
-            r.AppendChild(new Text(valor));
+            r.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(valor));
         }
 
         private void AgregarImagenAlMarcador(
@@ -75,9 +77,9 @@ namespace IECE_WebApi.Controllers
             Run r = bm.Parent.InsertAfter(new Run(GetImageElement(relationshipId)), bm);
         }
 
-        private static Drawing GetImageElement(string relationshipId)
+        private static DocumentFormat.OpenXml.Wordprocessing.Drawing GetImageElement(string relationshipId)
         {
-            var element = new Drawing(
+            var element = new DocumentFormat.OpenXml.Wordprocessing.Drawing(
                 new DW.Inline(
                      new DW.Extent() { Cx = 990000L, Cy = 990000L },
                      new DW.EffectExtent()
@@ -139,6 +141,25 @@ namespace IECE_WebApi.Controllers
                     EditId = "50D07946"
                 });
             return element;
+        }
+
+        //public WorksheetPart SeleccionarHojaDeTrabajo(WorkbookPart wbp, string HojaDeTrabajo)
+        //{
+        //    string relId = wbp.Workbook.Descendants<Sheet>().First(s => HojaDeTrabajo.Equals(s.Name)).Id;
+        //    return (WorksheetPart)wbp.GetPartById(relId);
+        //}
+
+        private void RellenaCelda(Row fila, string datos, string celdaReferencia)
+        {
+            DocumentFormat.OpenXml.Spreadsheet.Cell celda = fila.Descendants<DocumentFormat.OpenXml.Spreadsheet.Cell>().FirstOrDefault(c => c.CellReference == celdaReferencia);
+            if (celda == null)
+            {
+                celda = new DocumentFormat.OpenXml.Spreadsheet.Cell();
+                celda.CellReference = celdaReferencia;
+            }
+            celda.CellValue = new CellValue(datos);
+            celda.DataType = CellValues.String;
+            fila.Append(celda);
         }
 
         [HttpPost]
@@ -313,6 +334,69 @@ namespace IECE_WebApi.Controllers
                 return Ok(new
                 {
                     status = "error",
+                    mensaje = ex
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult PruebaExcel()
+        {
+            try
+            {
+                var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
+                //string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\PruebaExcel_Plantilla.xlsx";
+                string pathPlantilla = $"D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi\\Templates\\PruebaExcel_Plantilla.xlsx";
+
+                // NOMBRE DEL EXCEL QUE SE CREARA
+                //string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\PruebaExcel_{fechayhora}.xlsx";
+                string archivoDeSalida = $"D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi\\Temp\\PruebaExcel_{fechayhora}.xlsx";
+
+                // ARCHIVO TEMPORAL EN BASE A LA PLANTILLA
+                //string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\PruebaExcel_{fechayhora}.xlsx";
+                string archivoTemporal = $"D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi\\Temp\\PruebaExcel_{fechayhora}.xlsx";
+
+                // Create shadow File
+                System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
+
+                using (SpreadsheetDocument docExcel = SpreadsheetDocument.Open(archivoTemporal, true))
+                {
+                    IEnumerable<Sheet> sheets =
+                    docExcel.WorkbookPart.Workbook.GetFirstChild<Sheets>().
+                    Elements<Sheet>().Where(s => s.Name == "Datos");
+
+                    if (sheets?.Count() == 0)
+                    {
+                        // The specified worksheet does not exist.
+
+                        return null;
+                    }
+
+                    string relationshipId = sheets?.First().Id;
+                    WorksheetPart documento = (WorksheetPart)docExcel.WorkbookPart.GetPartById(relationshipId);
+
+                    //WorksheetPart documento = SeleccionarHojaDeTrabajo(docExcel.WorkbookPart, "Datos");
+                    Worksheet hojaDeTrabajo = documento.Worksheet;
+                    SheetData sheetData = documento.Worksheet.GetFirstChild<SheetData>();
+                    IEnumerable<Row> filas = sheetData.Descendants<Row>();
+
+                    Row fila = new Row();
+                    fila.RowIndex = 10;
+
+                    RellenaCelda(fila, "100", "B10");
+                    sheetData.Append(fila);
+                    docExcel.Save();
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "success",
                     mensaje = ex
                 });
             }

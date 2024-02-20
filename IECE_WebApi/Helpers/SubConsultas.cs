@@ -23,10 +23,33 @@ namespace IECE_WebApi.Helpers
             public int personasNoBautizadasAlFinalDelMes { get; set; }
             public int hogares { get; set; }
             public int hogaresAlFinalDelMes { get; set; }
+            public int matrimonios { get; set; }
+            public int legalizaciones { get; set; }
+            public int presentaciones { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.altas.bautizados altasBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.altas.noBautizados altasNoBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.bajas.bautizados bajasBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.bajas.noBautizados bajasNoBautizados { get; set; }
+        }
+
+        public class HistorialPorFechaSector
+        {
+            public int hte_Id_Transaccion { get; set; }
+            public int ct_Codigo_Transaccion { get; set; }
+            public string ct_Grupo { get; set; }
+            public string ct_Tipo { get; set; }
+            public string ct_Subtipo { get; set; }
+            public string per_Nombre { get; set; }
+            public string per_Apellido_Paterno { get; set; }
+            public string per_Apellido_Materno { get; set; }
+            public string per_Apellido_Casada { get; set; }
+            public string apellidoPrincipal { get; set; }
+            public bool per_Bautizado { get; set; }
+            public string per_Categoria { get; set; }
+            public string hte_Comentario { get; set; }
+            public DateTime? hte_Fecha_Transaccion { get; set; }
+            public string dis_Distrito_Alias { get; set; }
+            public string sec_Sector_Alia { get; set; }
         }
 
         public movimientosEstadisticosReporteBySector SubMovimientosEstadisticosReporteBySector(FiltroHistTransEstDelMes fhte)
@@ -210,6 +233,10 @@ namespace IECE_WebApi.Helpers
             // baja hogares
             var bh = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 31102).ToList().Count();
 
+            var matrimonios = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 21001).ToList().Count();
+            var legalizacion = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 21102).ToList().Count();
+            var presentaciones = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 23203).ToList().Count();
+
             // construye resultado de la consulta
             HistTransEstBySectorMes.altas.bautizados altasBautizados = new HistTransEstBySectorMes.altas.bautizados
             {
@@ -255,11 +282,72 @@ namespace IECE_WebApi.Helpers
             resultado.personasNoBautizadasAlFinalDelMes = personasNoBautizadas + movAltaNB - movBajaNB;
             resultado.hogares = hogares;
             resultado.hogaresAlFinalDelMes = hogares + ah - bh;
+            resultado.matrimonios = matrimonios;
+            resultado.legalizaciones = legalizacion;
+            resultado.presentaciones = presentaciones;
             resultado.altasBautizados = altasBautizados;
             resultado.altasNoBautizados = altasNoBautizados;
             resultado.bajasBautizados = bajasBautizados;
             resultado.bajasNoBautizados = bajasNoBautizados;
 
+            // agregar 
+            // sucesos estadisticos y
+            // desglose de movimientos estadisticos: Historial_Transacciones_EstadisticasController.HistorialPorFechaSector
+
+            return resultado;
+        }
+
+        public List<HistorialPorFechaSector> SubHistorialPorFechaSector(Historial_Transacciones_EstadisticasController.FechasSectorDistrito fsd)
+        {
+            List<HistorialPorFechaSector> resultado = new List<HistorialPorFechaSector>();
+            var query = (from hte in context.Historial_Transacciones_Estadisticas
+                         join cte in context.Codigo_Transacciones_Estadisticas
+                         on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                         join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
+                         where hte.sec_Sector_Id == fsd.idSectorDistrito
+                         && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
+                         orderby cte.ct_Tipo ascending
+                         select new
+                         {
+                             hte.hte_Id_Transaccion,
+                             hte.ct_Codigo_Transaccion,
+                             cte.ct_Grupo,
+                             cte.ct_Tipo,
+                             cte.ct_Subtipo,
+                             per.per_Nombre,
+                             per.per_Apellido_Paterno,
+                             per.per_Apellido_Materno,
+                             per.per_Apellido_Casada,
+                             apellidoPrincipal = (per.per_Apellido_Casada == "" || per.per_Apellido_Casada == null) ? per.per_Apellido_Paterno : (per.per_Apellido_Casada + "* " + per.per_Apellido_Paterno),
+                             per.per_Bautizado,
+                             per.per_Categoria,
+                             hte.hte_Comentario,
+                             hte.hte_Fecha_Transaccion,
+                             hte.dis_Distrito_Alias,
+                             hte.sec_Sector_Alias
+                         }).ToList();
+            foreach(var q in query)
+            {
+                resultado.Add(new HistorialPorFechaSector
+                {
+                    hte_Id_Transaccion = q.hte_Id_Transaccion,
+                    ct_Codigo_Transaccion = q.ct_Codigo_Transaccion,
+                    ct_Grupo = q.ct_Grupo,
+                    ct_Tipo = q.ct_Tipo,
+                    ct_Subtipo = q.ct_Subtipo,
+                    per_Nombre = q.per_Nombre,
+                    per_Apellido_Paterno = q.per_Apellido_Paterno,
+                    per_Apellido_Materno = q.per_Apellido_Materno,
+                    per_Apellido_Casada = q.per_Apellido_Casada,
+                    apellidoPrincipal = (q.per_Apellido_Casada == "" || q.per_Apellido_Casada == null) ? q.per_Apellido_Paterno : (q.per_Apellido_Casada + "* " + q.per_Apellido_Paterno),
+                    per_Bautizado = q.per_Bautizado,
+                    per_Categoria = q.per_Categoria,
+                    hte_Comentario= q.hte_Comentario,
+                    hte_Fecha_Transaccion = q.hte_Fecha_Transaccion,
+                    dis_Distrito_Alias = q.dis_Distrito_Alias,
+                    sec_Sector_Alia = q.sec_Sector_Alias
+                });
+            }
             return resultado;
         }
     }

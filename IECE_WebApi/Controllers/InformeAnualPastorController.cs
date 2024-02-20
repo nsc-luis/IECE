@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using IECE_WebApi.Helpers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -93,7 +94,7 @@ namespace IECE_WebApi.Controllers
                         IdDistrito = s.IdDistrito,
                         IdSector = s.IdSector,
                         LugarReunion = s.LugarReunion,
-                        Status = s.Status,
+                        Status = s.Status
                     })
                     .FirstOrDefault();
 
@@ -101,6 +102,7 @@ namespace IECE_WebApi.Controllers
                 {
                     return NotFound("El informe no se encontró");
                 }
+
                 return Ok(informe);
             }
             catch (Exception ex)
