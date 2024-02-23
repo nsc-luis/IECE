@@ -200,6 +200,26 @@ namespace IECE_WebApi.Controllers
                     informeVM.Sesiones = sesionesSector;
                 }
 
+                Construcciones construccionesSectorInicio = _context.Construcciones
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoFaseConstruccion == 1)
+                    .FirstOrDefault();
+
+                if (construccionesSectorInicio != null)
+                {
+                    informeVM.ConstruccionesInicio = construccionesSectorInicio;
+                }
+
+                Construcciones construccionesSectorConclusion = _context.Construcciones
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoFaseConstruccion == 2)
+                    .FirstOrDefault();
+
+                if (construccionesSectorConclusion != null)
+                {
+                    informeVM.ConstruccionesConclusion = construccionesSectorConclusion;
+                }
+
                 return Ok(informeVM);
             }
             catch (Exception ex)
@@ -522,6 +542,58 @@ namespace IECE_WebApi.Controllers
                 {
                     sesionesSector = data.Sesiones;
                     _context.SesionesReunionesSector.Update(sesionesSector);
+                    _context.SaveChanges();
+                }
+
+                Construcciones contruccionesSectorInicio = _context.Construcciones.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoFaseConstruccion == 1).AsNoTracking().FirstOrDefault();
+                if (contruccionesSectorInicio == null)
+                {
+                    var addContruccionesSectorInicio = new Construcciones
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoFaseConstruccion = 1,
+                        ColocacionPrimeraPiedra = data.ConstruccionesInicio.ColocacionPrimeraPiedra,
+                        Templo = data.ConstruccionesInicio.Templo,
+                        CasaDeOracion = data.ConstruccionesInicio.CasaDeOracion,
+                        CasaPastoral = data.ConstruccionesInicio.CasaPastoral,
+                        Anexos = data.ConstruccionesInicio.Anexos,
+                        Remodelacion = data.ConstruccionesInicio.Remodelacion,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Construcciones.Add(addContruccionesSectorInicio);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    contruccionesSectorInicio = data.ConstruccionesInicio;
+                    _context.Construcciones.Update(contruccionesSectorInicio);
+                    _context.SaveChanges();
+                }
+
+                Construcciones contruccionesSectorConclusion = _context.Construcciones.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoFaseConstruccion == 2).AsNoTracking().FirstOrDefault();
+                if (contruccionesSectorConclusion == null)
+                {
+                    var addContruccionesSectorConclusion = new Construcciones
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoFaseConstruccion = 2,
+                        ColocacionPrimeraPiedra = data.ConstruccionesConclusion.ColocacionPrimeraPiedra,
+                        Templo = data.ConstruccionesConclusion.Templo,
+                        CasaDeOracion = data.ConstruccionesConclusion.CasaDeOracion,
+                        CasaPastoral = data.ConstruccionesConclusion.CasaPastoral,
+                        Anexos = data.ConstruccionesConclusion.Anexos,
+                        Remodelacion = data.ConstruccionesConclusion.Remodelacion,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Construcciones.Add(addContruccionesSectorConclusion);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    contruccionesSectorConclusion = data.ConstruccionesConclusion;
+                    _context.Construcciones.Update(contruccionesSectorConclusion);
                     _context.SaveChanges();
                 }
 

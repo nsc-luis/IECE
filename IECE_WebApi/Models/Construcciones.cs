@@ -16,7 +16,7 @@ namespace IECE_WebApi.Models
         public int? CasaPastoral { get; set; }
         public int? Anexos { get; set; }
         public int? Remodelacion { get; set; }
-        public int UsuIdUsuario { get; set; }
+        public int Usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
 }
