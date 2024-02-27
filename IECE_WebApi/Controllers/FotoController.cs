@@ -82,7 +82,30 @@ namespace IECE_WebApi.Controllers
         //    }
         //}
 
-         
+        [HttpGet("{idPersona}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult Get(int idPersona)
+        {
+            try
+            {
+                // CONSULTA DATOS DE LA PERSONA
+                var p = context.Persona.FirstOrDefault(per => per.per_Id_Persona == idPersona);
+
+                // CONSULTA IMAGEN DE LA FOTO
+                var foto = context.Foto.FirstOrDefault(f => f.idFoto == p.idFoto);
+                string path = Path.Combine($"{foto.path}{foto.guid}{foto.extension}");
+                byte[] imageByteData = System.IO.File.ReadAllBytes(path);
+                return File(imageByteData, foto.mimeType);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
 
         [HttpGet]
         [Route("[action]")]
