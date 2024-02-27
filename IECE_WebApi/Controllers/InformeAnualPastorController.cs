@@ -334,6 +334,15 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                Informe informe = _context.Informe.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (informe != null)
+                {
+                    informe.LugarReunion = data.LugarReunion;
+                    informe.FechaReunion = data.FechaReunion;
+                    _context.Informe.Update(informe);
+                    _context.SaveChanges();
+                }
+
                 VisitasPastor visitasPastor = _context.VisitasPastor.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
                 if (visitasPastor == null)
                 {
