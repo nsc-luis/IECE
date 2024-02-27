@@ -15,7 +15,7 @@ namespace IECE_WebApi.Models
         public decimal? GastosAdmon { get; set; }
         public decimal? TransferenciasAentidadSuperior { get; set; }
         public decimal? ExistenciaEnCaja { get; set; }
-        public int UsuIdUsuario { get; set; }
+        public int Usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
 }

@@ -220,6 +220,62 @@ namespace IECE_WebApi.Controllers
                     informeVM.ConstruccionesConclusion = construccionesSectorConclusion;
                 }
 
+                Ordenaciones ordenaciones = _context.Ordenaciones
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (ordenaciones != null)
+                {
+                    informeVM.Ordenaciones = ordenaciones;
+                }
+
+                Dedicaciones dedicaciones = _context.Dedicaciones
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (dedicaciones != null)
+                {
+                    informeVM.Dedicaciones = dedicaciones;
+                }
+
+                LlamamientoDePersonal llamamientoDePersonal = _context.LlamamientoDePersonal
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (llamamientoDePersonal != null)
+                {
+                    informeVM.LlamamientoDePersonal = llamamientoDePersonal;
+                }
+
+                RegularizacionPrediosTemplos regularizacionPatNac = _context.RegularizacionPrediosTemplos
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoPatrimonio == 1)
+                    .FirstOrDefault();
+
+                if (regularizacionPatNac != null)
+                {
+                    informeVM.RegularizacionPatNac = regularizacionPatNac;
+                }
+
+                RegularizacionPrediosTemplos regularizacionPatIg = _context.RegularizacionPrediosTemplos
+                    .Where(w => w.IdInforme == id)
+                    .Where(w => w.IdTipoPatrimonio == 2)
+                    .FirstOrDefault();
+
+                if (regularizacionPatIg != null)
+                {
+                    informeVM.RegularizacionPatIg = regularizacionPatIg;
+                }
+
+                MovimientoEconomico movimientoEconomico = _context.MovimientoEconomico
+                    .Where(w => w.IdInforme == id)
+                    .FirstOrDefault();
+
+                if (movimientoEconomico != null)
+                {
+                    informeVM.MovimientoEconomico = movimientoEconomico;
+                }
+
                 return Ok(informeVM);
             }
             catch (Exception ex)
@@ -594,6 +650,139 @@ namespace IECE_WebApi.Controllers
                 {
                     contruccionesSectorConclusion = data.ConstruccionesConclusion;
                     _context.Construcciones.Update(contruccionesSectorConclusion);
+                    _context.SaveChanges();
+                }
+
+                Ordenaciones ordenaciones = _context.Ordenaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (ordenaciones == null)
+                {
+                    var addOrdenaciones = new Ordenaciones
+                    {
+                        IdInforme = data.IdInforme,
+                        Ancianos = data.Ordenaciones.Ancianos,
+                        Diaconos = data.Ordenaciones.Diaconos,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Ordenaciones.Add(addOrdenaciones);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    ordenaciones = data.Ordenaciones;
+                    _context.Ordenaciones.Update(ordenaciones);
+                    _context.SaveChanges();
+                }
+
+                Dedicaciones dedicaciones = _context.Dedicaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (dedicaciones == null)
+                {
+                    var addDedicaciones = new Dedicaciones
+                    {
+                        IdInforme = data.IdInforme,
+                        Templos = data.Dedicaciones.Templos,
+                        CasasDeOracion = data.Dedicaciones.CasasDeOracion,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Dedicaciones.Add(addDedicaciones);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    dedicaciones = data.Dedicaciones;
+                    _context.Dedicaciones.Update(dedicaciones);
+                    _context.SaveChanges();
+                }
+
+                LlamamientoDePersonal llamamientoDePersonal = _context.LlamamientoDePersonal.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (llamamientoDePersonal == null)
+                {
+                    var addLlamamientoDePersonal = new LlamamientoDePersonal
+                    {
+                        IdInforme = data.IdInforme,
+                        DiaconosAprueba = data.LlamamientoDePersonal.DiaconosAprueba,
+                        Auxiliares = data.LlamamientoDePersonal.Auxiliares,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.LlamamientoDePersonal.Add(addLlamamientoDePersonal);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    llamamientoDePersonal = data.LlamamientoDePersonal;
+                    _context.LlamamientoDePersonal.Update(llamamientoDePersonal);
+                    _context.SaveChanges();
+                }
+
+
+                RegularizacionPrediosTemplos regularizacionPatNac = _context.RegularizacionPrediosTemplos.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoPatrimonio == 1).AsNoTracking().FirstOrDefault();
+                if (regularizacionPatNac == null)
+                {
+                    var addRegularizacionPatNac = new RegularizacionPrediosTemplos
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoPatrimonio = 1,
+                        Templos = data.RegularizacionPatNac.Templos,
+                        CasasPastorales = data.RegularizacionPatNac.CasasPastorales,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.RegularizacionPrediosTemplos.Add(addRegularizacionPatNac);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    regularizacionPatNac = data.RegularizacionPatNac;
+                    _context.RegularizacionPrediosTemplos.Update(regularizacionPatNac);
+                    _context.SaveChanges();
+                }
+
+                RegularizacionPrediosTemplos regularizacionPatIg = _context.RegularizacionPrediosTemplos.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoPatrimonio == 2).AsNoTracking().FirstOrDefault();
+                if (regularizacionPatIg == null)
+                {
+                    var addRegularizacionPatIg = new RegularizacionPrediosTemplos
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoPatrimonio = 2,
+                        Templos = data.RegularizacionPatIg.Templos,
+                        CasasPastorales = data.RegularizacionPatIg.CasasPastorales,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.RegularizacionPrediosTemplos.Add(addRegularizacionPatIg);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    regularizacionPatIg = data.RegularizacionPatIg;
+                    _context.RegularizacionPrediosTemplos.Update(regularizacionPatIg);
+                    _context.SaveChanges();
+                }
+
+                MovimientoEconomico movimientoEconomico = _context.MovimientoEconomico.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (movimientoEconomico == null)
+                {
+                    var addMovimientoEconomico = new MovimientoEconomico
+                    {
+                        IdInforme = data.IdInforme,
+                        ExistenciaAnterior = data.MovimientoEconomico.ExistenciaAnterior,
+                        EntradaMes = data.MovimientoEconomico.EntradaMes,
+                        SumaTotal = data.MovimientoEconomico.SumaTotal,
+                        GastosAdmon = data.MovimientoEconomico.GastosAdmon,
+                        TransferenciasAentidadSuperior = data.MovimientoEconomico.TransferenciasAentidadSuperior,
+                        ExistenciaEnCaja = data.MovimientoEconomico.ExistenciaEnCaja,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.MovimientoEconomico.Add(addMovimientoEconomico);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    movimientoEconomico = data.MovimientoEconomico;
+                    _context.MovimientoEconomico.Update(movimientoEconomico);
                     _context.SaveChanges();
                 }
 

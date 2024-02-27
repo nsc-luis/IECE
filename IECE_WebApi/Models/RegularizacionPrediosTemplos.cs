@@ -12,7 +12,7 @@ namespace IECE_WebApi.Models
         public int IdTipoPatrimonio { get; set; }
         public int? Templos { get; set; }
         public int? CasasPastorales { get; set; }
-        public int UsuIdUsuario { get; set; }
+        public int Usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
 }

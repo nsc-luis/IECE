@@ -32,6 +32,12 @@ namespace IECE_WebApi.Models
         public SesionesReunionesSector Reuniones { get; set; }
         public Construcciones ConstruccionesInicio { get; set; }
         public Construcciones ConstruccionesConclusion { get; set; }
+        public Ordenaciones Ordenaciones { get; set; }
+        public Dedicaciones Dedicaciones { get; set; }
+        public LlamamientoDePersonal LlamamientoDePersonal { get; set; }
+        public RegularizacionPrediosTemplos RegularizacionPatNac { get; set; }
+        public RegularizacionPrediosTemplos RegularizacionPatIg { get; set; }
+        public MovimientoEconomico MovimientoEconomico { get; set; }
     }
 
 }
