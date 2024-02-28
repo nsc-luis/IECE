@@ -14,8 +14,9 @@ namespace IECE_WebApi.Models
         public int CultosDeHogar {  get; set; }
         public int Campanias {  get; set; }
         public int AperturaDeMisiones { get; set; }
-        public int VisitantesPermantentes { get; set; }
+        public int VisitantesPermanentes { get; set; }
         public int Bautismos { get; set; }
+        public int Usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
 }

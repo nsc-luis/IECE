@@ -8,7 +8,6 @@ namespace IECE_WebApi.Models
         [Key]
         public int IdCultoSector { get; set;}
         public int IdInforme { get; set;}
-        public int IdSector { get; set;}
         public int Ordinarios { get; set;}
         public int Especiales { get; set;}
         public int DeAvivamiento { get; set;}

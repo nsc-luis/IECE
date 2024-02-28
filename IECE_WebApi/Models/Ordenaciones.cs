@@ -1,17 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace IECE_WebApi.Models
 {
-    public class VisitasPastor
+    public partial class Ordenaciones
     {
         [Key]
-        public int IdVisitasPastor {  get; set; }
+        public int IdOrdenacion { get; set; }
         public int IdInforme { get; set; }
-        public int PorPastor { get; set; }
-        public int PorAncianosAux { get; set; }
-        public int PorDiaconos {  get; set; }
-        public int PorAuxiliares { get; set; }
+        public int? Ancianos { get; set; }
+        public int? Diaconos { get; set; }
         public int Usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
