@@ -2972,7 +2972,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        mensaje = "No se cargo niguna imagen"
+                        mensaje = "No se cargó niguna imagen"
                     });
                 }
             }

@@ -116,7 +116,7 @@ namespace IECE_WebApi.Helpers
             // posible duplisidad para futuras altas
 
             // altas bautizados del mes
-            int[] codAlta = { 11001, 11002, 11003, 11004, 11005, 12001, 12002, 12003, 12004 };
+            int[] codAlta = { 11001, 11002, 11003, 11004 };
             int movAltaBautizado = 0;
             foreach (var ca in codAlta)
             {
@@ -127,7 +127,7 @@ namespace IECE_WebApi.Helpers
                 }
             }
             // bajas bautizados del mes
-            int[] codBaja = { 11101, 11102, 11103, 11004, 11005, 12101, 12102, 12103, 12104, 12105, 12106 };
+            int[] codBaja = { 11101, 11102, 11103, 11104, 11105};
             int movBajaBautizado = 0;
             foreach (var ca in codBaja)
             {
@@ -185,10 +185,10 @@ namespace IECE_WebApi.Helpers
             var be = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 11103).ToList().Count();
 
             // baja cambio de domicilio interno
-            var bcdi = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 11004).ToList().Count();
+            var bcdi = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 11104).ToList().Count();
 
             // baja cambio de domicilio externo
-            var bcde = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 11005).ToList().Count();
+            var bcde = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 11105).ToList().Count();
 
             // ALTAS NO BAUTIZADOS
             // nuevo ingreso
