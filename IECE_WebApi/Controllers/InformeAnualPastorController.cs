@@ -277,6 +277,15 @@ namespace IECE_WebApi.Controllers
                     informeVM.MovimientoEconomico = movimientoEconomico;
                 }
 
+                List<OtrasActividades> otrasActividades = _context.OtrasActividades
+                    .Where(w => w.IdInforme == id)
+                    .ToList();
+
+                if (otrasActividades != null)
+                {
+                    informeVM.OtrasActividades = otrasActividades;
+                }
+
                 return Ok(informeVM);
             }
             catch (Exception ex)
@@ -339,6 +348,9 @@ namespace IECE_WebApi.Controllers
                 {
                     informe.LugarReunion = data.LugarReunion;
                     informe.FechaReunion = data.FechaReunion;
+                    informe.IdTipoUsuario = data.IdTipoUsuario;
+                    informe.IdSector = data.IdSector;
+                    informe.Status = data.Status;
                     _context.Informe.Update(informe);
                     _context.SaveChanges();
                 }
@@ -795,6 +807,32 @@ namespace IECE_WebApi.Controllers
                     _context.MovimientoEconomico.Update(movimientoEconomico);
                     _context.SaveChanges();
                 }
+
+                foreach (var actividad in data.OtrasActividades)
+                {
+                    OtrasActividades otraActividad = _context.OtrasActividades.Where(w => w.IdOtraActividad == actividad.IdOtraActividad).AsNoTracking().FirstOrDefault();
+                    if (otraActividad == null)
+                    {
+                        var addOtrasActividades = new OtrasActividades
+                        {
+                            IdInforme = data.IdInforme,
+                            Descripcion = actividad.Descripcion,
+                            NumDeOrden = actividad.NumDeOrden,
+                            Usu_Id_Usuario = data.Usu_Id_Usuario,
+                            FechaRegistro = DateTime.Now
+                        };
+                        _context.OtrasActividades.Add(addOtrasActividades);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        otraActividad.Descripcion = actividad.Descripcion;
+                        otraActividad.NumDeOrden = actividad.NumDeOrden;
+                        _context.OtrasActividades.Update(actividad);
+                        _context.SaveChanges();
+                    }
+                }
+
 
                 return Ok();
 
