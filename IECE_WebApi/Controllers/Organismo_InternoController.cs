@@ -177,6 +177,7 @@ namespace IECE_WebApi.Controllers
                                && p.per_Categoria == "ADULTO_MUJER"
                                && p.per_Vivo
                                && p.sec_Id_Sector == sec_Id_Sector
+                               orderby p.per_Nombre_Completo
                                select new
                                {
                                    p.per_Id_Persona,
@@ -211,6 +212,7 @@ namespace IECE_WebApi.Controllers
                                && p.per_Categoria.Contains("JOVEN")
                                && p.per_Vivo
                                && p.sec_Id_Sector == sec_Id_Sector
+                               orderby p.per_Nombre_Completo
                                select new
                                {
                                    p.per_Id_Persona,
@@ -244,6 +246,7 @@ namespace IECE_WebApi.Controllers
                              && p.per_Categoria.Contains("NIÑ")
                              && p.per_Vivo
                              && p.sec_Id_Sector == sec_Id_Sector
+                             orderby p.per_Nombre_Completo
                              select new
                              {
                                  p.per_Id_Persona,

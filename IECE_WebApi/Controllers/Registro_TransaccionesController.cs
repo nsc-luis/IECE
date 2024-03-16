@@ -196,7 +196,15 @@ namespace IECE_WebApi.Controllers
                     consulta.altasNoBautizados,
                     consulta.bajasBautizados,
                     consulta.bajasNoBautizados,
-                    detalle
+                    consulta.hombresBautizados,
+                    consulta.mujeresBautizadas,
+                    consulta.jovenesHombresBautizados,
+                    consulta.jovenesMujeresBautizadas,
+                    consulta.jovenesHombresNoBautizados,
+                    consulta.jovenesMujeresNoBautizadas,
+                    consulta.ninos,
+                    consulta.ninas,
+                detalle
                 });
             }
             catch (Exception ex)
