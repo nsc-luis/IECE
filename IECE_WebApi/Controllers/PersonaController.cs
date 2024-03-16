@@ -793,6 +793,7 @@ namespace IECE_WebApi.Controllers
                              && p.per_Bautizado == true
                              && p.per_En_Comunion == true
                              && p.per_Vivo == true
+                             orderby p.per_Nombre_Completo
                              //&& !(from hte in context.Historial_Transacciones_Estadisticas
                              //     where hte.ct_Codigo_Transaccion == 11101
                              //     || (hte.ct_Codigo_Transaccion == 11102 || hte.ct_Codigo_Transaccion == 11103)
