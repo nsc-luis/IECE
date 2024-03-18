@@ -119,7 +119,14 @@ namespace IECE_WebApi.Controllers
 
         }
 
-
+        public class infoNvoColaborador
+        {
+            public int id_Colaborador { get; set; }        
+            public int sec_Id_Sector { get; set; }
+            public int idUsuario { get; set; }
+            //public string comentario { get; set; }
+            //public DateTime fecha { get; set; }
+        }
         // GET: api/Personal_Ministerial
         // METODO PARA LISTAR PERSONAL MINISTERIAL
         [HttpGet]
@@ -989,6 +996,43 @@ namespace IECE_WebApi.Controllers
         }
 
         // GET: api/Personal_Ministerial
+        // Personal elegible para Cargos Administrativos, Persona Bautizado hombres, mujeres y jovenes no bautizados del Sector
+        [Route("[action]/{sec_Id_Sector}")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetElegiblesACargosAdministrativosBySector(int sec_Id_Sector)
+
+        {
+            try
+            {
+                var PersonalElegibleAdministracionLocal = (from P in context.Persona
+                                                           join S in context.Sector on P.sec_Id_Sector equals S.sec_Id_Sector
+                                                           join D in context.Distrito on S.dis_Id_Distrito equals D.dis_Id_Distrito
+                                                           where P.sec_Id_Sector == sec_Id_Sector && P.per_Activo == true && P.per_Categoria !="NIÑO" && P.per_Categoria != "NIÑA"
+                                                           orderby S.sec_Numero, P.per_Nombre_Completo
+                                                           select new
+                                                                {
+                                                                per_Id_Persona = P.per_Id_Persona,
+                                                                per_Nombre = P.per_Nombre_Completo
+                                                                }).ToList();
+
+                return Ok(new
+                {
+                    status = "success",
+                    administrativo = PersonalElegibleAdministracionLocal
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
+        // GET: api/Personal_Ministerial
         // Personal Ministerial por Sector, vinculado con un Id_Miembro
         [Route("[action]/{sec_Id_Sector}")]
         [HttpGet]
@@ -1763,7 +1807,52 @@ namespace IECE_WebApi.Controllers
             }
         }
 
-        
+        // POST: api/Personal_Ministerial
+        // ESTABLECE SECRETARIO DEL SECTOR
+        [Route("[action]")]
+        [HttpPost]
+        [EnableCors("AllowOrigin")]
+        public IActionResult RegistrarColaborador([FromBody] infoNvoColaborador info)
+        {
+            try
+            {
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == info.sec_Id_Sector);
+                var persona = context.Persona.FirstOrDefault(p => p.per_Id_Persona == info.id_Colaborador);
+                Personal_Ministerial colaborador = new Personal_Ministerial();
+                Registro_Transacciones RegistroHistorico = new Registro_Transacciones();
+
+
+                colaborador.pem_Activo = true;
+                colaborador.pem_Grado_Ministerial = "COLABORADOR";
+                colaborador.per_Id_Miembro = persona.per_Id_Persona;
+                colaborador.pem_Nombre = persona.per_Nombre_Completo;
+                colaborador.pem_Fecha_Nacimiento = persona.per_Fecha_Nacimiento;
+                colaborador.pem_email_Personal = persona.per_Email_Personal;
+                colaborador.pem_Cel1 = persona.per_Telefono_Movil;
+                colaborador.sec_Id_Congregacion = persona.sec_Id_Sector;
+                colaborador.usu_Id_Usuario = info.idUsuario;
+                colaborador.pem_Nombre_Sin_Acentos = ManejoDeApostrofes.QuitarApostrofe2(persona.per_Nombre_Completo);
+                colaborador.Fecha_Registro = fechayhora;
+                context.Personal_Ministerial.Add(colaborador);
+                context.SaveChanges();
+
+                SendMailController smc = new SendMailController(context);
+                smc.AltaDeColaborador(colaborador.pem_Id_Ministro, info.idUsuario);
+
+                return Ok(new
+                {
+                    status = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex
+                });
+            }
+        }
 
 
         [HttpPost]

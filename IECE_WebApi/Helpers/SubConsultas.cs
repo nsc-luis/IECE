@@ -30,6 +30,20 @@ namespace IECE_WebApi.Helpers
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.altas.noBautizados altasNoBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.bajas.bautizados bajasBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.bajas.noBautizados bajasNoBautizados { get; set; }
+
+            public int hombresBautizados { get; set; }
+            public int mujeresBautizadas { get; set; }
+            public int jovenesHombresBautizados { get; set; }
+            public int jovenesMujeresBautizadas { get; set; }
+            public int jovenesHombresNoBautizados { get; set; }
+            public int jovenesMujeresNoBautizadas { get; set; }
+            public int ninos { get; set; }
+            public int ninas { get; set; }
+
+
+
+
+
         }
 
         public class HistorialPorFechaSector
@@ -276,6 +290,7 @@ namespace IECE_WebApi.Helpers
             };
 
             movimientosEstadisticosReporteBySector resultado = new movimientosEstadisticosReporteBySector();
+            
             resultado.personasBautizadas = personasBautizadas;
             resultado.personasNoBautizadas = personasNoBautizadas;
             resultado.personasBautizadasAlFinalDelMes = personasBautizadas + movAltaBautizado - movBajaBautizado;
@@ -289,6 +304,15 @@ namespace IECE_WebApi.Helpers
             resultado.altasNoBautizados = altasNoBautizados;
             resultado.bajasBautizados = bajasBautizados;
             resultado.bajasNoBautizados = bajasNoBautizados;
+
+            resultado.hombresBautizados = hb.Count();
+            resultado.mujeresBautizadas = mb.Count();
+            resultado.jovenesHombresBautizados = jhb.Count();
+            resultado.jovenesMujeresBautizadas = jmb.Count();
+            resultado.jovenesHombresNoBautizados = jhnb.Count();
+            resultado.jovenesMujeresNoBautizadas = jmnb.Count();
+            resultado.ninos = ninos.Count();
+            resultado.ninas = ninas.Count();
 
             // agregar 
             // sucesos estadisticos y
