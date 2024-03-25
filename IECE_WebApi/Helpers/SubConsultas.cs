@@ -1,6 +1,7 @@
 ﻿using IECE_WebApi.Contexts;
 using IECE_WebApi.Controllers;
 using IECE_WebApi.Models;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,6 @@ namespace IECE_WebApi.Helpers
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.altas.noBautizados altasNoBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.bajas.bautizados bajasBautizados { get; set; }
             public virtual Registro_TransaccionesController.HistTransEstBySectorMes.bajas.noBautizados bajasNoBautizados { get; set; }
-
             public int hombresBautizados { get; set; }
             public int mujeresBautizadas { get; set; }
             public int jovenesHombresBautizados { get; set; }
@@ -39,13 +39,9 @@ namespace IECE_WebApi.Helpers
             public int jovenesMujeresNoBautizadas { get; set; }
             public int ninos { get; set; }
             public int ninas { get; set; }
-
-
-
-
-
+            public virtual BautizadosByMesSector bautizadosByMesSector { get; set; }
+            public virtual NoBautizadosByMesSector noBautizadosByMesSector { get; set; }
         }
-
         public class HistorialPorFechaSector
         {
             public int hte_Id_Transaccion { get; set; }
@@ -64,6 +60,23 @@ namespace IECE_WebApi.Helpers
             public DateTime? hte_Fecha_Transaccion { get; set; }
             public string dis_Distrito_Alias { get; set; }
             public string sec_Sector_Alia { get; set; }
+        }
+        public class MonthsOfYear
+        {
+            public static Dictionary<int, string> months = new Dictionary<int, string> {
+                    {1, "enero"},
+                    {2, "febrero"},
+                    {3, "marzo"},
+                    {4, "abril"},
+                    {5, "mayo"},
+                    {6, "junio"},
+                    {7, "julio"},
+                    {8, "agosto"},
+                    {9, "septiembre"},
+                    {10, "octubre"},
+                    {11, "noviembre"},
+                    {12, "diciembre"}
+                };
         }
 
         public movimientosEstadisticosReporteBySector SubMovimientosEstadisticosReporteBySector(FiltroHistTransEstDelMes fhte)
@@ -99,6 +112,14 @@ namespace IECE_WebApi.Helpers
             // jovenes mujeres bautizadas hasta el mes de consulta
             var jmb = pb.Where(p => p.per_Categoria == "JOVEN_MUJER").ToList();
 
+            BautizadosByMesSector bautizadosByMesSector = new BautizadosByMesSector
+            {
+                adulto_hombre = hb.Count(),
+                adulto_mujer = mb.Count(),
+                joven_hombre = jhb.Count(),
+                joven_mujer = jmb.Count()
+            };
+
             // PERSONAS NO BAUTIZAS HASTA EL MES DE CONSULTA
             var pnb = personas.Where(
                 p => p.per_Bautizado == false
@@ -118,6 +139,14 @@ namespace IECE_WebApi.Helpers
 
             // niñas
             var ninas = pnb.Where(p => p.per_Categoria == "NIÑA").ToList();
+
+            NoBautizadosByMesSector noBautizadosByMesSector = new NoBautizadosByMesSector
+            {
+                joven_hombre = jhnb.Count(),
+                joven_mujer = jmnb.Count(),
+                nino = ninos.Count(),
+                nina = ninas.Count()
+            };
 
             // HISTORIAL DE TRANSACCIONES ESTADISTICAS
             // historial transacciones estadisticas del sector y mes de consulta
@@ -304,7 +333,6 @@ namespace IECE_WebApi.Helpers
             resultado.altasNoBautizados = altasNoBautizados;
             resultado.bajasBautizados = bajasBautizados;
             resultado.bajasNoBautizados = bajasNoBautizados;
-
             resultado.hombresBautizados = hb.Count();
             resultado.mujeresBautizadas = mb.Count();
             resultado.jovenesHombresBautizados = jhb.Count();
@@ -313,7 +341,8 @@ namespace IECE_WebApi.Helpers
             resultado.jovenesMujeresNoBautizadas = jmnb.Count();
             resultado.ninos = ninos.Count();
             resultado.ninas = ninas.Count();
-
+            resultado.noBautizadosByMesSector = noBautizadosByMesSector;
+            resultado.bautizadosByMesSector = bautizadosByMesSector;
             // agregar 
             // sucesos estadisticos y
             // desglose de movimientos estadisticos: Historial_Transacciones_EstadisticasController.HistorialPorFechaSector
@@ -350,7 +379,7 @@ namespace IECE_WebApi.Helpers
                              hte.dis_Distrito_Alias,
                              hte.sec_Sector_Alias
                          }).ToList();
-            foreach(var q in query)
+            foreach (var q in query)
             {
                 resultado.Add(new HistorialPorFechaSector
                 {
@@ -366,7 +395,7 @@ namespace IECE_WebApi.Helpers
                     apellidoPrincipal = (q.per_Apellido_Casada == "" || q.per_Apellido_Casada == null) ? q.per_Apellido_Paterno : (q.per_Apellido_Casada + "* " + q.per_Apellido_Paterno),
                     per_Bautizado = q.per_Bautizado,
                     per_Categoria = q.per_Categoria,
-                    hte_Comentario= q.hte_Comentario,
+                    hte_Comentario = q.hte_Comentario,
                     hte_Fecha_Transaccion = q.hte_Fecha_Transaccion,
                     dis_Distrito_Alias = q.dis_Distrito_Alias,
                     sec_Sector_Alia = q.sec_Sector_Alias
