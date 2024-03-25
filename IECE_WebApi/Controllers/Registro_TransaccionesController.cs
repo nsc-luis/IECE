@@ -196,6 +196,8 @@ namespace IECE_WebApi.Controllers
                     consulta.altasNoBautizados,
                     consulta.bajasBautizados,
                     consulta.bajasNoBautizados,
+                    consulta.bautizadosByMesSector,
+                    consulta.noBautizadosByMesSector,
                     detalle
                 });
             }
