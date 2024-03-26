@@ -17,11 +17,11 @@ namespace IECE_WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class InformeAnualPastorController : ControllerBase
+    public class InformeController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public InformeAnualPastorController(AppDbContext context)
+        public InformeController(AppDbContext context)
         {
             _context = context;
         }
