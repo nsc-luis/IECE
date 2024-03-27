@@ -252,13 +252,16 @@ namespace IECE_WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("[action]")]
+        [Route("[action]/{id}")]
         [EnableCors("AllowOrigin")]
-        public IActionResult InformePastorPorSector([FromBody] FiltroHistTransEstDelMes ftem)
+        //public IActionResult InformePastorPorSector([FromBody] FiltroHistTransEstDelMes ftem)
+        public IActionResult InformePastorPorSector(int id)
         {
             try
             {
-                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == ftem.sec_Id_Sector);
+                SubConsultas sub = new SubConsultas(context);
+                var informeVM = sub.SubInformePastoral(id);
+                var sector = context.Sector.FirstOrDefault(s => s.sec_Id_Sector == informeVM.IdSector);
                 var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == sector.dis_Id_Distrito);
                 var ministro = context.Personal_Ministerial.FirstOrDefault(pm => pm.pem_Id_Ministro == sector.pem_Id_Pastor);
                 var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
@@ -276,10 +279,14 @@ namespace IECE_WebApi.Controllers
                 // Create shadow File
                 System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
 
-                SubConsultas sub = new SubConsultas(context);
-                var movtos = sub.SubMovimientosEstadisticosReporteBySector(ftem);
-                MonthsOfYear monthsOfYear = new MonthsOfYear();
+                FiltroHistTransEstDelMes ftem = new FiltroHistTransEstDelMes
+                {
+                    sec_Id_Sector = informeVM.IdSector,
+                    year = informeVM.Anio,
+                    mes = informeVM.Mes
+                };
 
+                var movtos = sub.SubMovimientosEstadisticosReporteBySector(ftem);
                 DateTime fechaInicial = new DateTime(ftem.year, ftem.mes, 1);
                 DateTime fechaFinal = fechaInicial.AddMonths(1);
                 fechaFinal = fechaFinal.AddDays(-1);
@@ -297,19 +304,60 @@ namespace IECE_WebApi.Controllers
                     desglose = desglose + $"{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} ({d.hte_Fecha_Transaccion}), ";
                 }
 
+
+
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(archivoTemporal, true))
                 {
                     var main = wordDoc.MainDocumentPart.Document;
                     //var bookmarksHeader = wordDoc.MainDocumentPart.HeaderParts.FirstOrDefault().RootElement.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
                     var bookmarks = main.Descendants<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart>().ToList();
-
+                    //ENCABEZADO
                     AgregarTextoAlMarcador(bookmarks, "noSector", (sector.sec_Numero).ToString(), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "sectorAlias", (sector.sec_Alias).ToString(), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "noDistrito", (distrito.dis_Numero).ToString(), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "distritoAlias", (distrito.dis_Alias).ToString(), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "mesReporte", (MonthsOfYear.months[ftem.mes].ToString()), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "añoReporte", (ftem.year).ToString(), true, true, "Aptos", "18");
-
+                    //ACTIVIDADES DEL PERSONAL DOCENTE
+                    AgregarTextoAlMarcador(bookmarks, "PorPastor", (informeVM.VisitasPastor.PorPastor).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "PorAncianosAux", (informeVM.VisitasPastor.PorAncianosAux).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "PorDiaconos", (informeVM.VisitasPastor.PorDiaconos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "PorAuxiliares", (informeVM.VisitasPastor.PorAuxiliares).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Ordinarios", (informeVM.CultosSector.Ordinarios).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Especiales", (informeVM.CultosSector.Especiales).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "DeAvivamiento", (informeVM.CultosSector.DeAvivamiento).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "DeAniversario", (informeVM.CultosSector.DeAniversario).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "PorElDistrito", (informeVM.CultosSector.PorElDistrito).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EstudioEscuelaDominical", (informeVM.EstudiosSector.EscuelaDominical).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EstudioVaronil", (informeVM.EstudiosSector.Varonil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EstudioFemenil", (informeVM.EstudiosSector.Femenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EstudioJuvenil", (informeVM.EstudiosSector.Juvenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EstudioInfantil", (informeVM.EstudiosSector.Infantil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EstudioIglesia", (informeVM.EstudiosSector.Iglesia).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ConferenciaEscuelaDominical", (informeVM.ConferenciasSector.EscuelaDominical).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ConferenciaVaronil", (informeVM.ConferenciasSector.Varonil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ConferenciaFemenil", (informeVM.ConferenciasSector.Femenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ConferenciaJuvenil", (informeVM.ConferenciasSector.Juvenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ConferenciaInfantil", (informeVM.ConferenciasSector.Infantil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ConferenciaIglesia", (informeVM.ConferenciasSector.Iglesia).ToString(), false, false, "Aptos", "15");
+                    for(int i = 0; i < informeVM.CultosMisionSector.Count(); i++)
+                    {
+                        var mision = context.Mision_Sector.Where(ms=>ms.ms_Id == informeVM.CultosMisionSector[i].Ms_Id_MisionSector).FirstOrDefault();
+                        if (mision != null)
+                        {
+                            AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "15");
+                            AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", (informeVM.CultosMisionSector[i].Cultos).ToString(), false, false, "Aptos", "15");
+                        }
+                    }
+                    AgregarTextoAlMarcador(bookmarks, "HogaresVisitados", (informeVM.TrabajoEvangelismo.HogaresVisitados).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "HogaresConquistados", (informeVM.TrabajoEvangelismo.HogaresConquistados).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "CultosPorLaLocalidad", (informeVM.TrabajoEvangelismo.CultosPorLaLocalidad).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "CultosDeHogar", (informeVM.TrabajoEvangelismo.CultosDeHogar).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Campanias", (informeVM.TrabajoEvangelismo.Campanias).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "AperturaDeMisiones", (informeVM.TrabajoEvangelismo.AperturaDeMisiones).ToString(), false, false, "Aptos", "15");
+                    //AgregarTextoAlMarcador(bookmarks, "VisitantesPermanentes", (informeVM.TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "BautismosTE", (informeVM.TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "15");
+                    //DATOS DEL ESTADO ACTUAL DE LA IGLESIA
                     AgregarTextoAlMarcador(bookmarks, "bautismo", (movtos.altasBautizados.BAUTISMO).ToString(),false,false,"Aptos","15");
                     AgregarTextoAlMarcador(bookmarks, "altaCambioDomicilio", (movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "totalAltas", (movtos.altasBautizados.RESTITUCIÓN + movtos.altasBautizados.BAUTISMO + movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");
@@ -340,7 +388,68 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "personalQueIntegraLaIglesia", (movtos.personasBautizadas + movtos.personasNoBautizadas).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "personasBautizadas", (movtos.personasBautizadas).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "personasNoBautizadas", (movtos.personasNoBautizadas).ToString(), false, false, "Aptos", "15");
+                    //MOVIMIENTO ADMINISTRATIVO Y MATERIAL
+                    AgregarTextoAlMarcador(bookmarks, "SociedadFemenil", (informeVM.Organizaciones.SociedadFemenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SociedadJuvenil", (informeVM.Organizaciones.SociedadJuvenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "DepartamentoFemenil", (informeVM.Organizaciones.DepartamentoFemenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "DepartamentoJuvenil", (informeVM.Organizaciones.DepartamentoJuvenil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "DepartamentoInfantil", (informeVM.Organizaciones.DepartamentoInfantil).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Coros", (informeVM.Organizaciones.Coros).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "GruposDeCanto", (informeVM.Organizaciones.GruposDeCanto).ToString(), false, false, "Aptos", "15");
 
+                    AgregarTextoAlMarcador(bookmarks, "Predios", (informeVM.AdquisicionesSector.Predios).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Casas", (informeVM.AdquisicionesSector.Casas).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Edificios", (informeVM.AdquisicionesSector.Edificios).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Templos", (informeVM.AdquisicionesSector.Templos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Vehiculos", (informeVM.AdquisicionesSector.Vehiculos).ToString(), false, false, "Aptos", "15");
+
+                    AgregarTextoAlMarcador(bookmarks, "SesionEnElDistrito", (informeVM.Sesiones.EnElDistrito).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SesionConElPersonalDocente", (informeVM.Sesiones.ConElPersonalDocente).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SesionConSociedadesFemeniles", (informeVM.Sesiones.ConSociedadesFemeniles).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SesionConSociedadesJuveniles", (informeVM.Sesiones.ConSociedadesJuveniles).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SesionConDepartamentosInfantiles", (informeVM.Sesiones.ConDepartamentosInfantiles).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SesionConCorosYGruposDeCanto", (informeVM.Sesiones.ConCorosYGruposDeCanto).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ReunionEnElDistrito", (informeVM.Reuniones.EnElDistrito).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ReunionConElPersonalDocente", (informeVM.Reuniones.ConElPersonalDocente).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ReunionConSociedadesFemeniles", (informeVM.Reuniones.ConSociedadesFemeniles).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ReunionConSociedadesJuveniles", (informeVM.Reuniones.ConSociedadesJuveniles).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ReunionConDepartamentosInfantiles", (informeVM.Reuniones.ConDepartamentosInfantiles).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ReunionConCorosYGruposDeCanto", (informeVM.Reuniones.ConCorosYGruposDeCanto).ToString(), false, false, "Aptos", "15");
+
+                    AgregarTextoAlMarcador(bookmarks, "InicioColocacionPrimeraPiedra", (informeVM.ConstruccionesInicio.ColocacionPrimeraPiedra).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "InicioTemplo", (informeVM.ConstruccionesInicio.Templo).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "InicioCasaDeOracion", (informeVM.ConstruccionesInicio.CasaDeOracion).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "InicioCasaPastoral", (informeVM.ConstruccionesInicio.CasaPastoral).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "InicioAnexos", (informeVM.ConstruccionesInicio.Anexos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "InicioRemodelacion", (informeVM.ConstruccionesInicio.Remodelacion).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "FinColocacionPrimeraPiedra", (informeVM.ConstruccionesConclusion.ColocacionPrimeraPiedra).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "FinTemplo", (informeVM.ConstruccionesConclusion.Templo).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "FinCasaDeOracion", (informeVM.ConstruccionesConclusion.CasaDeOracion).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "FinCasaPastoral", (informeVM.ConstruccionesConclusion.CasaPastoral).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "FinAnexos", (informeVM.ConstruccionesConclusion.Anexos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "FinRemodelacion", (informeVM.ConstruccionesConclusion.Remodelacion).ToString(), false, false, "Aptos", "15");
+
+                    AgregarTextoAlMarcador(bookmarks, "OrdenacionAncianos", (informeVM.Ordenaciones.Ancianos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "OrdenacionDiaconos", (informeVM.Ordenaciones.Diaconos).ToString(), false, false, "Aptos", "15");
+
+                    AgregarTextoAlMarcador(bookmarks, "DedicacionTemplos", (informeVM.Dedicaciones.Templos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "DedicacionCasasDeOracion", (informeVM.Dedicaciones.CasasDeOracion).ToString(), false, false, "Aptos", "15");
+
+                    AgregarTextoAlMarcador(bookmarks, "DiaconosAprueba", (informeVM.LlamamientoDePersonal.DiaconosAprueba).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "LlamamientoAuxiliares", (informeVM.LlamamientoDePersonal.Auxiliares).ToString(), false, false, "Aptos", "15");
+
+                    AgregarTextoAlMarcador(bookmarks, "RegPatNacTemplos", (informeVM.RegularizacionPatNac.Templos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "RegPatNacCasasPastorales", (informeVM.RegularizacionPatNac.CasasPastorales).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "RegPatIgTemplos", (informeVM.RegularizacionPatIg.Templos).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "RegPatIgCasasPastorales", (informeVM.RegularizacionPatIg.CasasPastorales).ToString(), false, false, "Aptos", "15");
+                    //MOVIMIENTO ECONOMICO
+                    AgregarTextoAlMarcador(bookmarks, "ExistenciaAnterior", (informeVM.MovimientoEconomico.ExistenciaAnterior).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EntradaMes", (informeVM.MovimientoEconomico.EntradaMes).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SumaTotal", (informeVM.MovimientoEconomico.SumaTotal).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "GastosAdmon", (informeVM.MovimientoEconomico.GastosAdmon).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "TransferenciasAentidadSuperior", (informeVM.MovimientoEconomico.TransferenciasAentidadSuperior).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ExistenciaEnCaja", (informeVM.MovimientoEconomico.ExistenciaEnCaja).ToString(), false, false, "Aptos", "15");
+                    //FINAL
                     AgregarTextoAlMarcador(bookmarks, "detalle", (desglose), false, true, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "pastorDeLaIglesia", (ministro.pem_Nombre), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "lugarDeReunion", (sector.sec_Alias), false, false, "Aptos", "15");

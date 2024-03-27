@@ -403,5 +403,204 @@ namespace IECE_WebApi.Helpers
             }
             return resultado;
         }
+
+        public InformePastorViewModel SubInformePastoral(int id)
+        {
+            InformePastorViewModel informeVM = new InformePastorViewModel();
+            Informe informe = context.Informe
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (informe == null)
+            {
+                return informeVM = null;
+            }
+
+            informeVM.IdInforme = informe.IdInforme;
+            informeVM.IdTipoUsuario = informe.IdTipoUsuario;
+            informeVM.IdDistrito = informe.IdDistrito;
+            informeVM.IdSector = informe.IdSector;
+            informeVM.LugarReunion = informe.LugarReunion;
+            informeVM.FechaReunion = informe.FechaReunion;
+            informeVM.Status = informe.Status;
+            informeVM.Usu_Id_Usuario = informe.Usu_Id_Usuario;
+            informeVM.FechaRegistro = informe.FechaRegistro;
+            informeVM.Mes = informe.Mes;
+            informeVM.NombreMes = MonthsOfYear.months[informe.Mes];
+            informeVM.Anio = informe.Anio;
+
+            VisitasPastor visitasPastor = context.VisitasPastor
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (visitasPastor != null)
+            {
+                informeVM.VisitasPastor = visitasPastor;
+            }
+
+            CultosSector cultosSector = context.CultosSector
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (cultosSector != null)
+            {
+                informeVM.CultosSector = cultosSector;
+            }
+
+            EstudiosSector estudiosSector = context.EstudiosSector
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoEstudio == 1)
+                .FirstOrDefault();
+
+            if (estudiosSector != null)
+            {
+                informeVM.EstudiosSector = estudiosSector;
+            }
+
+            EstudiosSector conferenciasSector = context.EstudiosSector
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoEstudio == 2)
+                .FirstOrDefault();
+
+            if (conferenciasSector != null)
+            {
+                informeVM.ConferenciasSector = conferenciasSector;
+            }
+
+
+            TrabajoEvangelismo trabajoEvangelismo = context.TrabajoEvangelismo
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (trabajoEvangelismo != null)
+            {
+                informeVM.TrabajoEvangelismo = trabajoEvangelismo;
+            }
+
+            List<CultosMisionSector> cultosMisionSector = context.CultosMisionSector
+                .Where(w => w.IdInforme == id)
+                .ToList();
+
+            if (cultosMisionSector != null)
+            {
+                informeVM.CultosMisionSector = cultosMisionSector;
+            }
+
+            Organizaciones organizaciones = context.Organizaciones
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (organizaciones != null)
+            {
+                informeVM.Organizaciones = organizaciones;
+            }
+
+            AdquisicionesSector adquisicionesSector = context.AdquisicionesSector
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (adquisicionesSector != null)
+            {
+                informeVM.AdquisicionesSector = adquisicionesSector;
+            }
+
+            SesionesReunionesSector reunionesSector = context.SesionesReunionesSector
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoSesionReunion == 1)
+                .FirstOrDefault();
+
+            if (reunionesSector != null)
+            {
+                informeVM.Reuniones = reunionesSector;
+            }
+
+            SesionesReunionesSector sesionesSector = context.SesionesReunionesSector
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoSesionReunion == 2)
+                .FirstOrDefault();
+
+            if (sesionesSector != null)
+            {
+                informeVM.Sesiones = sesionesSector;
+            }
+
+            Construcciones construccionesSectorInicio = context.Construcciones
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoFaseConstruccion == 1)
+                .FirstOrDefault();
+
+            if (construccionesSectorInicio != null)
+            {
+                informeVM.ConstruccionesInicio = construccionesSectorInicio;
+            }
+
+            Construcciones construccionesSectorConclusion = context.Construcciones
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoFaseConstruccion == 2)
+                .FirstOrDefault();
+
+            if (construccionesSectorConclusion != null)
+            {
+                informeVM.ConstruccionesConclusion = construccionesSectorConclusion;
+            }
+
+            Ordenaciones ordenaciones = context.Ordenaciones
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (ordenaciones != null)
+            {
+                informeVM.Ordenaciones = ordenaciones;
+            }
+
+            Dedicaciones dedicaciones = context.Dedicaciones
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (dedicaciones != null)
+            {
+                informeVM.Dedicaciones = dedicaciones;
+            }
+
+            LlamamientoDePersonal llamamientoDePersonal = context.LlamamientoDePersonal
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (llamamientoDePersonal != null)
+            {
+                informeVM.LlamamientoDePersonal = llamamientoDePersonal;
+            }
+
+            RegularizacionPrediosTemplos regularizacionPatNac = context.RegularizacionPrediosTemplos
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoPatrimonio == 1)
+                .FirstOrDefault();
+
+            if (regularizacionPatNac != null)
+            {
+                informeVM.RegularizacionPatNac = regularizacionPatNac;
+            }
+
+            RegularizacionPrediosTemplos regularizacionPatIg = context.RegularizacionPrediosTemplos
+                .Where(w => w.IdInforme == id)
+                .Where(w => w.IdTipoPatrimonio == 2)
+                .FirstOrDefault();
+
+            if (regularizacionPatIg != null)
+            {
+                informeVM.RegularizacionPatIg = regularizacionPatIg;
+            }
+
+            MovimientoEconomico movimientoEconomico = context.MovimientoEconomico
+                .Where(w => w.IdInforme == id)
+                .FirstOrDefault();
+
+            if (movimientoEconomico != null)
+            {
+                informeVM.MovimientoEconomico = movimientoEconomico;
+            }
+
+            return informeVM;
+        }
     }
 }
