@@ -25,9 +25,13 @@ namespace IECE_WebApi.Controllers
         {
             _context = context;
         }
+        public class InformeSearchModel
+        {
+            public int IdTipoUsuario { get; set; }
+        }
         [HttpGet]
         [EnableCors("AllowOrigin")]
-        public ActionResult<IEnumerable<Informe>> Get()
+        public ActionResult<IEnumerable<Informe>> Get([FromQuery] InformeSearchModel sm)
         {
             try
             {
@@ -47,12 +51,14 @@ namespace IECE_WebApi.Controllers
                     {11, "Noviembre"},
                     {12, "Diciembre"}
                 };
-                return Ok(_context.Informe.Select(s => new
-                {
-                    IdInforme = s.IdInforme,
-                    Anio = s.Anio,
-                    Mes = meses[s.Mes],
-                }).ToList());
+                return Ok(_context.Informe
+                    .Where(w => w.IdTipoUsuario == sm.IdTipoUsuario)
+                    .Select(s => new
+                    {
+                        IdInforme = s.IdInforme,
+                        Anio = s.Anio,
+                        Mes = meses[s.Mes],
+                    }).ToList());
             }
             catch (Exception ex)
             {
@@ -303,6 +309,7 @@ namespace IECE_WebApi.Controllers
             {
 
                 List<Informe> informes = _context.Informe
+                    .Where(s => s.IdTipoUsuario == data.IdTipoUsuario)
                     .Where(s => s.Anio == data.Anio)
                     .ToList();
 
