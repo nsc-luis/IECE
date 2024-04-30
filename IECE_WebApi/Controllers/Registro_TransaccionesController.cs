@@ -204,7 +204,9 @@ namespace IECE_WebApi.Controllers
                     consulta.jovenesMujeresNoBautizadas,
                     consulta.ninos,
                     consulta.ninas,
-                detalle
+                    consulta.bautizadosByMesSector,
+                    consulta.noBautizadosByMesSector,
+                    detalle
                 });
             }
             catch (Exception ex)
