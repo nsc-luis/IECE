@@ -1,6 +1,7 @@
 ﻿using IECE_WebApi.Contexts;
 using IECE_WebApi.Controllers;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
@@ -77,6 +78,12 @@ namespace IECE_WebApi.Helpers
                     {11, "noviembre"},
                     {12, "diciembre"}
                 };
+        }
+
+        public class objInformeObispo
+        {
+            public List<InformePastorViewModel> informesSectores { get; set; }
+            public List<movimientosEstadisticosReporteBySector> movtosDistrito { get; set; }
         }
 
         public movimientosEstadisticosReporteBySector SubMovimientosEstadisticosReporteBySector(FiltroHistTransEstDelMes fhte)
@@ -170,7 +177,7 @@ namespace IECE_WebApi.Helpers
                 }
             }
             // bajas bautizados del mes
-            int[] codBaja = { 11101, 11102, 11103, 11104, 11105};
+            int[] codBaja = { 11101, 11102, 11103, 11104, 11105 };
             int movBajaBautizado = 0;
             foreach (var ca in codBaja)
             {
@@ -319,7 +326,7 @@ namespace IECE_WebApi.Helpers
             };
 
             movimientosEstadisticosReporteBySector resultado = new movimientosEstadisticosReporteBySector();
-            
+
             resultado.personasBautizadas = personasBautizadas;
             resultado.personasNoBautizadas = personasNoBautizadas;
             resultado.personasBautizadasAlFinalDelMes = personasBautizadas + movAltaBautizado - movBajaBautizado;
@@ -601,6 +608,44 @@ namespace IECE_WebApi.Helpers
             }
 
             return informeVM;
+        }
+
+        public objInformeObispo SubInformeObispo(int idDistrito, int year, int mes)
+        {
+            List<InformePastorViewModel> informesSectores = new List<InformePastorViewModel>();
+            List<movimientosEstadisticosReporteBySector> movtosDistrito = new List<movimientosEstadisticosReporteBySector>();
+
+            DateTime fechaInicial = new DateTime(year, mes, 1);
+            DateTime fechaFinal = new DateTime(year, mes + 1, 1).AddDays(-1);
+
+            var informes = (from i in context.Informe
+                            where (i.FechaReunion >= fechaInicial && i.FechaReunion <= fechaFinal)
+                            && i.IdDistrito == idDistrito
+                            select new
+                            {
+                                i.IdInforme,
+                                i.IdSector
+                            }).ToList();
+
+            foreach (var i in informes)
+            {
+                informesSectores.Add(SubInformePastoral(i.IdInforme));
+                FiltroHistTransEstDelMes filtroHistTransEstDelMes = new FiltroHistTransEstDelMes
+                {
+                    sec_Id_Sector = i.IdSector,
+                    year = year,
+                    mes = mes
+                };
+                movtosDistrito.Add(SubMovimientosEstadisticosReporteBySector(filtroHistTransEstDelMes));
+            }
+
+            objInformeObispo objInformeObispo = new objInformeObispo
+            {
+                informesSectores = informesSectores,
+                movtosDistrito = movtosDistrito
+            };
+
+            return objInformeObispo;
         }
     }
 }

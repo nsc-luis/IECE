@@ -20,6 +20,7 @@ using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using static IECE_WebApi.Controllers.Registro_TransaccionesController;
 using IECE_WebApi.Helpers;
 using static IECE_WebApi.Helpers.SubConsultas;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace IECE_WebApi.Controllers
 {
@@ -469,6 +470,32 @@ namespace IECE_WebApi.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.ToString());
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]/{idDistrito}/{year}/{mes}")]
+        [EnableCors("AllowOrigin")]
+        //public IActionResult InformePastorPorSector([FromBody] FiltroHistTransEstDelMes ftem)
+        public IActionResult InformeObispoPorFecha(int idDistrito, int year, int mes)
+        {
+            try
+            {
+                SubConsultas sub = new SubConsultas(context);
+                var informeObispo = sub.SubInformeObispo(idDistrito, year, mes);
+                return Ok(new
+                {
+                    status = "success",
+                    informeObispo
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
             }
         }
 
