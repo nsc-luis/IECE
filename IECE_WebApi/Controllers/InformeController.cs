@@ -316,7 +316,11 @@ namespace IECE_WebApi.Controllers
                 bool informeExiste = informes.Any(a => a.Mes == data.Mes);
                 if (informeExiste)
                 {
-                    return BadRequest($"Ya existe un informe para el mes {data.Mes}");
+                    return Ok(new
+                    {
+                        status = "error",
+                        message = $"Ya existe un informe para el mes {data.Mes}"
+                    });
                 }
 
                 Informe informe = new Informe

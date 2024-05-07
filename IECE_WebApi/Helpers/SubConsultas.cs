@@ -600,6 +600,15 @@ namespace IECE_WebApi.Helpers
                 informeVM.MovimientoEconomico = movimientoEconomico;
             }
 
+            List<OtrasActividades> otrasActividades = context.OtrasActividades
+                .Where(w => w.IdInforme == id)
+                .ToList();
+
+            if (otrasActividades != null)
+            {
+                informeVM.OtrasActividades = otrasActividades;
+            }
+
             return informeVM;
         }
     }
