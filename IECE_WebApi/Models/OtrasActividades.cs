@@ -11,7 +11,7 @@ namespace IECE_WebApi.Models
         public int IdInforme { get; set; }
         public string Descripcion { get; set; }
         public int? NumDeOrden { get; set; }
-        public int UsuIdUsuario { get; set; }
+        public int Usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
 }
