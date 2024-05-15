@@ -70,5 +70,10 @@ namespace IECE_WebApi.Contexts
         public DbSet<RegularizacionPrediosTemplos> RegularizacionPrediosTemplos { get; set; }
         public DbSet<SesionesReunionesDistrito> SesionesReunionesDistrito { get; set; }
         public DbSet<SesionesReunionesSector> SesionesReunionesSector { get; set; }
+        public DbSet<VisitasObispo> VisitasObispo { get; set; }
+        public DbSet<CultosDistrito> CultosDistrito { get; set; }
+        public DbSet<ConcentracionesDistrito> ConcentracionesDistrito { get; set; }
+        public DbSet<ConferenciasDistrito> ConferenciasDistrito { get; set; }
+        public DbSet<ConstruccionesDistrito> ConstruccionesDistrito { get; set; }
     }
 }
