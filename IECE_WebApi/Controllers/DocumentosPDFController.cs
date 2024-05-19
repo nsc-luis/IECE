@@ -306,16 +306,16 @@ namespace IECE_WebApi.Controllers
                 var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == sector.dis_Id_Distrito);
                 var ministro = context.Personal_Ministerial.FirstOrDefault(pm => pm.pem_Id_Ministro == sector.pem_Id_Pastor);
                 var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
-            //string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\InformePastorPorSector_Plantilla.docx";
-                string pathPlantilla = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_Plantilla.docx";
+                string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\InformePastorPorSector_Plantilla.docx";
+                //string pathPlantilla = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_Plantilla.docx";
 
                 // NOMBRE DEL PDF QUE SE CREARA
-                //string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
-                string archivoDeSalida = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.pdf";
+                string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
+                //string archivoDeSalida = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.pdf";
 
                 // ARCHIVO TEMPORAL EN BASE A LA PLANTILLA
-                //string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.docx";
-                string archivoTemporal = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.docx";
+                string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.docx";
+                //string archivoTemporal = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.docx";
 
                 // Create shadow File
                 System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
@@ -396,7 +396,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "CultosDeHogar", (informeVM.TrabajoEvangelismo.CultosDeHogar).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "Campanias", (informeVM.TrabajoEvangelismo.Campanias).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "AperturaDeMisiones", (informeVM.TrabajoEvangelismo.AperturaDeMisiones).ToString(), false, false, "Aptos", "15");
-                    //AgregarTextoAlMarcador(bookmarks, "VisitantesPermanentes", (informeVM.TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "VisitantesPermanentes", (informeVM.TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "BautismosTE", (informeVM.TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "15");
                     //DATOS DEL ESTADO ACTUAL DE LA IGLESIA
                     AgregarTextoAlMarcador(bookmarks, "bautismo", (movtos.altasBautizados.BAUTISMO).ToString(),false,false,"Aptos","15");
@@ -491,7 +491,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "TransferenciasAentidadSuperior", (informeVM.MovimientoEconomico.TransferenciasAentidadSuperior).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "ExistenciaEnCaja", (informeVM.MovimientoEconomico.ExistenciaEnCaja).ToString(), false, false, "Aptos", "15");
                     //OTRAS ACTIVIDADES
-                    AgregarListaTextosAlMarcador(bookmarks, "OtrasActividades", informeVM.OtrasActividades.Select(s => (s.FechaRegistro.ToShortDateString() + " - " + s.Descripcion).ToString()).ToList(), false, false, "Aptos", "15");
+                    AgregarListaTextosAlMarcador(bookmarks, "OtrasActividades", informeVM.OtrasActividades.Select(s => (s.Descripcion).ToString()).ToList(), false, false, "Aptos", "15");
                     //FINAL
                     AgregarTextoAlMarcador(bookmarks, "detalle", (desglose), false, true, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "pastorDeLaIglesia", (ministro.pem_Nombre), false, false, "Aptos", "15");
