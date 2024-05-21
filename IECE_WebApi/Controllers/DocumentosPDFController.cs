@@ -342,7 +342,7 @@ namespace IECE_WebApi.Controllers
                 string desglose = "";
                 foreach (HistorialPorFechaSector d in detalle)
                 {
-                    desglose = desglose + $"{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} ({d.hte_Fecha_Transaccion}), ";
+                    desglose = desglose + $"{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} | ";
                 }
 
 
