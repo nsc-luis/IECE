@@ -10,6 +10,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using IECE_WebApi.Helpers;
 
+using DocumentFormat.OpenXml.Drawing.Diagrams;
+
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace IECE_WebApi.Controllers
@@ -316,7 +319,13 @@ namespace IECE_WebApi.Controllers
                 bool informeExiste = informes.Any(a => a.Mes == data.Mes);
                 if (informeExiste)
                 {
-                    return BadRequest($"Ya existe un informe para el mes {data.Mes}");
+
+                    return Ok(new
+                    {
+                        status = "error",
+                        message = $"Ya existe un informe para el mes {data.Mes}"
+                    });
+
                 }
 
                 Informe informe = new Informe
@@ -386,7 +395,8 @@ namespace IECE_WebApi.Controllers
                 }
 
                 CultosSector cultosSector = _context.CultosSector.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if(cultosSector == null)
+
+                if (cultosSector == null)
                 {
                     var addCultosSector = new CultosSector
                     {
@@ -528,7 +538,8 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-                Organizaciones organizaciones  = _context.Organizaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+
+                Organizaciones organizaciones = _context.Organizaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
                 if (organizaciones == null)
                 {
                     var addOrganizaciones = new Organizaciones
@@ -840,6 +851,16 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
+
+
+                foreach (var actividad in data.ActividadesEliminadas)
+                {
+                    if(actividad.IdOtraActividad != 0)
+                    {
+                        _context.OtrasActividades.Remove(actividad);
+                        _context.SaveChanges();
+                    }
+                }
 
                 return Ok();
 

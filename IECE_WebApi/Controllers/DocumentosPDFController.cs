@@ -73,6 +73,47 @@ namespace IECE_WebApi.Controllers
             r.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(valor));
         }
 
+        private void AgregarListaTextosAlMarcador(
+            List<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart> bookmarks,
+            string NombreMarcador,
+            List<string> lista,
+            bool bold = false,
+            bool underline = false,
+            string fontFamily = "",
+            string fontSize = "")
+        {
+        var bm = bookmarks.FirstOrDefault(bms => bms.Name == NombreMarcador);
+        Run r = bm.Parent.InsertAfter(new Run(), bm);
+        DocumentFormat.OpenXml.Wordprocessing.RunProperties rp = new DocumentFormat.OpenXml.Wordprocessing.RunProperties();
+        if (bold)
+        {
+            rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Bold());
+        }
+        if (underline)
+        {
+            rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
+        }
+        if (fontFamily != "")
+        {
+            rp.AppendChild(new RunFonts { Ascii = fontFamily });
+        }
+        if (fontSize != "")
+        {
+            rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.FontSize { Val = new StringValue(fontSize) });
+        }
+        if (underline)
+        {
+            rp.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Underline() { Val = DocumentFormat.OpenXml.Wordprocessing.UnderlineValues.Single });
+        }
+        r.AppendChild(rp);
+        for (int i = 0; i < lista.Count; i++)
+        {
+            r.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(lista[i]));
+            r.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Break());
+
+        }
+        }
+
         private void AgregarImagenAlMarcador(
             List<DocumentFormat.OpenXml.Wordprocessing.BookmarkStart> bookmarks,
             string NombreMarcador,
@@ -268,16 +309,16 @@ namespace IECE_WebApi.Controllers
                 var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == sector.dis_Id_Distrito);
                 var ministro = context.Personal_Ministerial.FirstOrDefault(pm => pm.pem_Id_Ministro == sector.pem_Id_Pastor);
                 var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
-                //string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\InformePastorPorSector_Plantilla.docx";
-                string pathPlantilla = $"D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi\\Templates\\InformePastorPorSector_Plantilla.docx";
+                string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\InformePastorPorSector_Plantilla.docx";
+                //string pathPlantilla = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_Plantilla.docx";
 
                 // NOMBRE DEL PDF QUE SE CREARA
-                //string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
-                string archivoDeSalida = $"D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
+                string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
+                //string archivoDeSalida = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.pdf";
 
                 // ARCHIVO TEMPORAL EN BASE A LA PLANTILLA
-                //string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.docx";
-                string archivoTemporal = $"D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi\\Temp\\InformePastorPorSector_{fechayhora}.docx";
+                string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.docx";
+                //string archivoTemporal = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.docx";
 
                 // Create shadow File
                 System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
@@ -304,7 +345,7 @@ namespace IECE_WebApi.Controllers
                 string desglose = "";
                 foreach (HistorialPorFechaSector d in detalle)
                 {
-                    desglose = desglose + $"{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} ({d.hte_Fecha_Transaccion}), ";
+                    desglose = desglose + $"{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} | ";
                 }
 
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(archivoTemporal, true))
@@ -317,7 +358,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "sectorAlias", (sector.sec_Alias).ToString(), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "noDistrito", (distrito.dis_Numero).ToString(), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "distritoAlias", (distrito.dis_Alias).ToString(), true, true, "Aptos", "18");
-                    AgregarTextoAlMarcador(bookmarks, "mesReporte", (MonthsOfYear.months[ftem.mes].ToString()), true, true, "Aptos", "18");
+                    AgregarTextoAlMarcador(bookmarks, "mesReporte", (MonthsOfYear.months[ftem.mes].ToString().ToUpper()), true, true, "Aptos", "18");
                     AgregarTextoAlMarcador(bookmarks, "añoReporte", (ftem.year).ToString(), true, true, "Aptos", "18");
                     //ACTIVIDADES DEL PERSONAL DOCENTE
                     AgregarTextoAlMarcador(bookmarks, "PorPastor", (informeVM.VisitasPastor.PorPastor).ToString(), false, false, "Aptos", "15");
@@ -356,7 +397,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "CultosDeHogar", (informeVM.TrabajoEvangelismo.CultosDeHogar).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "Campanias", (informeVM.TrabajoEvangelismo.Campanias).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "AperturaDeMisiones", (informeVM.TrabajoEvangelismo.AperturaDeMisiones).ToString(), false, false, "Aptos", "15");
-                    //AgregarTextoAlMarcador(bookmarks, "VisitantesPermanentes", (informeVM.TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "VisitantesPermanentes", (informeVM.TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "BautismosTE", (informeVM.TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "15");
                     //DATOS DEL ESTADO ACTUAL DE LA IGLESIA
                     AgregarTextoAlMarcador(bookmarks, "bautismo", (movtos.altasBautizados.BAUTISMO).ToString(), false, false, "Aptos", "15");
@@ -450,6 +491,8 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "GastosAdmon", (informeVM.MovimientoEconomico.GastosAdmon).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "TransferenciasAentidadSuperior", (informeVM.MovimientoEconomico.TransferenciasAentidadSuperior).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "ExistenciaEnCaja", (informeVM.MovimientoEconomico.ExistenciaEnCaja).ToString(), false, false, "Aptos", "15");
+                    //OTRAS ACTIVIDADES
+                    AgregarListaTextosAlMarcador(bookmarks, "OtrasActividades", informeVM.OtrasActividades.Select(s => (s.Descripcion).ToString()).ToList(), false, false, "Aptos", "15");
                     //FINAL
                     AgregarTextoAlMarcador(bookmarks, "detalle", (desglose), false, true, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "pastorDeLaIglesia", (ministro.pem_Nombre), false, false, "Aptos", "15");

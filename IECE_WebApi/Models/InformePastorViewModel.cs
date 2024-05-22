@@ -39,6 +39,8 @@ namespace IECE_WebApi.Models
         public RegularizacionPrediosTemplos RegularizacionPatIg { get; set; }
         public MovimientoEconomico MovimientoEconomico { get; set; }
         public List<OtrasActividades> OtrasActividades { get; set; }
+        public List<OtrasActividades> ActividadesEliminadas { get; set; }
+
     }
 
 }
