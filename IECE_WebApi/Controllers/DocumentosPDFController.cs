@@ -531,7 +531,6 @@ namespace IECE_WebApi.Controllers
                         string[] L = {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
                         for (int i = 0; i < actividadObispo.sectores.Count; i++)
                         {
-                            //int j = i + 1;
                             AgregarTextoAlMarcador(bookmarks, $"A{L[i]}1", (actividadObispo.sectores[i].sector.sec_Alias).ToString(), false, false, "Aptos", "10");
                             AgregarTextoAlMarcador(bookmarks, $"A{L[i]}2", (actividadObispo.sectores[i].VisitasObispo.aSectores).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"A{L[i]}3", (actividadObispo.sectores[i].VisitasObispo.aHogares).ToString(), false, false, "Aptos", "13");
@@ -544,12 +543,32 @@ namespace IECE_WebApi.Controllers
                             AgregarTextoAlMarcador(bookmarks, $"A{L[i]}10", (actividadObispo.sectores[i].ConferenciasDistrito.sociedadFemenil).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"A{L[i]}11", (actividadObispo.sectores[i].ConferenciasDistrito.sociedadJuvenil).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"A{L[i]}12", (actividadObispo.sectores[i].ConferenciasDistrito.sectorInfantil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"A{L[i]}13", (actividadObispo.sectores[i].ConcentracionesDistrito.iglesia).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"A{L[i]}14", (actividadObispo.sectores[i].ConcentracionesDistrito.sectorVaronil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"A{L[i]}15", (actividadObispo.sectores[i].ConcentracionesDistrito.sociedadFemenil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"A{L[i]}16", (actividadObispo.sectores[i].ConcentracionesDistrito.sociedadJuvenil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"A{L[i]}17", (actividadObispo.sectores[i].ConcentracionesDistrito.sectorInfantil).ToString(), false, false, "Aptos", "13");
+                        };
 
-                            //AgregarTextoAlMarcador(bookmarks, $"A{L[i]}", (actividadObispo.sectores[i].ConcentracionesDistrito.iglesia).ToString(), false, false, "Aptos", "13");
-                            //AgregarTextoAlMarcador(bookmarks, $"A{L[i]}", (actividadObispo.sectores[i].ConcentracionesDistrito.sectorVaronil).ToString(), false, false, "Aptos", "13");
-                            //AgregarTextoAlMarcador(bookmarks, $"A{L[i]}", (actividadObispo.sectores[i].ConcentracionesDistrito.sociedadFemenil).ToString(), false, false, "Aptos", "13");
-                            //AgregarTextoAlMarcador(bookmarks, $"A{L[i]}", (actividadObispo.sectores[i].ConcentracionesDistrito.sociedadJuvenil).ToString(), false, false, "Aptos", "13");
-                            //AgregarTextoAlMarcador(bookmarks, $"A{L[i]}", (actividadObispo.sectores[i].ConcentracionesDistrito.sectorInfantil).ToString(), false, false, "Aptos", "13");
+                        for (int i = 0; i < actividadObispo.misiones.Count; i++)
+                        {
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}1", (actividadObispo.misiones[i].mision.sec_Alias).ToString(), false, false, "Aptos", "10");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}2", (actividadObispo.misiones[i].VisitasObispo.aSectores).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}3", (actividadObispo.misiones[i].VisitasObispo.aHogares).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}4", (actividadObispo.misiones[i].CultosDistrito.Ordinarios).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}5", (actividadObispo.misiones[i].CultosDistrito.Especiales).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}6", (actividadObispo.misiones[i].CultosDistrito.DeAvivamiento).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}7", (actividadObispo.misiones[i].CultosDistrito.Evangelismo).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}8", (actividadObispo.misiones[i].ConferenciasDistrito.iglesia).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}9", (actividadObispo.misiones[i].ConferenciasDistrito.sectorVaronil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}10", (actividadObispo.misiones[i].ConferenciasDistrito.sociedadFemenil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}11", (actividadObispo.misiones[i].ConferenciasDistrito.sociedadJuvenil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}12", (actividadObispo.misiones[i].ConferenciasDistrito.sectorInfantil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}13", (actividadObispo.misiones[i].ConcentracionesDistrito.iglesia).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}14", (actividadObispo.misiones[i].ConcentracionesDistrito.sectorVaronil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}15", (actividadObispo.misiones[i].ConcentracionesDistrito.sociedadFemenil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}16", (actividadObispo.misiones[i].ConcentracionesDistrito.sociedadJuvenil).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"B{L[i]}17", (actividadObispo.misiones[i].ConcentracionesDistrito.sectorInfantil).ToString(), false, false, "Aptos", "13");
                         };
 
                         //ACTIVIDADES DEL PERSONAL DOCENTE
