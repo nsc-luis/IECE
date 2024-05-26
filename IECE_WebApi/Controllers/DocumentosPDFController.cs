@@ -382,13 +382,19 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "ConferenciaJuvenil", (informeVM.ConferenciasSector.Juvenil).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "ConferenciaInfantil", (informeVM.ConferenciasSector.Infantil).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "ConferenciaIglesia", (informeVM.ConferenciasSector.Iglesia).ToString(), false, false, "Aptos", "15");
-                    for (int i = 0; i < informeVM.CultosMisionSector.Count(); i++)
+                    List<Mision_Sector> misiones = context.Mision_Sector.Where(w => w.sec_Id_Sector == informeVM.IdSector).ToList();
+                    foreach (var mision in misiones)
                     {
-                        var mision = context.Mision_Sector.Where(ms => ms.ms_Id == informeVM.CultosMisionSector[i].Ms_Id_MisionSector).FirstOrDefault();
-                        if (mision != null)
+                        var misionConCultos = informeVM.CultosMisionSector.Where(w => w.Ms_Id_MisionSector == mision.ms_Id && w.Cultos > 0).FirstOrDefault();
+                        if(misionConCultos != null)
                         {
                             AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "15");
-                            AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", (informeVM.CultosMisionSector[i].Cultos).ToString(), false, false, "Aptos", "15");
+                            AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", (misionConCultos.Cultos).ToString(), false, false, "Aptos", "15");
+                        }
+                        else
+                        {
+                            AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "15");
+                            AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", ("0"), false, false, "Aptos", "15");
                         }
                     }
                     AgregarTextoAlMarcador(bookmarks, "HogaresVisitados", (informeVM.TrabajoEvangelismo.HogaresVisitados).ToString(), false, false, "Aptos", "15");
@@ -400,6 +406,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "VisitantesPermanentes", (informeVM.TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "BautismosTE", (informeVM.TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "15");
                     //DATOS DEL ESTADO ACTUAL DE LA IGLESIA
+                    AgregarTextoAlMarcador(bookmarks, "personasBautizadasInicio", (movtos.personasBautizadas).ToString(),false,false,"Aptos","15");
                     AgregarTextoAlMarcador(bookmarks, "bautismo", (movtos.altasBautizados.BAUTISMO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "altaCambioDomicilio", (movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "totalAltas", (movtos.altasBautizados.RESTITUCIÓN + movtos.altasBautizados.BAUTISMO + movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");
@@ -427,9 +434,9 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "totalAdultosBautizados", (movtos.bautizadosByMesSector.adulto_hombre + movtos.bautizadosByMesSector.adulto_mujer).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "totalJovenesBautizados", (movtos.bautizadosByMesSector.joven_hombre + movtos.bautizadosByMesSector.joven_mujer).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "totalJovenesNoBautizados", (movtos.noBautizadosByMesSector.joven_hombre + movtos.noBautizadosByMesSector.joven_mujer).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "personalQueIntegraLaIglesia", (movtos.personasBautizadas + movtos.personasNoBautizadas).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "personasBautizadas", (movtos.personasBautizadas).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "personasNoBautizadas", (movtos.personasNoBautizadas).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "personalQueIntegraLaIglesia", (movtos.personasBautizadasAlFinalDelMes + movtos.personasNoBautizadasAlFinalDelMes).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "personasBautizadas", (movtos.personasBautizadasAlFinalDelMes).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "personasNoBautizadas", (movtos.personasNoBautizadasAlFinalDelMes).ToString(), false, false, "Aptos", "15");
                     //MOVIMIENTO ADMINISTRATIVO Y MATERIAL
                     AgregarTextoAlMarcador(bookmarks, "SociedadFemenil", (informeVM.Organizaciones.SociedadFemenil).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "SociedadJuvenil", (informeVM.Organizaciones.SociedadJuvenil).ToString(), false, false, "Aptos", "15");
