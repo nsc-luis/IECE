@@ -1,10 +1,13 @@
 ﻿using IECE_WebApi.Contexts;
 using IECE_WebApi.Controllers;
 using IECE_WebApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Security.Cryptography;
 using static IECE_WebApi.Controllers.Registro_TransaccionesController;
 
 namespace IECE_WebApi.Helpers
@@ -77,6 +80,58 @@ namespace IECE_WebApi.Helpers
                     {11, "noviembre"},
                     {12, "diciembre"}
                 };
+        }
+
+        public class objInformeObispo
+        {
+            public objActividadDelObispo actividadObispo { get; set; }
+            public List<InformePastorViewModel> InformesSectores { get; set; }
+            public SumaMovtosAdministrativoEconomico MovtosAdministrativoEconomico { get; set; }
+            public movimientosEstadisticosReporteBySector MovtosEstadisticos { get; set; }
+        }
+
+        public class SumaMovtosAdministrativoEconomico
+        {
+            public Organizaciones Organizaciones { get; set; }
+            public AdquisicionesSector AdquisicionesSector { get; set; }
+            public SesionesReunionesSector Sesiones { get; set; }
+            public SesionesReunionesSector Reuniones { get; set; }
+            public Construcciones ConstruccionesInicio { get; set; }
+            public Construcciones ConstruccionesConclusion { get; set; }
+            public Ordenaciones Ordenaciones { get; set; }
+            public Dedicaciones Dedicaciones { get; set; }
+            public LlamamientoDePersonal LlamamientoDePersonal { get; set; }
+            public RegularizacionPrediosTemplos RegularizacionPatNac { get; set; }
+            public RegularizacionPrediosTemplos RegularizacionPatIg { get; set; }
+            public MovimientoEconomico MovimientoEconomico { get; set; }
+        }
+
+        public class actividadEnMisionSectorPorObispo
+        {
+            public Mision_Sector misionSector { get; set; }
+            //public VisitasObispo VisitasObispo { get; set; }
+            //public CultosDistrito CultosDistrito { get; set; }
+            //public ConcentracionesDistrito ConcentracionesDistrito { get; set; }
+            //public ConferenciasDistrito ConferenciasDistrito { get; set; }
+        }
+        public class actividadEnSectorPorObispo
+        {
+            public Sector sector { get; set; }
+            public VisitasObispo VisitasObispo { get; set; }
+            public CultosDistrito CultosDistrito { get; set; }
+            public ConcentracionesDistrito ConcentracionesDistrito { get; set; }
+            public ConferenciasDistrito ConferenciasDistrito { get; set; }
+            public List<actividadEnMisionSectorPorObispo> misiones { get; set; }
+        }
+
+        public class objActividadDelObispo
+        {
+            public List<actividadEnSectorPorObispo> sectores { get; set; }
+            //public SesionesReunionesDistrito SesionesDistrito { get; set; }
+            //public SesionesReunionesDistrito ReunionesDistrito { get; set; }
+            public AdquisicionesDistrito AdquisicionesDistrito { get; set; }
+            public ConstruccionesDistrito ConstruccionesDistritoInicio { get; set; }
+            public ConstruccionesDistrito ConstruccionesDistritoFinal { get; set; }
         }
 
         public movimientosEstadisticosReporteBySector SubMovimientosEstadisticosReporteBySector(FiltroHistTransEstDelMes fhte)
@@ -170,7 +225,7 @@ namespace IECE_WebApi.Helpers
                 }
             }
             // bajas bautizados del mes
-            int[] codBaja = { 11101, 11102, 11103, 11104, 11105};
+            int[] codBaja = { 11101, 11102, 11103, 11104, 11105 };
             int movBajaBautizado = 0;
             foreach (var ca in codBaja)
             {
@@ -319,7 +374,7 @@ namespace IECE_WebApi.Helpers
             };
 
             movimientosEstadisticosReporteBySector resultado = new movimientosEstadisticosReporteBySector();
-            
+
             resultado.personasBautizadas = personasBautizadas;
             resultado.personasNoBautizadas = personasNoBautizadas;
             resultado.personasBautizadasAlFinalDelMes = personasBautizadas + movAltaBautizado - movBajaBautizado;
@@ -610,6 +665,445 @@ namespace IECE_WebApi.Helpers
             }
 
             return informeVM;
+        }
+
+        public objInformeObispo SubInformeObispo(int idDistrito, int year, int mes)
+        {
+            List<InformePastorViewModel> informesSectores = new List<InformePastorViewModel>();
+
+            var informes = (from i in context.Informe
+                            where i.Anio == year && i.Mes == mes
+                            && i.IdDistrito == idDistrito && i.IdTipoUsuario == 1
+                            select new
+                            {
+                                i.IdInforme,
+                                i.IdSector
+                            }).ToList();
+
+            int idInformeObispo = context.Informe.FirstOrDefault(i=>i.Anio == year && i.Mes == mes && i.IdDistrito == idDistrito && i.IdTipoUsuario == 2).IdInforme;
+
+            var sectores = context.Sector.Where(s => s.dis_Id_Distrito == idDistrito).ToList();
+            List<Mision_Sector> misiones = new List<Mision_Sector>();
+            List<actividadEnSectorPorObispo> actividadEnSectorPorObispo = new List<actividadEnSectorPorObispo>();
+            List<actividadEnMisionSectorPorObispo> actividadEnMisionSectorPorObispo = new List<actividadEnMisionSectorPorObispo>();
+            foreach (var s in sectores)
+            {
+                VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
+                CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
+                ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
+                ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+
+                var foo = context.Mision_Sector.Where(ms => ms.sec_Id_Sector == s.sec_Id_Sector).ToList();
+                foreach (var f in foo)
+                {
+                    actividadEnMisionSectorPorObispo.Add(new actividadEnMisionSectorPorObispo
+                    {
+                        misionSector = f
+                    });
+                }
+
+                actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
+                {
+                    sector = s,
+                    VisitasObispo = visitasObispo,
+                    CultosDistrito = cultosDistrito,
+                    ConferenciasDistrito = conferenciasDistrito,
+                    misiones = actividadEnMisionSectorPorObispo
+                });
+            }
+
+            objActividadDelObispo actividadObispo = new objActividadDelObispo
+            {
+                sectores = actividadEnSectorPorObispo,
+                AdquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo),
+                ConstruccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(cdi => cdi.idInforme == idInformeObispo && cdi.idTipoFaseConstruccion == 1),
+                ConstruccionesDistritoFinal = context.ConstruccionesDistrito.FirstOrDefault(cdf => cdf.idInforme == idInformeObispo && cdf.idTipoFaseConstruccion == 2)
+            };
+
+            movimientosEstadisticosReporteBySector resultadoMovtos = new movimientosEstadisticosReporteBySector
+            {
+                personasBautizadas = 0,
+                personasNoBautizadas = 0,
+                personasBautizadasAlFinalDelMes = 0,
+                personasNoBautizadasAlFinalDelMes = 0,
+                hogares = 0,
+                hogaresAlFinalDelMes = 0,
+                matrimonios = 0,
+                legalizaciones = 0,
+                presentaciones = 0,
+                altasBautizados = new HistTransEstBySectorMes.altas.bautizados
+                {
+                    BAUTISMO = 0,
+                    RESTITUCIÓN = 0,
+                    CAMBIODEDOMEXTERNO = 0,
+                    CAMBIODEDOMINTERNO = 0,
+                },
+                altasNoBautizados = new HistTransEstBySectorMes.altas.noBautizados
+                {
+                    REACTIVACION = 0,
+                    NUEVOINGRESO = 0,
+                    CAMBIODEDOMINTERNO = 0,
+                    CAMBIODEDOMEXTERNO = 0
+                },
+                bajasBautizados = new HistTransEstBySectorMes.bajas.bautizados
+                {
+                    DEFUNCION = 0,
+                    CAMBIODEDOMEXTERNO = 0,
+                    CAMBIODEDOMINTERNO = 0,
+                    EXCOMUNION = 0,
+                    EXCOMUNIONTEMPORAL = 0
+                },
+                bajasNoBautizados = new HistTransEstBySectorMes.bajas.noBautizados
+                {
+                    DEFUNCION = 0,
+                    ALEJAMIENTO = 0,
+                    CAMBIODEDOMICILIOEXTERNO = 0,
+                    CAMBIODEDOMICILIOINTERNO = 0,
+                    PASAAPERSONALBAUTIZADO = 0,
+                    PORBAJADEPADRES = 0
+                },
+                hombresBautizados = 0,
+                mujeresBautizadas = 0,
+                jovenesHombresBautizados = 0,
+                jovenesMujeresBautizadas = 0,
+                jovenesHombresNoBautizados = 0,
+                jovenesMujeresNoBautizadas = 0,
+                ninos = 0,
+                ninas = 0,
+                bautizadosByMesSector = new BautizadosByMesSector
+                {
+                    adulto_hombre = 0,
+                    adulto_mujer = 0,
+                    joven_hombre = 0,
+                    joven_mujer = 0
+                },
+                noBautizadosByMesSector = new NoBautizadosByMesSector
+                {
+                    nina = 0,
+                    nino = 0,
+                    joven_mujer = 0,
+                    joven_hombre = 0
+                }
+            };
+            SumaMovtosAdministrativoEconomico smae = new SumaMovtosAdministrativoEconomico
+            {
+                Organizaciones = new Organizaciones
+                {
+                    IdOrganizacion = 0,
+                    IdInforme = 0,
+                    SociedadFemenil = 0,
+                    SociedadJuvenil = 0,
+                    DepartamentoFemenil = 0,
+                    DepartamentoJuvenil = 0,
+                    DepartamentoInfantil = 0,
+                    Coros = 0,
+                    GruposDeCanto = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                AdquisicionesSector = new AdquisicionesSector
+                {
+                    IdAdquisicionSector = 0,
+                    IdInforme = 0,
+                    Predios = 0,
+                    Casas = 0,
+                    Edificios = 0,
+                    Templos = 0,
+                    Vehiculos = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                Sesiones = new SesionesReunionesSector
+                {
+                    IdSesionReunionSector = 0,
+                    IdInforme = 0,
+                    IdTipoSesionReunion = 0,
+                    EnElDistrito = 0,
+                    ConElPersonalDocente = 0,
+                    ConSociedadesFemeniles = 0,
+                    ConSociedadesJuveniles = 0,
+                    ConDepartamentosInfantiles = 0,
+                    ConCorosYGruposDeCanto = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                Reuniones = new SesionesReunionesSector
+                {
+                    IdSesionReunionSector = 0,
+                    IdInforme = 0,
+                    IdTipoSesionReunion = 0,
+                    EnElDistrito = 0,
+                    ConElPersonalDocente = 0,
+                    ConSociedadesFemeniles = 0,
+                    ConSociedadesJuveniles = 0,
+                    ConDepartamentosInfantiles = 0,
+                    ConCorosYGruposDeCanto = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                ConstruccionesInicio = new Construcciones
+                {
+                    IdConstruccion = 0,
+                    IdInforme = 0,
+                    IdTipoFaseConstruccion = 0,
+                    ColocacionPrimeraPiedra = 0,
+                    Templo = 0,
+                    CasaDeOracion = 0,
+                    CasaPastoral = 0,
+                    Anexos = 0,
+                    Remodelacion = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                ConstruccionesConclusion = new Construcciones
+                {
+                    IdConstruccion = 0,
+                    IdInforme = 0,
+                    IdTipoFaseConstruccion = 0,
+                    ColocacionPrimeraPiedra = 0,
+                    Templo = 0,
+                    CasaDeOracion = 0,
+                    CasaPastoral = 0,
+                    Anexos = 0,
+                    Remodelacion = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                Ordenaciones = new Ordenaciones
+                {
+                    IdOrdenacion = 0,
+                    IdInforme = 0,
+                    Ancianos = 0,
+                    Diaconos = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                Dedicaciones = new Dedicaciones
+                {
+                    IdDedicacion = 0,
+                    IdInforme = 0,
+                    Templos = 0,
+                    CasasDeOracion = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                LlamamientoDePersonal = new LlamamientoDePersonal
+                {
+                    IdLlamamientoDePersonal = 0,
+                    IdInforme = 0,
+                    DiaconosAprueba = 0,
+                    Auxiliares = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                RegularizacionPatNac = new RegularizacionPrediosTemplos
+                {
+                    IdRegularizacionPrediosTemplos = 0,
+                    IdInforme = 0,
+                    IdTipoPatrimonio = 0,
+                    Templos = 0,
+                    CasasPastorales = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                RegularizacionPatIg = new RegularizacionPrediosTemplos
+                {
+                    IdRegularizacionPrediosTemplos = 0,
+                    IdInforme = 0,
+                    IdTipoPatrimonio = 0,
+                    Templos = 0,
+                    CasasPastorales = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                },
+                MovimientoEconomico = new MovimientoEconomico
+                {
+                    IdMovimientoEconomico = 0,
+                    IdInforme = 0,
+                    ExistenciaAnterior = 0,
+                    EntradaMes = 0,
+                    SumaTotal = 0,
+                    GastosAdmon = 0,
+                    TransferenciasAentidadSuperior = 0,
+                    ExistenciaEnCaja = 0,
+                    Usu_Id_Usuario = 0,
+                    FechaRegistro = DateTime.Now
+                }
+            };
+
+            foreach (var i in informes)
+            {
+                InformePastorViewModel tempInforme = SubInformePastoral(i.IdInforme);
+                informesSectores.Add(SubInformePastoral(i.IdInforme));
+
+                smae.Organizaciones = new Organizaciones
+                {
+                    SociedadFemenil = smae.Organizaciones.SociedadFemenil + tempInforme.Organizaciones.SociedadFemenil,
+                    SociedadJuvenil = smae.Organizaciones.SociedadJuvenil + tempInforme.Organizaciones.SociedadJuvenil,
+                    DepartamentoFemenil = smae.Organizaciones.DepartamentoFemenil + tempInforme.Organizaciones.DepartamentoFemenil,
+                    DepartamentoJuvenil = smae.Organizaciones.DepartamentoJuvenil + tempInforme.Organizaciones.DepartamentoJuvenil,
+                    DepartamentoInfantil = smae.Organizaciones.DepartamentoInfantil + tempInforme.Organizaciones.DepartamentoInfantil,
+                    Coros = smae.Organizaciones.Coros + tempInforme.Organizaciones.Coros,
+                    GruposDeCanto = smae.Organizaciones.GruposDeCanto + tempInforme.Organizaciones.GruposDeCanto
+                };
+                smae.AdquisicionesSector = new AdquisicionesSector
+                {
+                    Predios = smae.AdquisicionesSector.Predios + tempInforme.AdquisicionesSector.Predios,
+                    Casas = smae.AdquisicionesSector.Casas + tempInforme.AdquisicionesSector.Casas,
+                    Edificios = smae.AdquisicionesSector.Edificios + tempInforme.AdquisicionesSector.Edificios,
+                    Templos = smae.AdquisicionesSector.Templos + tempInforme.AdquisicionesSector.Templos,
+                    Vehiculos = smae.AdquisicionesSector.Vehiculos + tempInforme.AdquisicionesSector.Vehiculos
+                };
+                smae.Sesiones = new SesionesReunionesSector
+                {
+                    EnElDistrito = smae.Sesiones.EnElDistrito + tempInforme.Sesiones.EnElDistrito,
+                    ConElPersonalDocente = smae.Sesiones.ConElPersonalDocente + tempInforme.Sesiones.ConElPersonalDocente,
+                    ConSociedadesFemeniles = smae.Sesiones.ConSociedadesFemeniles + tempInforme.Sesiones.ConSociedadesFemeniles,
+                    ConSociedadesJuveniles = smae.Sesiones.ConSociedadesJuveniles + tempInforme.Sesiones.ConSociedadesJuveniles,
+                    ConDepartamentosInfantiles = smae.Sesiones.ConDepartamentosInfantiles + tempInforme.Sesiones.ConDepartamentosInfantiles,
+                    ConCorosYGruposDeCanto = smae.Sesiones.ConCorosYGruposDeCanto + tempInforme.Sesiones.ConCorosYGruposDeCanto
+                };
+                smae.Reuniones = new SesionesReunionesSector
+                {
+                    EnElDistrito = smae.Sesiones.EnElDistrito + tempInforme.Sesiones.EnElDistrito,
+                    ConElPersonalDocente = smae.Sesiones.ConElPersonalDocente + tempInforme.Sesiones.ConElPersonalDocente,
+                    ConSociedadesFemeniles = smae.Sesiones.ConSociedadesFemeniles + tempInforme.Sesiones.ConSociedadesFemeniles,
+                    ConSociedadesJuveniles = smae.Sesiones.ConSociedadesJuveniles + tempInforme.Sesiones.ConSociedadesJuveniles,
+                    ConDepartamentosInfantiles = smae.Sesiones.ConDepartamentosInfantiles + tempInforme.Sesiones.ConDepartamentosInfantiles,
+                    ConCorosYGruposDeCanto = smae.Sesiones.ConCorosYGruposDeCanto + tempInforme.Sesiones.ConCorosYGruposDeCanto
+                };
+                smae.ConstruccionesInicio = new Construcciones
+                {
+                    Templo = smae.ConstruccionesInicio.Templo + tempInforme.ConstruccionesInicio.Templo,
+                    CasaDeOracion = smae.ConstruccionesInicio.CasaDeOracion + tempInforme.ConstruccionesInicio.CasaDeOracion,
+                    CasaPastoral = smae.ConstruccionesInicio.CasaPastoral = tempInforme.ConstruccionesInicio.CasaPastoral,
+                    Anexos = smae.ConstruccionesInicio.Anexos + tempInforme.ConstruccionesInicio.Anexos,
+                    Remodelacion = smae.ConstruccionesInicio.Remodelacion + tempInforme.ConstruccionesInicio.Remodelacion
+                };
+                smae.ConstruccionesConclusion = new Construcciones
+                {
+                    Templo = smae.ConstruccionesConclusion.Templo + tempInforme.ConstruccionesConclusion.Templo,
+                    CasaDeOracion = smae.ConstruccionesConclusion.CasaDeOracion + tempInforme.ConstruccionesConclusion.CasaDeOracion,
+                    CasaPastoral = smae.ConstruccionesConclusion.CasaPastoral = tempInforme.ConstruccionesConclusion.CasaPastoral,
+                    Anexos = smae.ConstruccionesConclusion.Anexos + tempInforme.ConstruccionesConclusion.Anexos,
+                    Remodelacion = smae.ConstruccionesConclusion.Remodelacion + tempInforme.ConstruccionesConclusion.Remodelacion
+                };
+                smae.Ordenaciones = new Ordenaciones
+                {
+                    Ancianos = smae.Ordenaciones.Ancianos + tempInforme.Ordenaciones.Ancianos,
+                    Diaconos = smae.Ordenaciones.Diaconos + tempInforme.Ordenaciones.Diaconos
+                };
+                smae.Dedicaciones = new Dedicaciones
+                {
+                    Templos = smae.Dedicaciones.Templos + tempInforme.Dedicaciones.Templos,
+                    CasasDeOracion = smae.Dedicaciones.CasasDeOracion + tempInforme.Dedicaciones.CasasDeOracion
+                };
+                smae.LlamamientoDePersonal = new LlamamientoDePersonal
+                {
+                    DiaconosAprueba = smae.LlamamientoDePersonal.DiaconosAprueba + tempInforme.LlamamientoDePersonal.DiaconosAprueba,
+                    Auxiliares = smae.LlamamientoDePersonal.Auxiliares + tempInforme.LlamamientoDePersonal.Auxiliares
+                };
+                smae.RegularizacionPatNac = new RegularizacionPrediosTemplos
+                {
+                    Templos = smae.RegularizacionPatNac.Templos + tempInforme.RegularizacionPatNac.Templos,
+                    CasasPastorales = smae.RegularizacionPatNac.CasasPastorales | +tempInforme.RegularizacionPatNac.CasasPastorales
+                };
+                smae.RegularizacionPatIg = new RegularizacionPrediosTemplos
+                {
+                    Templos = smae.RegularizacionPatIg.Templos + tempInforme.RegularizacionPatIg.Templos,
+                    CasasPastorales = smae.RegularizacionPatIg.CasasPastorales | +tempInforme.RegularizacionPatIg.CasasPastorales
+                };
+                smae.MovimientoEconomico = new MovimientoEconomico
+                {
+                    ExistenciaAnterior = smae.MovimientoEconomico.ExistenciaAnterior + tempInforme.MovimientoEconomico.ExistenciaAnterior,
+                    EntradaMes = smae.MovimientoEconomico.EntradaMes + tempInforme.MovimientoEconomico.EntradaMes,
+                    SumaTotal = smae.MovimientoEconomico.SumaTotal + tempInforme.MovimientoEconomico.SumaTotal,
+                    GastosAdmon = smae.MovimientoEconomico.GastosAdmon + tempInforme.MovimientoEconomico.GastosAdmon,
+                    TransferenciasAentidadSuperior = smae.MovimientoEconomico.TransferenciasAentidadSuperior + tempInforme.MovimientoEconomico.TransferenciasAentidadSuperior,
+                    ExistenciaEnCaja = smae.MovimientoEconomico.ExistenciaEnCaja + tempInforme.MovimientoEconomico.ExistenciaEnCaja
+                };
+
+                FiltroHistTransEstDelMes filtroHistTransEstDelMes = new FiltroHistTransEstDelMes
+                {
+                    sec_Id_Sector = i.IdSector,
+                    year = year,
+                    mes = mes
+                };
+
+                movimientosEstadisticosReporteBySector tempMovtos = SubMovimientosEstadisticosReporteBySector(filtroHistTransEstDelMes);
+                resultadoMovtos.personasBautizadas = resultadoMovtos.personasBautizadas + tempMovtos.personasBautizadas;
+                resultadoMovtos.personasNoBautizadas = resultadoMovtos.personasNoBautizadas + tempMovtos.personasNoBautizadas;
+                resultadoMovtos.personasBautizadasAlFinalDelMes = resultadoMovtos.personasBautizadasAlFinalDelMes + tempMovtos.personasBautizadasAlFinalDelMes;
+                resultadoMovtos.personasNoBautizadasAlFinalDelMes = resultadoMovtos.personasNoBautizadasAlFinalDelMes + tempMovtos.personasNoBautizadasAlFinalDelMes;
+                resultadoMovtos.hogares = resultadoMovtos.hogares + tempMovtos.hogares;
+                resultadoMovtos.hogaresAlFinalDelMes = resultadoMovtos.hogaresAlFinalDelMes + tempMovtos.hogaresAlFinalDelMes;
+                resultadoMovtos.matrimonios = resultadoMovtos.matrimonios + tempMovtos.matrimonios;
+                resultadoMovtos.legalizaciones = resultadoMovtos.legalizaciones + tempMovtos.legalizaciones;
+                resultadoMovtos.presentaciones = resultadoMovtos.presentaciones + tempMovtos.presentaciones;
+                resultadoMovtos.altasBautizados = new HistTransEstBySectorMes.altas.bautizados
+                {
+                    BAUTISMO = resultadoMovtos.altasBautizados.BAUTISMO + tempMovtos.altasBautizados.BAUTISMO,
+                    RESTITUCIÓN = resultadoMovtos.altasBautizados.RESTITUCIÓN + tempMovtos.altasBautizados.RESTITUCIÓN,
+                    CAMBIODEDOMINTERNO = resultadoMovtos.altasBautizados.CAMBIODEDOMINTERNO + tempMovtos.altasBautizados.CAMBIODEDOMINTERNO,
+                    CAMBIODEDOMEXTERNO = resultadoMovtos.altasBautizados.CAMBIODEDOMEXTERNO + tempMovtos.altasBautizados.CAMBIODEDOMEXTERNO,
+                };
+                resultadoMovtos.altasNoBautizados = new HistTransEstBySectorMes.altas.noBautizados
+                {
+                    REACTIVACION = resultadoMovtos.altasNoBautizados.REACTIVACION + tempMovtos.altasNoBautizados.REACTIVACION,
+                    NUEVOINGRESO = resultadoMovtos.altasNoBautizados.NUEVOINGRESO + tempMovtos.altasNoBautizados.NUEVOINGRESO,
+                    CAMBIODEDOMINTERNO = resultadoMovtos.altasNoBautizados.CAMBIODEDOMINTERNO + tempMovtos.altasNoBautizados.CAMBIODEDOMINTERNO,
+                    CAMBIODEDOMEXTERNO = resultadoMovtos.altasNoBautizados.CAMBIODEDOMEXTERNO + tempMovtos.altasNoBautizados.CAMBIODEDOMEXTERNO
+                };
+                resultadoMovtos.bajasBautizados = new HistTransEstBySectorMes.bajas.bautizados
+                {
+                    DEFUNCION = resultadoMovtos.bajasBautizados.DEFUNCION + tempMovtos.bajasBautizados.DEFUNCION,
+                    CAMBIODEDOMEXTERNO = resultadoMovtos.bajasBautizados.CAMBIODEDOMEXTERNO + tempMovtos.bajasBautizados.CAMBIODEDOMEXTERNO,
+                    CAMBIODEDOMINTERNO = resultadoMovtos.bajasBautizados.CAMBIODEDOMINTERNO + tempMovtos.bajasBautizados.CAMBIODEDOMINTERNO,
+                    EXCOMUNION = resultadoMovtos.bajasBautizados.EXCOMUNION + tempMovtos.bajasBautizados.EXCOMUNION,
+                    EXCOMUNIONTEMPORAL = resultadoMovtos.bajasBautizados.EXCOMUNIONTEMPORAL + tempMovtos.bajasBautizados.EXCOMUNIONTEMPORAL
+                };
+                resultadoMovtos.bajasNoBautizados = new HistTransEstBySectorMes.bajas.noBautizados
+                {
+                    DEFUNCION = resultadoMovtos.bajasNoBautizados.DEFUNCION + tempMovtos.bajasNoBautizados.DEFUNCION,
+                    ALEJAMIENTO = resultadoMovtos.bajasNoBautizados.ALEJAMIENTO + tempMovtos.bajasNoBautizados.ALEJAMIENTO,
+                    CAMBIODEDOMICILIOEXTERNO = resultadoMovtos.bajasNoBautizados.CAMBIODEDOMICILIOEXTERNO + tempMovtos.bajasNoBautizados.CAMBIODEDOMICILIOEXTERNO,
+                    CAMBIODEDOMICILIOINTERNO = resultadoMovtos.bajasNoBautizados.CAMBIODEDOMICILIOINTERNO + tempMovtos.bajasNoBautizados.CAMBIODEDOMICILIOINTERNO,
+                    PASAAPERSONALBAUTIZADO = resultadoMovtos.bajasNoBautizados.PASAAPERSONALBAUTIZADO + tempMovtos.bajasNoBautizados.PASAAPERSONALBAUTIZADO,
+                    PORBAJADEPADRES = resultadoMovtos.bajasNoBautizados.PORBAJADEPADRES + tempMovtos.bajasNoBautizados.PORBAJADEPADRES
+                };
+                resultadoMovtos.hombresBautizados = resultadoMovtos.hombresBautizados + tempMovtos.hombresBautizados;
+                resultadoMovtos.mujeresBautizadas = resultadoMovtos.mujeresBautizadas + tempMovtos.mujeresBautizadas;
+                resultadoMovtos.jovenesHombresBautizados = resultadoMovtos.jovenesHombresBautizados + tempMovtos.jovenesHombresBautizados;
+                resultadoMovtos.jovenesMujeresBautizadas = resultadoMovtos.jovenesMujeresBautizadas + tempMovtos.jovenesMujeresBautizadas;
+                resultadoMovtos.jovenesHombresNoBautizados = resultadoMovtos.jovenesHombresNoBautizados + tempMovtos.jovenesHombresNoBautizados;
+                resultadoMovtos.jovenesMujeresNoBautizadas = resultadoMovtos.jovenesMujeresNoBautizadas + tempMovtos.jovenesMujeresNoBautizadas;
+                resultadoMovtos.ninos = resultadoMovtos.ninos + tempMovtos.ninos;
+                resultadoMovtos.ninas = resultadoMovtos.ninas + tempMovtos.ninas;
+                resultadoMovtos.bautizadosByMesSector = new BautizadosByMesSector
+                {
+                    adulto_hombre = resultadoMovtos.bautizadosByMesSector.adulto_hombre + tempMovtos.bautizadosByMesSector.adulto_hombre,
+                    adulto_mujer = resultadoMovtos.bautizadosByMesSector.adulto_mujer + tempMovtos.bautizadosByMesSector.adulto_mujer,
+                    joven_mujer = resultadoMovtos.bautizadosByMesSector.joven_mujer + tempMovtos.bautizadosByMesSector.joven_mujer,
+                    joven_hombre = resultadoMovtos.bautizadosByMesSector.joven_hombre + tempMovtos.bautizadosByMesSector.joven_hombre
+                };
+                resultadoMovtos.noBautizadosByMesSector = new NoBautizadosByMesSector
+                {
+                    nina = resultadoMovtos.noBautizadosByMesSector.nina + tempMovtos.noBautizadosByMesSector.nina,
+                    nino = resultadoMovtos.noBautizadosByMesSector.nino + tempMovtos.noBautizadosByMesSector.nino,
+                    joven_mujer = resultadoMovtos.noBautizadosByMesSector.joven_mujer + tempMovtos.noBautizadosByMesSector.joven_mujer,
+                    joven_hombre = resultadoMovtos.noBautizadosByMesSector.joven_hombre + tempMovtos.noBautizadosByMesSector.joven_hombre
+                };
+            }
+
+            objInformeObispo objInformeObispo = new objInformeObispo
+            {
+                actividadObispo = actividadObispo,
+                InformesSectores = informesSectores,
+                MovtosAdministrativoEconomico = smae,
+                MovtosEstadisticos = resultadoMovtos
+            };
+
+            return objInformeObispo;
         }
     }
 }

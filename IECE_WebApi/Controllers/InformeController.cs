@@ -9,7 +9,9 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using IECE_WebApi.Helpers;
+
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -317,11 +319,13 @@ namespace IECE_WebApi.Controllers
                 bool informeExiste = informes.Any(a => a.Mes == data.Mes);
                 if (informeExiste)
                 {
+
                     return Ok(new
                     {
                         status = "error",
                         message = $"Ya existe un informe para el mes {data.Mes}"
                     });
+
                 }
 
                 Informe informe = new Informe
@@ -391,6 +395,7 @@ namespace IECE_WebApi.Controllers
                 }
 
                 CultosSector cultosSector = _context.CultosSector.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+
                 if (cultosSector == null)
                 {
                     var addCultosSector = new CultosSector
@@ -532,6 +537,7 @@ namespace IECE_WebApi.Controllers
                         }
                     }
                 }
+
 
                 Organizaciones organizaciones = _context.Organizaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
                 if (organizaciones == null)
@@ -844,6 +850,7 @@ namespace IECE_WebApi.Controllers
                         _context.SaveChanges();
                     }
                 }
+
 
 
                 foreach (var actividad in data.ActividadesEliminadas)

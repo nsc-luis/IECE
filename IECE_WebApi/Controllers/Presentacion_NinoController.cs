@@ -145,7 +145,7 @@ namespace IECE_WebApi.Controllers
                 nino.sec_Id_Sector = sec_Id_Sector;
                 nino.per_Categoria = "NIÑO"; //Motivo a que este registro es irrelevante, no importa si es Niño o Niña.
                 nino.per_Nombre = presentacion.nombreNinoVisitante;
-                nino.per_Apellido_Paterno = "(HIJO DE VISITANTES)";
+                nino.per_Apellido_Paterno = "(HIJO(A) DE VISITANTES)";
                 nino.per_Fecha_Nacimiento = new DateTime(0001,01,01); //Motivo a que este registro es irrelevante, la fecha de Nac. es inventada.
                 nino.per_RFC_Sin_Homo = "NIVIM01010001";
                 nino.per_Nombre_Completo = ManejoDeApostrofes.QuitarApostrofe2(presentacion.nombreNinoVisitante);

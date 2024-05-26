@@ -40,6 +40,7 @@ namespace IECE_WebApi.Models
         public MovimientoEconomico MovimientoEconomico { get; set; }
         public List<OtrasActividades> OtrasActividades { get; set; }
         public List<OtrasActividades> ActividadesEliminadas { get; set; }
+
     }
 
 }
