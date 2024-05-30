@@ -309,16 +309,16 @@ namespace IECE_WebApi.Controllers
                 var distrito = context.Distrito.FirstOrDefault(d => d.dis_Id_Distrito == sector.dis_Id_Distrito);
                 var ministro = context.Personal_Ministerial.FirstOrDefault(pm => pm.pem_Id_Ministro == sector.pem_Id_Pastor);
                 var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
-                string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\InformePastorPorSector_Plantilla.docx";
-                //string pathPlantilla = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_Plantilla.docx";
+                //string pathPlantilla = $"{Environment.CurrentDirectory}\\Templates\\InformePastorPorSector_Plantilla.docx";
+                string pathPlantilla = $"C:\\Users\\JMR-20\\Documents\\GitHub\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_Plantilla.docx";
 
                 // NOMBRE DEL PDF QUE SE CREARA
-                string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
-                //string archivoDeSalida = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.pdf";
+                //string archivoDeSalida = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.pdf";
+                string archivoDeSalida = $"C:\\Users\\JMR-20\\Documents\\GitHub\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.pdf";
 
                 // ARCHIVO TEMPORAL EN BASE A LA PLANTILLA
-                string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.docx";
-                //string archivoTemporal = $"C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.docx";
+                //string archivoTemporal = $"{Environment.CurrentDirectory}\\Temp\\InformePastorPorSector_{fechayhora}.docx";
+                string archivoTemporal = $"C:\\Users\\JMR-20\\Documents\\GitHub\\IECE\\IECE_WebApi\\Templates\\InformePastorPorSector_{fechayhora}.docx";
 
                 // Create shadow File
                 System.IO.File.Copy(pathPlantilla, archivoTemporal, true);
@@ -388,6 +388,7 @@ namespace IECE_WebApi.Controllers
                         var misionConCultos = informeVM.CultosMisionSector.Where(w => w.Ms_Id_MisionSector == mision.ms_Id && w.Cultos > 0).FirstOrDefault();
                         if(misionConCultos != null)
                         {
+
                             AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "15");
                             AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", (misionConCultos.Cultos).ToString(), false, false, "Aptos", "15");
                         }
@@ -505,7 +506,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "pastorDeLaIglesia", (ministro.pem_Nombre), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "lugarDeReunion", (sector.sec_Alias), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "diaActual", (DateTime.Now.Day.ToString()), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "mesActual", (MonthsOfYear.months[DateTime.Now.Month].ToString()), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "mesActual", (MonthsOfYear.months[DateTime.Now.Month].ToString().ToUpper()), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "añoActual", (DateTime.Now.Year.ToString()), false, false, "Aptos", "15");
                     main.Save();
                 }
