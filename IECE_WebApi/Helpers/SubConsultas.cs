@@ -463,6 +463,7 @@ namespace IECE_WebApi.Helpers
 
         public InformePastorViewModel SubInformePastoral(int id)
         {
+            //Obtiene el informe correspondiente al Id especificado
             InformePastorViewModel informeVM = new InformePastorViewModel();
             Informe informe = context.Informe
                 .Where(w => w.IdInforme == id)
@@ -828,9 +829,9 @@ namespace IECE_WebApi.Helpers
                     Usu_Id_Usuario = 0,
                     FechaRegistro = DateTime.Now
                 },
-                Sesiones = new SesionesReunionesSector
+                Sesiones = new SesionesReunionesDistrito2
                 {
-                    IdSesionReunionSector = 0,
+                    IdSesionReunionDistrito = 0,
                     IdInforme = 0,
                     IdTipoSesionReunion = 0,
                     EnElDistrito = 0,
@@ -839,12 +840,12 @@ namespace IECE_WebApi.Helpers
                     ConSociedadesJuveniles = 0,
                     ConDepartamentosInfantiles = 0,
                     ConCorosYGruposDeCanto = 0,
-                    Usu_Id_Usuario = 0,
+                    UsuIdUsuario = 0,
                     FechaRegistro = DateTime.Now
                 },
-                Reuniones = new SesionesReunionesSector
+                Reuniones = new SesionesReunionesDistrito2
                 {
-                    IdSesionReunionSector = 0,
+                    IdSesionReunionDistrito = 0,
                     IdInforme = 0,
                     IdTipoSesionReunion = 0,
                     EnElDistrito = 0,
@@ -853,7 +854,7 @@ namespace IECE_WebApi.Helpers
                     ConSociedadesJuveniles = 0,
                     ConDepartamentosInfantiles = 0,
                     ConCorosYGruposDeCanto = 0,
-                    Usu_Id_Usuario = 0,
+                    UsuIdUsuario = 0,
                     FechaRegistro = DateTime.Now
                 },
                 ConstruccionesInicio = new Construcciones

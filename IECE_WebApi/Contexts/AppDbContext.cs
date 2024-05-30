@@ -76,5 +76,6 @@ namespace IECE_WebApi.Contexts
         public DbSet<ConcentracionesDistrito> ConcentracionesDistrito { get; set; }
         public DbSet<ConferenciasDistrito> ConferenciasDistrito { get; set; }
         public DbSet<ConstruccionesDistrito> ConstruccionesDistrito { get; set; }
+        public DbSet<TipoDistrito> TipoDistrito { get; set; }
     }
 }
