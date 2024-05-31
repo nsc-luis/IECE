@@ -40,7 +40,14 @@ namespace IECE_WebApi.Models
         public MovimientoEconomico MovimientoEconomico { get; set; }
         public List<OtrasActividades> OtrasActividades { get; set; }
         public List<OtrasActividades> ActividadesEliminadas { get; set; }
-
+        public List<ActividadesObispo> ActividadesObispo { get; set; }
     }
 
+    public class ActividadesObispo
+    {
+        public VisitasObispo VisitasObispo { get; set; }
+        public CultosDistrito CultosDistrito { get; set; }
+        public ConferenciasDistrito ConferenciasDistrito { get; set; }
+        public ConcentracionesDistrito ConcentracionesDistrito { get; set; }
+    }
 }
