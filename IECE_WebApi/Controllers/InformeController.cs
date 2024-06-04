@@ -298,10 +298,13 @@ namespace IECE_WebApi.Controllers
                 if(informeVM.IdTipoUsuario == 2)
                 {
                     List<Sector> sectoresDistrito = _context.Sector.Where(w => w.dis_Id_Distrito == informe.IdDistrito).ToList();
+                    informeVM.ActividadesObispo = new List<ActividadesObispo>();
                     foreach (var sector in sectoresDistrito)
                     {
 
-                        var actividadesObispoSector = new ActividadesObispo();  
+                        var actividadesObispoSector = new ActividadesObispo();
+
+                        actividadesObispoSector.Sector = sector;
                         var visitasObispo = _context.VisitasObispo.Where(w => w.IdInforme == informe.IdInforme && w.idSector == sector.sec_Id_Sector).First();
                         if(visitasObispo != null)
                         {
@@ -395,67 +398,67 @@ namespace IECE_WebApi.Controllers
                 _context.Informe.Add(informe);
                 _context.SaveChanges();
 
-                if(informe.IdTipoUsuario == 2)
-                {
-                    List<Sector> sectoresDistrito = _context.Sector.Where(w => w.dis_Id_Distrito == informe.IdDistrito).ToList();
+                //if(informe.IdTipoUsuario == 2)
+                //{
+                //    List<Sector> sectoresDistrito = _context.Sector.Where(w => w.dis_Id_Distrito == informe.IdDistrito).ToList();
 
-                    foreach (var sector in sectoresDistrito)
-                    {
+                //    foreach (var sector in sectoresDistrito)
+                //    {
 
-                        VisitasObispo visitasObispo = new VisitasObispo
-                        {
-                            IdInforme = informe.IdInforme,
-                            idSector = sector.sec_Id_Sector,
-                            aSectores = 0,
-                            aHogares = 0,
-                            Usu_Id_Usuario = data.Usu_Id_Usuario,
-                            FechaRegistro = DateTime.Now
-                        };
-                        _context.VisitasObispo.Add(visitasObispo);
+                //        VisitasObispo visitasObispo = new VisitasObispo
+                //        {
+                //            IdInforme = informe.IdInforme,
+                //            idSector = sector.sec_Id_Sector,
+                //            aSectores = 0,
+                //            aHogares = 0,
+                //            Usu_Id_Usuario = data.Usu_Id_Usuario,
+                //            FechaRegistro = DateTime.Now
+                //        };
+                //        _context.VisitasObispo.Add(visitasObispo);
 
-                        CultosDistrito cultosDistrito = new CultosDistrito
-                        {
-                            IdInforme = informe.IdInforme,
-                            idSector = sector.sec_Id_Sector,
-                            Ordinarios = 0,
-                            Especiales = 0,
-                            DeAvivamiento = 0,
-                            Evangelismo = 0,
-                            Usu_Id_Usuario = data.Usu_Id_Usuario,
-                            FechaRegistro = DateTime.Now
-                        };
-                        _context.CultosDistrito.Add(cultosDistrito);
+                //        CultosDistrito cultosDistrito = new CultosDistrito
+                //        {
+                //            IdInforme = informe.IdInforme,
+                //            idSector = sector.sec_Id_Sector,
+                //            Ordinarios = 0,
+                //            Especiales = 0,
+                //            DeAvivamiento = 0,
+                //            Evangelismo = 0,
+                //            Usu_Id_Usuario = data.Usu_Id_Usuario,
+                //            FechaRegistro = DateTime.Now
+                //        };
+                //        _context.CultosDistrito.Add(cultosDistrito);
 
-                        ConferenciasDistrito conferenciasDistrito = new ConferenciasDistrito
-                        {
-                            idInforme = informe.IdInforme,
-                            idSector = sector.sec_Id_Sector,
-                            iglesia = 0,
-                            sectorVaronil = 0,
-                            sociedadFemenil = 0,
-                            sociedadJuvenil = 0,
-                            sectorInfantil = 0,
-                            usu_Id_Usuario = data.Usu_Id_Usuario,
-                            fechaRegistro = DateTime.Now
-                        };
-                        _context.ConferenciasDistrito.Add(conferenciasDistrito);
+                //        ConferenciasDistrito conferenciasDistrito = new ConferenciasDistrito
+                //        {
+                //            idInforme = informe.IdInforme,
+                //            idSector = sector.sec_Id_Sector,
+                //            iglesia = 0,
+                //            sectorVaronil = 0,
+                //            sociedadFemenil = 0,
+                //            sociedadJuvenil = 0,
+                //            sectorInfantil = 0,
+                //            usu_Id_Usuario = data.Usu_Id_Usuario,
+                //            fechaRegistro = DateTime.Now
+                //        };
+                //        _context.ConferenciasDistrito.Add(conferenciasDistrito);
 
-                        ConcentracionesDistrito concentracionesDistrito = new ConcentracionesDistrito
-                        {
-                            idInforme = informe.IdInforme,
-                            idSector = sector.sec_Id_Sector,
-                            iglesia = 0,
-                            sectorVaronil = 0,
-                            sociedadFemenil = 0,
-                            sociedadJuvenil = 0,
-                            sectorInfantil = 0,
-                            usu_Id_Usuario = data.Usu_Id_Usuario,
-                            fechaRegistro = DateTime.Now
-                        };
-                        _context.ConcentracionesDistrito.Add(concentracionesDistrito);
-                    }
-                    _context.SaveChanges();
-                }
+                //        ConcentracionesDistrito concentracionesDistrito = new ConcentracionesDistrito
+                //        {
+                //            idInforme = informe.IdInforme,
+                //            idSector = sector.sec_Id_Sector,
+                //            iglesia = 0,
+                //            sectorVaronil = 0,
+                //            sociedadFemenil = 0,
+                //            sociedadJuvenil = 0,
+                //            sectorInfantil = 0,
+                //            usu_Id_Usuario = data.Usu_Id_Usuario,
+                //            fechaRegistro = DateTime.Now
+                //        };
+                //        _context.ConcentracionesDistrito.Add(concentracionesDistrito);
+                //    }
+                //    _context.SaveChanges();
+                //}
                 return Ok(informe);
             }
             catch (Exception ex)

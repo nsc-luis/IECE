@@ -45,6 +45,7 @@ namespace IECE_WebApi.Models
 
     public class ActividadesObispo
     {
+        public Sector Sector { get; set; }
         public VisitasObispo VisitasObispo { get; set; }
         public CultosDistrito CultosDistrito { get; set; }
         public ConferenciasDistrito ConferenciasDistrito { get; set; }
