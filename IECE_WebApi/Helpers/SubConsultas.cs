@@ -541,6 +541,7 @@ namespace IECE_WebApi.Helpers
 
         public InformePastorViewModel SubInformePastoral(int id)
         {
+            //Obtiene el informe correspondiente al Id especificado
             InformePastorViewModel informeVM = new InformePastorViewModel();
             Informe informe = context.Informe
                 .Where(w => w.IdInforme == id)

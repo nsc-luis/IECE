@@ -1854,6 +1854,51 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        // GET: api/GetDirectorioObispos
+        [Route("[action]")]
+        [HttpGet]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetDirectorioObispos()
+        {
+            try
+            {
+                var query = (from d in context.Distrito
+                             join pm in context.Personal_Ministerial
+                             on d.pem_Id_Obispo equals pm.pem_Id_Ministro
+                             join t in context.Templo
+                             on pm.sec_Id_Congregacion equals t.sec_Id_Sector
+                             join td in context.TipoDistrito
+                             on d.dis_Tipo_Distrito equals td.td_Tipo_Distrito
+                             where d.dis_Activo ==true
+                             orderby td.td_Codigo_Tipo_Distrito, d.dis_Numero
+                             select new
+                             {
+                                 d.dis_Id_Distrito,
+                                 d.dis_Alias,
+                                 d.dis_Tipo_Distrito,
+                                 d.dis_Numero,
+                                 pm.pem_Nombre,
+                                 t.tem_Telefono,
+                                 pm.pem_Cel1,
+                                 pm.pem_Cel2,
+                                 pm.pem_emailIECE
+                             }).ToList();
+                return Ok(new
+                {
+                    status = "success",
+                    directorio = query,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
+
 
         [HttpPost]
         [Route("[action]")]
