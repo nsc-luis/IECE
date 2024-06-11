@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using IECE_WebApi.Helpers;
 
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using static IECE_WebApi.Helpers.SubConsultas;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -357,6 +358,34 @@ namespace IECE_WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("Obispo/{id}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult ObispoInforme(int id)
+        {
+            try
+            {
+                var informe = _context.Informe.Where(w => w.IdInforme == id).FirstOrDefault();
+                if (informe != null)
+                {
+                    SubConsultas sub = new SubConsultas(_context);
+                    objInformeObispo informeObispo = sub.SubInformeObispo(informe.IdDistrito, informe.Anio, informe.Mes);
+                    informeObispo.informe = informe;
+
+                    return Ok(informeObispo);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex);
+            }
+
+        }
         // POST api/<InformeAnualPastorController>
         [HttpPost]
         [EnableCors("AllowOrigin")]
@@ -398,67 +427,6 @@ namespace IECE_WebApi.Controllers
                 _context.Informe.Add(informe);
                 _context.SaveChanges();
 
-                //if(informe.IdTipoUsuario == 2)
-                //{
-                //    List<Sector> sectoresDistrito = _context.Sector.Where(w => w.dis_Id_Distrito == informe.IdDistrito).ToList();
-
-                //    foreach (var sector in sectoresDistrito)
-                //    {
-
-                //        VisitasObispo visitasObispo = new VisitasObispo
-                //        {
-                //            IdInforme = informe.IdInforme,
-                //            idSector = sector.sec_Id_Sector,
-                //            aSectores = 0,
-                //            aHogares = 0,
-                //            Usu_Id_Usuario = data.Usu_Id_Usuario,
-                //            FechaRegistro = DateTime.Now
-                //        };
-                //        _context.VisitasObispo.Add(visitasObispo);
-
-                //        CultosDistrito cultosDistrito = new CultosDistrito
-                //        {
-                //            IdInforme = informe.IdInforme,
-                //            idSector = sector.sec_Id_Sector,
-                //            Ordinarios = 0,
-                //            Especiales = 0,
-                //            DeAvivamiento = 0,
-                //            Evangelismo = 0,
-                //            Usu_Id_Usuario = data.Usu_Id_Usuario,
-                //            FechaRegistro = DateTime.Now
-                //        };
-                //        _context.CultosDistrito.Add(cultosDistrito);
-
-                //        ConferenciasDistrito conferenciasDistrito = new ConferenciasDistrito
-                //        {
-                //            idInforme = informe.IdInforme,
-                //            idSector = sector.sec_Id_Sector,
-                //            iglesia = 0,
-                //            sectorVaronil = 0,
-                //            sociedadFemenil = 0,
-                //            sociedadJuvenil = 0,
-                //            sectorInfantil = 0,
-                //            usu_Id_Usuario = data.Usu_Id_Usuario,
-                //            fechaRegistro = DateTime.Now
-                //        };
-                //        _context.ConferenciasDistrito.Add(conferenciasDistrito);
-
-                //        ConcentracionesDistrito concentracionesDistrito = new ConcentracionesDistrito
-                //        {
-                //            idInforme = informe.IdInforme,
-                //            idSector = sector.sec_Id_Sector,
-                //            iglesia = 0,
-                //            sectorVaronil = 0,
-                //            sociedadFemenil = 0,
-                //            sociedadJuvenil = 0,
-                //            sectorInfantil = 0,
-                //            usu_Id_Usuario = data.Usu_Id_Usuario,
-                //            fechaRegistro = DateTime.Now
-                //        };
-                //        _context.ConcentracionesDistrito.Add(concentracionesDistrito);
-                //    }
-                //    _context.SaveChanges();
-                //}
                 return Ok(informe);
             }
             catch (Exception ex)

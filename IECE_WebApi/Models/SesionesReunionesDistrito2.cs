@@ -16,7 +16,7 @@ namespace IECE_WebApi.Models
         public int? ConSociedadesJuveniles { get; set; }
         public int? ConDepartamentosInfantiles { get; set; }
         public int? ConCorosYGruposDeCanto { get; set; }
-        public int UsuIdUsuario { get; set; }
+        public int usu_Id_Usuario { get; set; }
         public DateTime FechaRegistro { get; set; }
     }
 }
