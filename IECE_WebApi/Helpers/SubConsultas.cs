@@ -143,21 +143,10 @@ namespace IECE_WebApi.Helpers
             var mesSiguienteDelResporte = new DateTime(fhte.year, fhte.mes + 1, 1);
             DateTime mesActualDelReporte = mesSiguienteDelResporte.AddDays(-1);
 
-            // personas del sector activas y vivas hasta el mes de consulta
-            var personas = (from p in context.Persona
-                            where p.sec_Id_Sector == fhte.sec_Id_Sector
-                            && p.per_Vivo == true
-                            && p.per_Activo == true
-                            select p).ToList();
+         //------------------------SECCIÓN PARA CALCULAR MEMBRESÍA BAUTIZADA Y NO BAUTIZADA AL INICIO DEL MES EN CONSULTA --------------------
 
-            // PERSONAS BAUTIZAS Y EN COMUNION HASTA EL MES DE CONSULTA
-            var pb = personas.Where(
-                p => p.per_Bautizado == true
-                && p.per_En_Comunion == true).ToList();
-            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
-
-            // altas
-            var altasBase = (from hte in context.Historial_Transacciones_Estadisticas
+            // Transacciones de Todas las Altas de Bautizados que ha habido en el Sector
+            var altasBaseBautizados = (from hte in context.Historial_Transacciones_Estadisticas
                       join p in context.Persona on hte.per_Persona_Id equals p.per_Id_Persona
                       where hte.sec_Sector_Id == fhte.sec_Id_Sector
                       && new[] { 11001, 11002, 11003, 11004 }.Contains(hte.ct_Codigo_Transaccion)
@@ -170,17 +159,19 @@ namespace IECE_WebApi.Helpers
                           p.per_Id_Persona
                       }).ToList();
 
-            var altas = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)).ToList();
-            // altasDelMes
-            var altasDelMes = altasBase.Where(
+            // Transacciones de Todas las Altas de Bautizados que ha habido en el Sector a partir del primero del Mes en Consulta
+            var altas = altasBaseBautizados.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)).ToList();
+
+            // Filtro para saber sólo las Altas Del Mes en consulta
+            var altasDelMes = altasBaseBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1) 
                 && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
 
-            // bajas
-            var bajasBase = (from hte in context.Historial_Transacciones_Estadisticas
+            // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
+            var bajasBaseBautizados = (from hte in context.Historial_Transacciones_Estadisticas
                       join p in context.Persona on hte.per_Persona_Id equals p.per_Id_Persona
                       where hte.sec_Sector_Id == fhte.sec_Id_Sector
-                      && new[] { 11101, 11102, 11103, 11104, 11105 }.Contains(hte.ct_Codigo_Transaccion)
+                      && new[] { 11101, 11102, 11103, 11104, 11105}.Contains(hte.ct_Codigo_Transaccion)
                       select new
                       {
                           hte.hte_Id_Transaccion,
@@ -189,147 +180,226 @@ namespace IECE_WebApi.Helpers
                           p.per_Categoria,
                           p.per_Id_Persona
                       }).ToList();
-            var bajas = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)).ToList();
-            // bajasDelMes
-            var bajasDelMes = bajasBase.Where(
+            // Todas las Bajas de Bautizados que ha habido en el Sector a partir del primero del Mes en Consulta
+            var bajas = bajasBaseBautizados.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)).ToList();
+            // Filtro para saber sólo las Bajas Del Mes en consulta
+            var bajasDelMes = bajasBaseBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
                 && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
 
+            // Todas las personas del sector vivas y activas al día de hoy
+            var personas = (from p in context.Persona
+                            where p.sec_Id_Sector == fhte.sec_Id_Sector
+                            && p.per_Vivo == true
+                            && p.per_Activo == true
+                            select p).ToList();
+
+            // FILTRA A SÓLO PERSONAS BAUTIZADAS Y EN COMUNION AL DÍA DE HOY
+            var pb = personas.Where(
+                p => p.per_Bautizado == true
+                && p.per_En_Comunion == true).ToList();
+            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+
             // Personas bautizadas al principio del mes
             int personasBautizadasInicioDelMes = pb.Count() - altas.Count() + bajas.Count();
-
             // Personas bautizadas al final del mes
             int personasBautizadasFinDelMes = personasBautizadasInicioDelMes + altasDelMes.Count() - bajasDelMes.Count();
 
-            // altasDespuesDelMes
-            var x9 = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
-            // bajasDespuesDelMes
-            var x10 = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
-            
-            // eliminando personas con movimientos despues del mes de consulta
-            for(int i = 0; i < pb.Count(); i++)
-            {
-                foreach(var x in x9)
-                {
-                    if (pb[i].per_Id_Persona == x.per_Id_Persona)
-                    {
-                        pb.RemoveAt(i);
-                    }
-                }
-                foreach (var x in x10)
-                {
-                    if (pb[i].per_Id_Persona == x.per_Id_Persona)
-                    {
-                        pb.RemoveAt(i);
-                    }
-                }
-            }
+            //PERSONAL NO BAUTIZADOS
+            // Transacciones de Todas las Altas de Bautizados que ha habido en el Sector
+            var altasBaseNoBautizados = (from hte in context.Historial_Transacciones_Estadisticas
+                                       join p in context.Persona on hte.per_Persona_Id equals p.per_Id_Persona
+                                       where hte.sec_Sector_Id == fhte.sec_Id_Sector
+                                       && new[] { 12001, 12002, 12003, 12004 }.Contains(hte.ct_Codigo_Transaccion)
+                                       select new
+                                       {
+                                           hte.hte_Id_Transaccion,
+                                           hte.ct_Codigo_Transaccion,
+                                           hte.hte_Fecha_Transaccion,
+                                           p.per_Categoria,
+                                           p.per_Id_Persona
+                                       }).ToList();
 
-            int personasBautizadas = pb.Count;
+            // Transacciones de Todas las Altas de Bautizados que ha habido en el Sector a partir del primero del Mes en Consulta
+            var altasNB = altasBaseNoBautizados.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)).ToList();
 
-            // hombres bautizados hasta el mes de consulta
-            var hb = pb.Where(p => p.per_Categoria == "ADULTO_HOMBRE").ToList();
+            // Filtro para saber sólo las Altas Del Mes en consulta
+            var altasNBDelMes = altasBaseNoBautizados.Where(
+                hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
+                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
 
-            // mujeres bautizadas hasta el mes de consulta
-            var mb = pb.Where(p => p.per_Categoria == "ADULTO_MUJER").ToList();
+            // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
+            var bajasBaseNoBautizados = (from hte in context.Historial_Transacciones_Estadisticas
+                                       join p in context.Persona on hte.per_Persona_Id equals p.per_Id_Persona
+                                       where hte.sec_Sector_Id == fhte.sec_Id_Sector
+                                       && new[] { 12101, 12102, 12103, 12104, 12105,12106 }.Contains(hte.ct_Codigo_Transaccion)
+                                       select new
+                                       {
+                                           hte.hte_Id_Transaccion,
+                                           hte.ct_Codigo_Transaccion,
+                                           hte.hte_Fecha_Transaccion,
+                                           p.per_Categoria,
+                                           p.per_Id_Persona
+                                       }).ToList();
+            // Todas las Bajas de Bautizados que ha habido en el Sector a partir del primero del Mes en Consulta
+            var bajasNB = bajasBaseNoBautizados.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)).ToList();
+            // Filtro para saber sólo las Bajas Del Mes en consulta
+            var bajasNBDelMes = bajasBaseNoBautizados.Where(
+                hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
+                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
 
-            // jovenes hombres bautizados hasta el mes de consulta
-            var jhb = pb.Where(p => p.per_Categoria == "JOVEN_HOMBRE").ToList();
-
-            // jovenes mujeres bautizadas hasta el mes de consulta
-            var jmb = pb.Where(p => p.per_Categoria == "JOVEN_MUJER").ToList();
-
-            BautizadosByMesSector bautizadosByMesSector = new BautizadosByMesSector
-            {
-                adulto_hombre = hb.Count(),
-                adulto_mujer = mb.Count(),
-                joven_hombre = jhb.Count(),
-                joven_mujer = jmb.Count()
-            };
-
-            // PERSONAS NO BAUTIZAS HASTA EL MES DE CONSULTA
+            // FILTRA PERSONAS NO BAUTIZAS AL FIN DEL MES DE CONSULTA
             var pnb = personas.Where(
                 p => p.per_Bautizado == false
                 && p.per_En_Comunion == false
                 && p.per_Fecha_Nacimiento <= mesActualDelReporte).ToList();
 
-            int personasNoBautizadas = pnb.Count;
+            // Personas bautizadas al principio del mes
+            int personasNoBautizadasInicioDelMes = pnb.Count() - altasNB.Count() + bajasNB.Count();
+            // Personas bautizadas al final del mes
+            int personasNoBautizadasFinDelMes = personasNoBautizadasInicioDelMes + altasNBDelMes.Count() - bajasNBDelMes.Count();
 
-            // jovenes hombres no bautizados hasta el mes de consulta
-            var jhnb = pnb.Where(p => p.per_Categoria == "JOVEN_HOMBRE").ToList();
 
-            // jovenes mujeres no bautizadas hasta el mes de consulta
-            var jmnb = pnb.Where(p => p.per_Categoria == "JOVEN_MUJER").ToList();
 
-            // niños
-            var ninos = pnb.Where(p => p.per_Categoria == "NIÑO").ToList();
 
-            // niñas
-            var ninas = pnb.Where(p => p.per_Categoria == "NIÑA").ToList();
+            //------------------------SECCIÓN PARA CALCULAR DESGLOSE DE CATEGORIAS DE MEMBRESIA AL INICIO DEL MES EN CONSULTA --------------------
+            var altasBase = (from hte in context.Historial_Transacciones_Estadisticas
+                             join p in context.Persona on hte.per_Persona_Id equals p.per_Id_Persona
+                             where hte.sec_Sector_Id == fhte.sec_Id_Sector
+                             && new[] { 11001, 11002, 11003, 11004,12001,12002,12003,12004 }.Contains(hte.ct_Codigo_Transaccion)
+                             select new
+                             {
+                                 hte.hte_Id_Transaccion,
+                                 hte.ct_Codigo_Transaccion,
+                                 hte.hte_Fecha_Transaccion,
+                                 p.per_Categoria,
+                                 p.per_Id_Persona
+                             }).ToList();
+
+            // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
+           var  bajasBase = (from hte in context.Historial_Transacciones_Estadisticas
+                             join p in context.Persona on hte.per_Persona_Id equals p.per_Id_Persona
+                             where hte.sec_Sector_Id == fhte.sec_Id_Sector
+                             && new[] { 11101, 11102, 11103, 11104, 11105,12101,12102,12103,12104,12105,12106 }.Contains(hte.ct_Codigo_Transaccion)
+                             select new
+                             {
+                                 hte.hte_Id_Transaccion,
+                                 hte.ct_Codigo_Transaccion,
+                                 hte.hte_Fecha_Transaccion,
+                                 p.per_Categoria,
+                                 p.per_Id_Persona
+                             }).ToList();
+
+            // altasPosteriores Al Mes de Consulta
+            var x9 = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
+            // bajasPosteriores Al Mes de Consulta
+            var x10 = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
+
+            //Variables para contabilizar Personas NB que pasaron a Bautizados y que en la consulta están ahora como Bautizados.
+            int nbjhQuePasaronABautizados = 0;
+            int nbjmQuePasaronABautizados = 0;
+
+            // De la Membresía Actual se Sumará a las personas B y NB que causaron Baja despues del mes de consulta
+            foreach (var x in x10)
+            {
+                var personasParaReactivar = (from p in context.Persona
+                                             where p.sec_Id_Sector == fhte.sec_Id_Sector && p.per_Id_Persona == x.per_Id_Persona
+                                             select p).FirstOrDefault();
+
+                personas.Insert(0, personasParaReactivar);
+
+                if (x.ct_Codigo_Transaccion == 12105)
+                {
+                    if (personasParaReactivar.per_Categoria == "JOVEN_HOMBRE")
+                    {
+                        nbjhQuePasaronABautizados++;
+                    }
+                    if (personasParaReactivar.per_Categoria == "JOVEN_MUJER")
+                    {
+                        nbjmQuePasaronABautizados++;
+                    }
+                }
+            }
+
+
+            // De la Membresía Actual se Eliminará a las personas  B y NB que causaron Alta despues del mes de consulta
+            for (int i = personas.Count - 1; i >= 0; i--)
+            {
+                foreach (var x in x9)
+                {
+                    if (personas[i].per_Id_Persona == x.per_Id_Persona)
+                    {
+                        personas.RemoveAt(i);
+                        break; // Salir del foreach una vez que se encuentra y elimina una coincidencia
+                    }
+                }
+            }
+
+            // FILTRA PERSONAS BAUTIZADAS Y EN COMUNION AL FINAL DEL MES EN CONSULTA
+            var newpb = personas.Where(
+                p => p.per_Bautizado == true).ToList();
+            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+
+            int personasBautizadas = newpb.Count;
+
+            // Desglose: hombres bautizados hasta el mes de consulta
+            var hb = newpb.Where(p => p.per_Categoria == "ADULTO_HOMBRE").ToList();
+
+            // Desglose: mujeres bautizadas hasta el mes de consulta
+            var mb = newpb.Where(p => p.per_Categoria == "ADULTO_MUJER").ToList();
+
+            // Desglose: jovenes hombres bautizados hasta el mes de consulta
+            var jhb = newpb.Where(p => p.per_Categoria == "JOVEN_HOMBRE").ToList();
+
+            // Desglose: jovenes mujeres bautizadas hasta el mes de consulta
+            var jmb = newpb.Where(p => p.per_Categoria == "JOVEN_MUJER").ToList();
+
+            BautizadosByMesSector bautizadosByMesSector = new BautizadosByMesSector
+            {
+                adulto_hombre = hb.Count(),
+                adulto_mujer = mb.Count(),
+                joven_hombre = jhb.Count()- nbjhQuePasaronABautizados,
+                joven_mujer = jmb.Count()- nbjmQuePasaronABautizados
+            };
+
+            // FILTRA PERSONAS NO BAUTIZAS AL FIN DEL MES DE CONSULTA
+            var newpnb = personas.Where(
+                p => p.per_Bautizado == false
+                && p.per_En_Comunion == false
+                && p.per_Fecha_Nacimiento <= mesActualDelReporte).ToList();
+
+            int personasNoBautizadas = newpnb.Count;
+
+            // Desglose: jovenes hombres no bautizados hasta el mes de consulta
+            var jhnb = newpnb.Where(p => p.per_Categoria == "JOVEN_HOMBRE").ToList();
+
+            // Desglose: jovenes mujeres no bautizadas hasta el mes de consulta
+            var jmnb = newpnb.Where(p => p.per_Categoria == "JOVEN_MUJER").ToList();
+
+            // Desglose: niños
+            var ninos = newpnb.Where(p => p.per_Categoria == "NIÑO").ToList();
+
+            // Desglose: niñas
+            var ninas = newpnb.Where(p => p.per_Categoria == "NIÑA").ToList();
 
             NoBautizadosByMesSector noBautizadosByMesSector = new NoBautizadosByMesSector
             {
-                joven_hombre = jhnb.Count(),
-                joven_mujer = jmnb.Count(),
+                joven_hombre = jhnb.Count()+ nbjhQuePasaronABautizados,
+                joven_mujer = jmnb.Count()+ nbjmQuePasaronABautizados,
                 nino = ninos.Count(),
                 nina = ninas.Count()
             };
 
-            // HISTORIAL DE TRANSACCIONES ESTADISTICAS
-            // historial transacciones estadisticas del sector y mes de consulta
+
+         //------------------------SECCIÓN PARA CALCULAR MOVIMIENTO ESTADÍSTICO EN EL MES EN CONSULTA --------------------
+            // historial transacciones estadisticas del sector en el mes de consulta
             var hteDelMesConsultado = (from hte in context.Historial_Transacciones_Estadisticas
                                        where (hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
                                        && hte.hte_Fecha_Transaccion <= mesActualDelReporte)
                                        && hte.sec_Sector_Id == fhte.sec_Id_Sector
                                        select hte).ToList();
 
-            // posible duplisidad para futuras altas
-
-            // altas bautizados del mes
-            int[] codAlta = { 11001, 11002, 11003, 11004 };
-            int movAltaBautizado = 0;
-            foreach (var ca in codAlta)
-            {
-                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
-                if (a.Count() > 0)
-                {
-                    movAltaBautizado++;
-                }
-            }
-            // bajas bautizados del mes
-            int[] codBaja = { 11101, 11102, 11103, 11104, 11105 };
-            int movBajaBautizado = 0;
-            foreach (var ca in codBaja)
-            {
-                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
-                if (a.Count() > 0)
-                {
-                    movBajaBautizado++;
-                }
-            }
-
-            // altas no bautizados del mes
-            int[] codAltaNB = { 12001, 12002, 12003, 12004 };
-            int movAltaNB = 0;
-            foreach (var ca in codAltaNB)
-            {
-                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
-                if (a.Count() > 0)
-                {
-                    movAltaNB++;
-                }
-            }
-            // bajas no bautizados del mes
-            int[] codBajaNB = { 12101, 12102, 12103, 12104, 12105, 12106 };
-            int movBajaNB = 0;
-            foreach (var ca in codBajaNB)
-            {
-                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
-                if (a.Count() > 0)
-                {
-                    movBajaNB++;
-                }
-            }
+            // posible duplisidad para futuras altas            
 
             // ALTAS BAUTIZADOS
             // alta por bautismo
@@ -392,17 +462,85 @@ namespace IECE_WebApi.Helpers
             // baja por baja de padres
             var bnbbp = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 12106).ToList().Count();
 
-            // HOGARES
-            // hogares por sector
-            var hogares = (from p in personas
+
+
+            // Total de altas bautizados del mes
+            int[] codAlta = { 11001, 11002, 11003, 11004 };
+            int movAltaBautizado = 0;
+            foreach (var ca in codAlta)
+            {
+                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                if (a.Count() > 0)
+                {
+                    movAltaBautizado++;
+                }
+            }
+            // Total de bajas bautizados del mes
+            int[] codBaja = { 11101, 11102, 11103, 11104, 11105 };
+            int movBajaBautizado = 0;
+            foreach (var ca in codBaja)
+            {
+                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                if (a.Count() > 0)
+                {
+                    movBajaBautizado++;
+                }
+            }
+
+            // Total de altas no bautizados del mes
+            int[] codAltaNB = { 12001, 12002, 12003, 12004 };
+            int movAltaNB = 0;
+            foreach (var ca in codAltaNB)
+            {
+                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                if (a.Count() > 0)
+                {
+                    movAltaNB++;
+                }
+            }
+            // Total de bajas no bautizados del mes
+            int[] codBajaNB = { 12101, 12102, 12103, 12104, 12105, 12106 };
+            int movBajaNB = 0;
+            foreach (var ca in codBajaNB)
+            {
+                var a = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == ca).ToList();
+                if (a.Count() > 0)
+                {
+                    movBajaNB++;
+                }
+            }
+
+         //------------------------SECCIÓN PARA CALCULAR MOVIMIENTO DE HOGARES EN EL MES EN CONSULTA --------------------
+            // hogares Actuales al día de hoy en el Sector
+            var hogares = (from p in context.Persona
                            join hp in context.Hogar_Persona on p.per_Id_Persona equals hp.per_Id_Persona
-                           where hp.hp_Jerarquia == 1 && p.sec_Id_Sector == fhte.sec_Id_Sector
+                           where hp.hp_Jerarquia == 1 && p.sec_Id_Sector == fhte.sec_Id_Sector 
+                           && p.per_Vivo == true
+                           && p.per_Activo == true
                            select hp).ToList().Count();
+
+            var hteTodas = (from hte in context.Historial_Transacciones_Estadisticas
+                                       where hte.sec_Sector_Id == fhte.sec_Id_Sector
+                                       select hte).ToList();
+
+            // Transacciones de Todas las Altas de Bautizados que ha habido en el Sector a partir del primero del Mes en Consulta
+            var altasHogares = hteTodas.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1) && hte.ct_Codigo_Transaccion == 31001).ToList();
+
+            // Transacciones de Todas las Altas de Bautizados que ha habido en el Sector a partir del primero del Mes en Consulta
+            var bajasHogares = hteTodas.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1) && hte.ct_Codigo_Transaccion == 31102).ToList();
+
             // alta hogares
             var ah = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 31001).ToList().Count();
             // baja hogares
             var bh = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 31102).ToList().Count();
 
+
+            var hogaresInicioDeMes = hogares - altasHogares.Count() + bajasHogares.Count();
+
+            var hogaresFinalDelMes = hogaresInicioDeMes + ah - bh;
+
+
+         //------------------------SECCIÓN PARA CALCULAR SUCESOS ESTADÍSTICOS EN EL MES EN CONSULTA --------------------
             var matrimonios = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 21001).ToList().Count();
             var legalizacion = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 21102).ToList().Count();
             var presentaciones = hteDelMesConsultado.Where(hte => hte.ct_Codigo_Transaccion == 23203).ToList().Count();
@@ -456,11 +594,13 @@ namespace IECE_WebApi.Helpers
             //resultado.personasBautizadasAlFinalDelMes = personasBautizadas - movBajaBautizado;
             //resultado.personasNoBautizadasAlFinalDelMes = personasNoBautizadas - movBajaNB;
             resultado.personasBautizadas = personasBautizadasInicioDelMes;
-            resultado.personasNoBautizadas = personasNoBautizadas - movAltaNB;
+            //resultado.personasNoBautizadas = personasNoBautizadas - movAltaNB;
+            resultado.personasNoBautizadas = personasNoBautizadas;
             resultado.personasBautizadasAlFinalDelMes = personasBautizadasFinDelMes;
-            resultado.personasNoBautizadasAlFinalDelMes = personasNoBautizadas - movBajaNB;
+            //resultado.personasNoBautizadasAlFinalDelMes = personasNoBautizadas - movBajaNB;
+            resultado.personasNoBautizadasAlFinalDelMes = personasNoBautizadasFinDelMes;
             resultado.hogares = hogares;
-            resultado.hogaresAlFinalDelMes = hogares + ah - bh;
+            resultado.hogaresAlFinalDelMes = hogaresFinalDelMes;
             resultado.matrimonios = matrimonios;
             resultado.legalizaciones = legalizacion;
             resultado.presentaciones = presentaciones;
@@ -470,10 +610,10 @@ namespace IECE_WebApi.Helpers
             resultado.bajasNoBautizados = bajasNoBautizados;
             resultado.hombresBautizados = hb.Count();
             resultado.mujeresBautizadas = mb.Count();
-            resultado.jovenesHombresBautizados = jhb.Count();
-            resultado.jovenesMujeresBautizadas = jmb.Count();
-            resultado.jovenesHombresNoBautizados = jhnb.Count();
-            resultado.jovenesMujeresNoBautizadas = jmnb.Count();
+            resultado.jovenesHombresBautizados = jhb.Count()- nbjhQuePasaronABautizados;
+            resultado.jovenesMujeresBautizadas = jmb.Count()- nbjmQuePasaronABautizados;
+            resultado.jovenesHombresNoBautizados = jhnb.Count() + nbjhQuePasaronABautizados;
+            resultado.jovenesMujeresNoBautizadas = jmnb.Count() + nbjmQuePasaronABautizados;
             resultado.ninos = ninos.Count();
             resultado.ninas = ninas.Count();
             resultado.noBautizadosByMesSector = noBautizadosByMesSector;
