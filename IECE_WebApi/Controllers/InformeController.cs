@@ -413,7 +413,7 @@ namespace IECE_WebApi.Controllers
                     return Ok(new
                     {
                         status = "error",
-                        message = $"Ya existe un informe para el mes {data.Mes}"
+                        message = $"Ya existe un informe para el mes que eligió: Mes {data.Mes}"
                     });
 
                 }

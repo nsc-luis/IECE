@@ -489,7 +489,8 @@ namespace IECE_WebApi.Controllers
                              p.per_Categoria,
                              dis_Numero = d.dis_Numero,
                              dis_Tipo_Distrito = d.dis_Tipo_Distrito,
-                             sec_Alias = s.sec_Alias
+                             sec_Alias = s.sec_Alias,
+                             sec_id_Sector = s.sec_Id_Sector
                          }).ToList();
 
             if (query.Count > 0)
