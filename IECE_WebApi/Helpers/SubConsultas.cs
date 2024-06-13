@@ -1139,7 +1139,7 @@ namespace IECE_WebApi.Helpers
 
                 FiltroHistTransEstDelMes filtroHistTransEstDelMes = new FiltroHistTransEstDelMes
                 {
-                    sec_Id_Sector = i.IdSector,
+                    sec_Id_Sector = i.IdSector.Value,
                     year = year,
                     mes = mes
                 };

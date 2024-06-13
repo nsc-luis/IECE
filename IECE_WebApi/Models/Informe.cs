@@ -12,7 +12,7 @@ namespace IECE_WebApi.Models
         public int Mes { get; set; }
         public int Anio { get; set; }
         public int IdDistrito { get; set; }
-        public int IdSector { get; set; }
+        public int? IdSector { get; set; }
         [Column(TypeName = "varchar(200)")]
         public string LugarReunion {  get; set; }
         public DateTime FechaReunion { get; set; }

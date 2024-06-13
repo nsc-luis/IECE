@@ -32,6 +32,8 @@ namespace IECE_WebApi.Controllers
         public class InformeSearchModel
         {
             public int IdTipoUsuario { get; set; }
+            public int IdDistrito { get; set; }
+            public int? IdSector { get; set; }
         }
         [HttpGet]
         [EnableCors("AllowOrigin")]
@@ -57,6 +59,8 @@ namespace IECE_WebApi.Controllers
                 };
                 return Ok(_context.Informe
                     .Where(w => w.IdTipoUsuario == sm.IdTipoUsuario)
+                    .Where(w => w.IdDistrito == sm.IdDistrito)
+                    .Where(w => w.IdSector == sm.IdSector || sm.IdSector == null)
                     .Select(s => new
                     {
                         IdInforme = s.IdInforme,
@@ -396,7 +400,10 @@ namespace IECE_WebApi.Controllers
 
                 List<Informe> informes = _context.Informe
                     .Where(s => s.IdTipoUsuario == data.IdTipoUsuario)
+                    .Where(w => w.IdDistrito == data.IdDistrito)
+                    .Where(w => w.IdSector == data.IdSector || data.IdSector == null)
                     .Where(s => s.Anio == data.Anio)
+                    .AsNoTracking()
                     .ToList();
 
                 bool informeExiste = informes.Any(a => a.Mes == data.Mes);
@@ -427,6 +434,11 @@ namespace IECE_WebApi.Controllers
                 _context.Informe.Add(informe);
                 _context.SaveChanges();
 
+                var nuevoInforme = new InformePastorViewModel();
+                nuevoInforme.IdInforme = informe.IdInforme;
+
+                RespuestaActualizarInforme respuestaActualizar = ActualizarInforme(nuevoInforme);
+
                 return Ok(informe);
             }
             catch (Exception ex)
@@ -443,13 +455,42 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                Informe informe = _context.Informe.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                RespuestaActualizarInforme res = ActualizarInforme(data);
+
+                if (res.Exitoso)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest(res.Mensaje);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex);
+            }
+        }
+
+        public class RespuestaActualizarInforme
+        {
+            public bool Exitoso { get; set;}
+            public string Mensaje { get; set;}
+        }
+
+        protected RespuestaActualizarInforme ActualizarInforme ( InformePastorViewModel data)
+        {
+            RespuestaActualizarInforme response = new RespuestaActualizarInforme();
+            try
+            {
+                Informe informe = _context.Informe.Where(w => w.IdInforme == data.IdInforme).FirstOrDefault();
                 if (informe != null)
                 {
                     informe.LugarReunion = data.LugarReunion;
                     informe.FechaReunion = data.FechaReunion;
                     informe.IdTipoUsuario = data.IdTipoUsuario;
-                    informe.IdSector = data.IdSector;
+                    informe.IdSector = data.IdSector != null ? data.IdSector : informe.IdSector;
                     informe.Status = data.Status;
                     _context.Informe.Update(informe);
                     _context.SaveChanges();
@@ -946,13 +987,16 @@ namespace IECE_WebApi.Controllers
                     }
                 }
 
-                return Ok();
+                response.Exitoso = true;
+                response.Mensaje = "";
+                return response;
 
             }
             catch (Exception ex)
             {
-
-                return BadRequest(ex);
+                response.Exitoso = false;
+                response.Mensaje = ex.Message;
+                return response;
             }
         }
 

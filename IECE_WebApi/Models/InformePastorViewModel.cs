@@ -9,7 +9,7 @@ namespace IECE_WebApi.Models
         public int IdInforme { get; set; }
         public int IdTipoUsuario { get; set; }
         public int IdDistrito { get; set; }
-        public int IdSector { get; set; }
+        public int? IdSector { get; set; }
         [Column(TypeName = "varchar(200)")]
         public string LugarReunion { get; set; }
         public DateTime FechaReunion { get; set; }
@@ -20,27 +20,27 @@ namespace IECE_WebApi.Models
         public string NombreMes { get; set; }
         public int Anio { get; set; }
 
-        public VisitasPastor VisitasPastor { get; set; }
-        public CultosSector CultosSector { get; set; }
-        public EstudiosSector EstudiosSector { get; set; }
-        public EstudiosSector ConferenciasSector { get; set; }
-        public List<CultosMisionSector> CultosMisionSector { get; set; }
-        public TrabajoEvangelismo TrabajoEvangelismo { get; set; }
-        public Organizaciones Organizaciones { get; set; }
-        public AdquisicionesSector AdquisicionesSector { get; set; }
-        public SesionesReunionesSector Sesiones { get; set; }
-        public SesionesReunionesSector Reuniones { get; set; }
-        public Construcciones ConstruccionesInicio { get; set; }
-        public Construcciones ConstruccionesConclusion { get; set; }
-        public Ordenaciones Ordenaciones { get; set; }
-        public Dedicaciones Dedicaciones { get; set; }
-        public LlamamientoDePersonal LlamamientoDePersonal { get; set; }
-        public RegularizacionPrediosTemplos RegularizacionPatNac { get; set; }
-        public RegularizacionPrediosTemplos RegularizacionPatIg { get; set; }
-        public MovimientoEconomico MovimientoEconomico { get; set; }
-        public List<OtrasActividades> OtrasActividades { get; set; }
-        public List<OtrasActividades> ActividadesEliminadas { get; set; }
-        public List<ActividadesObispo> ActividadesObispo { get; set; }
+        public VisitasPastor VisitasPastor { get; set; } = new VisitasPastor();
+        public CultosSector CultosSector { get; set; } = new CultosSector();
+        public EstudiosSector EstudiosSector { get; set; } = new EstudiosSector();
+        public EstudiosSector ConferenciasSector { get; set; } = new EstudiosSector();
+        public List<CultosMisionSector> CultosMisionSector { get; set; } = new List<CultosMisionSector>();
+        public TrabajoEvangelismo TrabajoEvangelismo { get; set; } = new TrabajoEvangelismo();
+        public Organizaciones Organizaciones { get; set; } = new Organizaciones();
+        public AdquisicionesSector AdquisicionesSector { get; set; } = new AdquisicionesSector();
+        public SesionesReunionesSector Sesiones { get; set; } = new SesionesReunionesSector();
+        public SesionesReunionesSector Reuniones { get; set; } = new SesionesReunionesSector();
+        public Construcciones ConstruccionesInicio { get; set; } = new Construcciones();
+        public Construcciones ConstruccionesConclusion { get; set; } = new Construcciones();
+        public Ordenaciones Ordenaciones { get; set; } = new Ordenaciones();
+        public Dedicaciones Dedicaciones { get; set; } = new Dedicaciones();
+        public LlamamientoDePersonal LlamamientoDePersonal { get; set; } = new LlamamientoDePersonal();
+        public RegularizacionPrediosTemplos RegularizacionPatNac { get; set; } = new RegularizacionPrediosTemplos();
+        public RegularizacionPrediosTemplos RegularizacionPatIg { get; set; } = new RegularizacionPrediosTemplos();
+        public MovimientoEconomico MovimientoEconomico { get; set; } = new MovimientoEconomico();
+        public List<OtrasActividades> OtrasActividades { get; set; } = new List<OtrasActividades>();
+        public List<OtrasActividades> ActividadesEliminadas { get; set; } = new List<OtrasActividades>();
+        public List<ActividadesObispo> ActividadesObispo { get; set; } = new List<ActividadesObispo>();
     }
 
     public class ActividadesObispo
