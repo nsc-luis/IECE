@@ -392,12 +392,12 @@ namespace IECE_WebApi.Controllers
                         if(misionConCultos != null)
                         {
 
-                            AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "15");
+                            AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "12");
                             AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", (misionConCultos.Cultos).ToString(), false, false, "Aptos", "15");
                         }
                         else
                         {
-                            AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "15");
+                            AgregarTextoAlMarcador(bookmarks, $"M{mision.ms_Numero}", (mision.ms_Alias).ToString(), false, false, "Aptos", "12");
                             AgregarTextoAlMarcador(bookmarks, $"C{mision.ms_Numero}", ("0"), false, false, "Aptos", "15");
                         }
                     }
@@ -411,7 +411,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "BautismosTE", (informeVM.TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "15");
 
                     //DATOS DEL ESTADO ACTUAL DE LA IGLESIA
-                    AgregarTextoAlMarcador(bookmarks, "bautizadasInicioDelMes", (movtos.personasBautizadas).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "personasBautizadasInicio", (movtos.personasBautizadas).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "bautismo", (movtos.altasBautizados.BAUTISMO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "altaCambioDomicilio", (movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "totalAltas", (movtos.altasBautizados.RESTITUCIÓN + movtos.altasBautizados.BAUTISMO + movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");

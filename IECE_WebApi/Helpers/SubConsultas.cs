@@ -252,8 +252,7 @@ namespace IECE_WebApi.Helpers
             // FILTRA PERSONAS NO BAUTIZAS AL FIN DEL MES DE CONSULTA
             var pnb = personas.Where(
                 p => p.per_Bautizado == false
-                && p.per_En_Comunion == false
-                && p.per_Fecha_Nacimiento <= mesActualDelReporte).ToList();
+                && p.per_En_Comunion == false).ToList();
 
             // Personas bautizadas al principio del mes
             int personasNoBautizadasInicioDelMes = pnb.Count() - altasNB.Count() + bajasNB.Count();
@@ -359,8 +358,8 @@ namespace IECE_WebApi.Helpers
             {
                 adulto_hombre = hb.Count(),
                 adulto_mujer = mb.Count(),
-                joven_hombre = jhb.Count()- nbjhQuePasaronABautizados,
-                joven_mujer = jmb.Count()- nbjmQuePasaronABautizados
+                joven_hombre = jhb.Count(),
+                joven_mujer = jmb.Count()
             };
 
             // FILTRA PERSONAS NO BAUTIZAS AL FIN DEL MES DE CONSULTA
@@ -611,8 +610,8 @@ namespace IECE_WebApi.Helpers
             resultado.bajasNoBautizados = bajasNoBautizados;
             resultado.hombresBautizados = hb.Count();
             resultado.mujeresBautizadas = mb.Count();
-            resultado.jovenesHombresBautizados = jhb.Count()- nbjhQuePasaronABautizados;
-            resultado.jovenesMujeresBautizadas = jmb.Count()- nbjmQuePasaronABautizados;
+            resultado.jovenesHombresBautizados = jhb.Count();
+            resultado.jovenesMujeresBautizadas = jmb.Count();
             resultado.jovenesHombresNoBautizados = jhnb.Count() + nbjhQuePasaronABautizados;
             resultado.jovenesMujeresNoBautizadas = jmnb.Count() + nbjmQuePasaronABautizados;
             resultado.ninos = ninos.Count();
