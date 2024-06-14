@@ -1211,7 +1211,7 @@ namespace IECE_WebApi.Controllers
                 var otroSector = (from p in context.Persona
                                   join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
                                   join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                                  where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta)
+                                  where (p.sec_Id_Sector != sec_Id_Sector && p.per_Visibilidad_Abierta == true)
                                   && (!p.per_En_Comunion && p.per_Bautizado == bautizado)
                                   select new
                                   {
