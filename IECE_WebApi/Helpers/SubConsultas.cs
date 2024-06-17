@@ -303,7 +303,7 @@ namespace IECE_WebApi.Helpers
             foreach (var x in x10)
             {
                 var personasParaReactivar = (from p in context.Persona
-                                             where p.sec_Id_Sector == fhte.sec_Id_Sector && p.per_Id_Persona == x.per_Id_Persona
+                                             where p.per_Id_Persona == x.per_Id_Persona
                                              select p).FirstOrDefault();
 
                 personas.Insert(0, personasParaReactivar);
