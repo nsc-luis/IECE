@@ -411,7 +411,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "BautismosTE", (informeVM.TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "15");
 
                     //DATOS DEL ESTADO ACTUAL DE LA IGLESIA
-                    AgregarTextoAlMarcador(bookmarks, "personasBautizadasInicio", (movtos.personasBautizadas).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "personasBautizadasInicio", (movtos.personasBautizadas).ToString(), true, true, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "bautismo", (movtos.altasBautizados.BAUTISMO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "altaCambioDomicilio", (movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "totalAltas", (movtos.altasBautizados.RESTITUCIÓN + movtos.altasBautizados.BAUTISMO + movtos.altasBautizados.CAMBIODEDOMINTERNO + movtos.altasBautizados.CAMBIODEDOMEXTERNO).ToString(), false, false, "Aptos", "15");

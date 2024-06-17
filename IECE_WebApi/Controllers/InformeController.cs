@@ -77,7 +77,7 @@ namespace IECE_WebApi.Controllers
         // GET api/<InformeAnualPastorController>/5
         [HttpGet("{id}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Informe> Get(int id)
+        public ActionResult<Informe> Get(int id)    
         {
             try
             {
@@ -427,7 +427,7 @@ namespace IECE_WebApi.Controllers
                     IdSector = data.IdSector,
                     LugarReunion = data.LugarReunion,
                     FechaReunion = data.FechaReunion,
-                    Status = data.Status,
+                    Status = 1,
                     Usu_Id_Usuario = data.Usu_Id_Usuario,
                     FechaRegistro = DateTime.Now
                 };
@@ -436,6 +436,9 @@ namespace IECE_WebApi.Controllers
 
                 var nuevoInforme = new InformePastorViewModel();
                 nuevoInforme.IdInforme = informe.IdInforme;
+                nuevoInforme.FechaReunion = informe.FechaReunion;
+                nuevoInforme.LugarReunion = informe.LugarReunion;
+
 
                 RespuestaActualizarInforme respuestaActualizar = ActualizarInforme(nuevoInforme);
 
@@ -489,9 +492,6 @@ namespace IECE_WebApi.Controllers
                 {
                     informe.LugarReunion = data.LugarReunion;
                     informe.FechaReunion = data.FechaReunion;
-                    informe.IdTipoUsuario = data.IdTipoUsuario;
-                    informe.IdSector = data.IdSector != null ? data.IdSector : informe.IdSector;
-                    informe.Status = data.Status;
                     _context.Informe.Update(informe);
                     _context.SaveChanges();
                 }
