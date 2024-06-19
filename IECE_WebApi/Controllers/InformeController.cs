@@ -496,28 +496,56 @@ namespace IECE_WebApi.Controllers
                     _context.SaveChanges();
                 }
 
-                VisitasPastor visitasPastor = _context.VisitasPastor.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if (visitasPastor == null)
+                if(informe.IdTipoUsuario == 1)
                 {
-                    var addVisitasPastor = new VisitasPastor
+                    VisitasPastor visitasPastor = _context.VisitasPastor.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                    if (visitasPastor == null)
                     {
-                        IdInforme = data.IdInforme,
-                        PorPastor = data.VisitasPastor.PorPastor,
-                        PorAncianosAux = data.VisitasPastor.PorAncianosAux,
-                        PorDiaconos = data.VisitasPastor.PorDiaconos,
-                        PorAuxiliares = data.VisitasPastor.PorAuxiliares,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now,
-                    };
-                    _context.VisitasPastor.Add(addVisitasPastor);
-                    _context.SaveChanges();
+                        var addVisitasPastor = new VisitasPastor
+                        {
+                            IdInforme = data.IdInforme,
+                            PorPastor = data.VisitasPastor.PorPastor,
+                            PorAncianosAux = data.VisitasPastor.PorAncianosAux,
+                            PorDiaconos = data.VisitasPastor.PorDiaconos,
+                            PorAuxiliares = data.VisitasPastor.PorAuxiliares,
+                            Usu_Id_Usuario = data.Usu_Id_Usuario,
+                            FechaRegistro = DateTime.Now,
+                        };
+                        _context.VisitasPastor.Add(addVisitasPastor);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        visitasPastor = data.VisitasPastor;
+                        _context.VisitasPastor.Update(visitasPastor);
+                        _context.SaveChanges();
+                    }
                 }
                 else
                 {
-                    visitasPastor = data.VisitasPastor;
-                    _context.VisitasPastor.Update(visitasPastor);
-                    _context.SaveChanges();
+                    VisitasObispo visitasObispo = _context.VisitasObispo.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                    if (visitasObispo == null)
+                    {
+                        var addVisitasPastor = new VisitasObispo
+                        {
+                            IdInforme = data.IdInforme,
+                            idSector = data.VisitasObispo.idSector,
+                            aHogares = data.VisitasObispo.aHogares,
+                            aSectores = data.VisitasObispo.aSectores,
+                            Usu_Id_Usuario = data.Usu_Id_Usuario,
+                            FechaRegistro = DateTime.Now,
+                        };
+                        _context.VisitasObispo.Add(addVisitasPastor);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        visitasObispo = data.VisitasObispo;
+                        _context.VisitasObispo.Update(visitasObispo);
+                        _context.SaveChanges();
+                    }
                 }
+
 
                 CultosSector cultosSector = _context.CultosSector.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
 

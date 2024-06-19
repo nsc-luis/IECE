@@ -21,6 +21,7 @@ namespace IECE_WebApi.Models
         public int Anio { get; set; }
 
         public VisitasPastor VisitasPastor { get; set; } = new VisitasPastor();
+        public VisitasObispo VisitasObispo { get; set; } = new VisitasObispo();
         public CultosSector CultosSector { get; set; } = new CultosSector();
         public EstudiosSector EstudiosSector { get; set; } = new EstudiosSector();
         public EstudiosSector ConferenciasSector { get; set; } = new EstudiosSector();
