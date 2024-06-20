@@ -23,8 +23,10 @@ namespace IECE_WebApi.Models
         public VisitasPastor VisitasPastor { get; set; } = new VisitasPastor();
         public VisitasObispo VisitasObispo { get; set; } = new VisitasObispo();
         public CultosSector CultosSector { get; set; } = new CultosSector();
+        public CultosDistrito CultosDistrito { get; set; } = new CultosDistrito();
         public EstudiosSector EstudiosSector { get; set; } = new EstudiosSector();
         public EstudiosSector ConferenciasSector { get; set; } = new EstudiosSector();
+        public ConferenciasDistrito ConferenciasDistrito { get; set; } = new ConferenciasDistrito();
         public List<CultosMisionSector> CultosMisionSector { get; set; } = new List<CultosMisionSector>();
         public TrabajoEvangelismo TrabajoEvangelismo { get; set; } = new TrabajoEvangelismo();
         public Organizaciones Organizaciones { get; set; } = new Organizaciones();
