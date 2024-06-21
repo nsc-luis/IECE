@@ -31,10 +31,15 @@ namespace IECE_WebApi.Models
         public TrabajoEvangelismo TrabajoEvangelismo { get; set; } = new TrabajoEvangelismo();
         public Organizaciones Organizaciones { get; set; } = new Organizaciones();
         public AdquisicionesSector AdquisicionesSector { get; set; } = new AdquisicionesSector();
+        public AdquisicionesDistrito AdquisicionesDistrito { get; set; } = new AdquisicionesDistrito();
         public SesionesReunionesSector Sesiones { get; set; } = new SesionesReunionesSector();
         public SesionesReunionesSector Reuniones { get; set; } = new SesionesReunionesSector();
+        public SesionesReunionesDistrito2 SesionesDistrito { get; set; } = new SesionesReunionesDistrito2();
+        public SesionesReunionesDistrito2 ReunionesDistrito { get; set; } = new SesionesReunionesDistrito2();
         public Construcciones ConstruccionesInicio { get; set; } = new Construcciones();
         public Construcciones ConstruccionesConclusion { get; set; } = new Construcciones();
+        public ConstruccionesDistrito ConstruccionesDistritoInicio { get; set; } = new ConstruccionesDistrito();
+        public ConstruccionesDistrito ConstruccionesDistritoConclusion { get; set; } = new ConstruccionesDistrito();
         public Ordenaciones Ordenaciones { get; set; } = new Ordenaciones();
         public Dedicaciones Dedicaciones { get; set; } = new Dedicaciones();
         public LlamamientoDePersonal LlamamientoDePersonal { get; set; } = new LlamamientoDePersonal();
@@ -44,6 +49,8 @@ namespace IECE_WebApi.Models
         public List<OtrasActividades> OtrasActividades { get; set; } = new List<OtrasActividades>();
         public List<OtrasActividades> ActividadesEliminadas { get; set; } = new List<OtrasActividades>();
         public List<ActividadesObispo> ActividadesObispo { get; set; } = new List<ActividadesObispo>();
+        public ConcentracionesDistrito ConcentracionesDistrito { get; set; } = new ConcentracionesDistrito();
+
     }
 
     public class ActividadesObispo

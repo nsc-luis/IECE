@@ -464,15 +464,23 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                RespuestaActualizarInforme res = ActualizarInforme(data);
+                RespuestaActualizarInforme respuestaActualizar = new RespuestaActualizarInforme();
+                if (data.IdTipoUsuario == 1)
+                {
+                    respuestaActualizar = ActualizarInformePastor(data);
+                }
+                else
+                {
+                    respuestaActualizar = ActualizarInformeObispo(data);
+                }
 
-                if (res.Exitoso)
+                if (respuestaActualizar.Exitoso)
                 {
                     return Ok();
                 }
                 else
                 {
-                    return BadRequest(res.Mensaje);
+                    return BadRequest(respuestaActualizar.Mensaje);
                 }
             }
             catch (Exception ex)
@@ -1070,35 +1078,6 @@ namespace IECE_WebApi.Controllers
                     _context.SaveChanges();
                 }
 
-                //EstudiosSector estudiosSector = _context.EstudiosSector
-                //    .Where(w => w.IdInforme == data.IdInforme)
-                //    .Where(w => w.IdTipoEstudio == 1)
-                //    .AsNoTracking()
-                //    .FirstOrDefault();
-                //if (estudiosSector == null)
-                //{
-                //    var addEstudiosSector = new EstudiosSector
-                //    {
-                //        IdInforme = data.IdInforme,
-                //        IdTipoEstudio = 1,
-                //        EscuelaDominical = data.EstudiosSector.EscuelaDominical,
-                //        Varonil = data.EstudiosSector.Varonil,
-                //        Femenil = data.EstudiosSector.Femenil,
-                //        Juvenil = data.EstudiosSector.Juvenil,
-                //        Infantil = data.EstudiosSector.Infantil,
-                //        Iglesia = data.EstudiosSector.Iglesia,
-                //        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                //        FechaRegistro = DateTime.Now
-                //    };
-                //    _context.EstudiosSector.Add(addEstudiosSector);
-                //    _context.SaveChanges();
-                //}
-                //else
-                //{
-                //    estudiosSector = data.EstudiosSector;
-                //    _context.EstudiosSector.Update(estudiosSector);
-                //    _context.SaveChanges();
-                //}
 
                 ConferenciasDistrito conferenciasDistrito = _context.ConferenciasDistrito
                     .Where(w => w.idInforme == data.IdInforme)
@@ -1129,326 +1108,158 @@ namespace IECE_WebApi.Controllers
                 }
 
 
-                //TrabajoEvangelismo trabajoEvangelismo = _context.TrabajoEvangelismo.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                //if (trabajoEvangelismo == null)
-                //{
-                //    var addTrabajoEvangelismo = new TrabajoEvangelismo
-                //    {
-                //        IdInforme = data.IdInforme,
-                //        HogaresVisitados = data.TrabajoEvangelismo.HogaresVisitados,
-                //        HogaresConquistados = data.TrabajoEvangelismo.HogaresConquistados,
-                //        CultosPorLaLocalidad = data.TrabajoEvangelismo.CultosPorLaLocalidad,
-                //        CultosDeHogar = data.TrabajoEvangelismo.CultosDeHogar,
-                //        Campanias = data.TrabajoEvangelismo.Campanias,
-                //        AperturaDeMisiones = data.TrabajoEvangelismo.AperturaDeMisiones,
-                //        VisitantesPermanentes = data.TrabajoEvangelismo.VisitantesPermanentes,
-                //        Bautismos = data.TrabajoEvangelismo.Bautismos,
-                //        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                //        FechaRegistro = DateTime.Now
-                //    };
-                //    _context.TrabajoEvangelismo.Add(addTrabajoEvangelismo);
-                //    _context.SaveChanges();
-                //}
-                //else
-                //{
-                //    trabajoEvangelismo = data.TrabajoEvangelismo;
-                //    _context.TrabajoEvangelismo.Update(trabajoEvangelismo);
-                //    _context.SaveChanges();
-                //}
-
-                //foreach (var item in data.CultosMisionSector)
-                //{
-                //    if (item.Cultos > 0)
-                //    {
-                //        CultosMisionSector cultoMisionSector = _context.CultosMisionSector
-                //            .Where(w => w.IdInforme == data.IdInforme)
-                //            .Where(w => w.Ms_Id_MisionSector == item.Ms_Id_MisionSector)
-                //            .AsNoTracking()
-                //            .FirstOrDefault();
-                //        if (cultoMisionSector == null)
-                //        {
-                //            var addCultosMisionSector = new CultosMisionSector
-                //            {
-                //                IdInforme = data.IdInforme,
-                //                Ms_Id_MisionSector = item.Ms_Id_MisionSector,
-                //                Cultos = item.Cultos,
-                //                Usu_Id_Usuario = data.Usu_Id_Usuario,
-                //                FechaRegistro = DateTime.Now
-                //            };
-                //            _context.CultosMisionSector.Add(addCultosMisionSector);
-                //            _context.SaveChanges();
-                //        }
-                //        else
-                //        {
-                //            cultoMisionSector.Cultos = item.Cultos;
-                //            _context.CultosMisionSector.Update(cultoMisionSector);
-                //            _context.SaveChanges();
-                //        }
-                //    }
-                //}
-
-
-                Organizaciones organizaciones = _context.Organizaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if (organizaciones == null)
+                AdquisicionesDistrito adquisicionesDistrito = _context.AdquisicionesDistrito.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (adquisicionesDistrito == null)
                 {
-                    var addOrganizaciones = new Organizaciones
+                    var addAdquisicionesDistrito = new AdquisicionesDistrito
                     {
                         IdInforme = data.IdInforme,
-                        SociedadFemenil = data.Organizaciones.SociedadFemenil,
-                        SociedadJuvenil = data.Organizaciones.SociedadJuvenil,
-                        DepartamentoFemenil = data.Organizaciones.DepartamentoFemenil,
-                        DepartamentoJuvenil = data.Organizaciones.DepartamentoJuvenil,
-                        DepartamentoInfantil = data.Organizaciones.DepartamentoInfantil,
-                        Coros = data.Organizaciones.Coros,
-                        GruposDeCanto = data.Organizaciones.GruposDeCanto,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        Predios = data.AdquisicionesDistrito.Predios,
+                        Casas = data.AdquisicionesDistrito.Casas,
+                        Edificios = data.AdquisicionesDistrito.Edificios,
+                        Templos = data.AdquisicionesDistrito.Templos,
+                        Vehiculos = data.AdquisicionesDistrito.Vehiculos,
+                        usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
-                    _context.Organizaciones.Add(addOrganizaciones);
+                    _context.AdquisicionesDistrito.Add(addAdquisicionesDistrito);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    organizaciones = data.Organizaciones;
-                    _context.Organizaciones.Update(organizaciones);
+                    adquisicionesDistrito = data.AdquisicionesDistrito;
+                    _context.AdquisicionesDistrito.Update(adquisicionesDistrito);
                     _context.SaveChanges();
                 }
 
-                AdquisicionesSector adquisicionesSector = _context.AdquisicionesSector.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if (adquisicionesSector == null)
+                SesionesReunionesDistrito2 reunionesDistrito = _context.SesionesReunionesDistrito2.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 1).AsNoTracking().FirstOrDefault();
+                if (reunionesDistrito == null)
                 {
-                    var addAdquisicionesSector = new AdquisicionesSector
-                    {
-                        IdInforme = data.IdInforme,
-                        Predios = data.AdquisicionesSector.Predios,
-                        Casas = data.AdquisicionesSector.Casas,
-                        Edificios = data.AdquisicionesSector.Edificios,
-                        Templos = data.AdquisicionesSector.Templos,
-                        Vehiculos = data.AdquisicionesSector.Vehiculos,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
-                    };
-                    _context.AdquisicionesSector.Add(addAdquisicionesSector);
-                    _context.SaveChanges();
-                }
-                else
-                {
-                    adquisicionesSector = data.AdquisicionesSector;
-                    _context.AdquisicionesSector.Update(adquisicionesSector);
-                    _context.SaveChanges();
-                }
-
-                SesionesReunionesSector reunionesSector = _context.SesionesReunionesSector.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 1).AsNoTracking().FirstOrDefault();
-                if (reunionesSector == null)
-                {
-                    var addReunionesSector = new SesionesReunionesSector
+                    var addReunionesDistrito = new SesionesReunionesDistrito2
                     {
                         IdInforme = data.IdInforme,
                         IdTipoSesionReunion = 1,
-                        EnElDistrito = data.Reuniones.EnElDistrito,
-                        ConElPersonalDocente = data.Reuniones.ConElPersonalDocente,
-                        ConSociedadesFemeniles = data.Reuniones.ConSociedadesFemeniles,
-                        ConSociedadesJuveniles = data.Reuniones.ConSociedadesJuveniles,
-                        ConDepartamentosInfantiles = data.Reuniones.ConDepartamentosInfantiles,
-                        ConCorosYGruposDeCanto = data.Reuniones.ConCorosYGruposDeCanto,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        EnElDistrito = data.ReunionesDistrito.EnElDistrito,
+                        ConElPersonalDocente = data.ReunionesDistrito.ConElPersonalDocente,
+                        ConSociedadesFemeniles = data.ReunionesDistrito.ConSociedadesFemeniles,
+                        ConSociedadesJuveniles = data.ReunionesDistrito.ConSociedadesJuveniles,
+                        ConDepartamentosInfantiles = data.ReunionesDistrito.ConDepartamentosInfantiles,
+                        ConCorosYGruposDeCanto = data.ReunionesDistrito.ConCorosYGruposDeCanto,
+                        usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
-                    _context.SesionesReunionesSector.Add(addReunionesSector);
+                    _context.SesionesReunionesDistrito2.Add(addReunionesDistrito);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    reunionesSector = data.Reuniones;
-                    _context.SesionesReunionesSector.Update(reunionesSector);
+                    reunionesDistrito = data.ReunionesDistrito;
+                    _context.SesionesReunionesDistrito2.Update(reunionesDistrito);
                     _context.SaveChanges();
                 }
 
-                SesionesReunionesSector sesionesSector = _context.SesionesReunionesSector.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 2).AsNoTracking().FirstOrDefault();
-                if (sesionesSector == null)
+                SesionesReunionesDistrito2 sesionesDistrito = _context.SesionesReunionesDistrito2.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 2).AsNoTracking().FirstOrDefault();
+                if (sesionesDistrito == null)
                 {
-                    var addSesionesSector = new SesionesReunionesSector
+                    var addSesionesDistrito = new SesionesReunionesDistrito2
                     {
                         IdInforme = data.IdInforme,
                         IdTipoSesionReunion = 2,
-                        EnElDistrito = data.Reuniones.EnElDistrito,
-                        ConElPersonalDocente = data.Reuniones.ConElPersonalDocente,
-                        ConSociedadesFemeniles = data.Reuniones.ConSociedadesFemeniles,
-                        ConSociedadesJuveniles = data.Reuniones.ConSociedadesJuveniles,
-                        ConDepartamentosInfantiles = data.Reuniones.ConDepartamentosInfantiles,
-                        ConCorosYGruposDeCanto = data.Reuniones.ConCorosYGruposDeCanto,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        EnElDistrito = data.SesionesDistrito.EnElDistrito,
+                        ConElPersonalDocente = data.SesionesDistrito.ConElPersonalDocente,
+                        ConSociedadesFemeniles = data.SesionesDistrito.ConSociedadesFemeniles,
+                        ConSociedadesJuveniles = data.SesionesDistrito.ConSociedadesJuveniles,
+                        ConDepartamentosInfantiles = data.SesionesDistrito.ConDepartamentosInfantiles,
+                        ConCorosYGruposDeCanto = data.SesionesDistrito.ConCorosYGruposDeCanto,
+                        usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
-                    _context.SesionesReunionesSector.Add(addSesionesSector);
+                    _context.SesionesReunionesDistrito2.Add(addSesionesDistrito);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    sesionesSector = data.Sesiones;
-                    _context.SesionesReunionesSector.Update(sesionesSector);
+                    sesionesDistrito = data.SesionesDistrito;
+                    _context.SesionesReunionesDistrito2.Update(sesionesDistrito);
                     _context.SaveChanges();
                 }
 
-                Construcciones contruccionesSectorInicio = _context.Construcciones.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoFaseConstruccion == 1).AsNoTracking().FirstOrDefault();
-                if (contruccionesSectorInicio == null)
+                ConstruccionesDistrito contruccionesDistritoInicio = _context.ConstruccionesDistrito.Where(w => w.idInforme == data.IdInforme).Where(w => w.idTipoFaseConstruccion == 1).AsNoTracking().FirstOrDefault();
+                if (contruccionesDistritoInicio == null)
                 {
-                    var addContruccionesSectorInicio = new Construcciones
+                    var addContruccionesDistritoInicio = new ConstruccionesDistrito
                     {
-                        IdInforme = data.IdInforme,
-                        IdTipoFaseConstruccion = 1,
-                        ColocacionPrimeraPiedra = data.ConstruccionesInicio.ColocacionPrimeraPiedra,
-                        Templo = data.ConstruccionesInicio.Templo,
-                        CasaDeOracion = data.ConstruccionesInicio.CasaDeOracion,
-                        CasaPastoral = data.ConstruccionesInicio.CasaPastoral,
-                        Anexos = data.ConstruccionesInicio.Anexos,
-                        Remodelacion = data.ConstruccionesInicio.Remodelacion,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
+                        idInforme = data.IdInforme,
+                        idTipoFaseConstruccion = 1,
+                        colocacionPrimeraPiedra = data.ConstruccionesDistritoInicio.colocacionPrimeraPiedra,
+                        templo = data.ConstruccionesDistritoInicio.templo,
+                        casaDeOracion = data.ConstruccionesDistritoInicio.casaDeOracion,
+                        anexos = data.ConstruccionesDistritoInicio.anexos,
+                        remodelacion = data.ConstruccionesDistritoInicio.remodelacion,
+                        usu_Id_Usuario = data.Usu_Id_Usuario,
+                        fechaRegistro = DateTime.Now
                     };
-                    _context.Construcciones.Add(addContruccionesSectorInicio);
+                    _context.ConstruccionesDistrito.Add(addContruccionesDistritoInicio);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    contruccionesSectorInicio = data.ConstruccionesInicio;
-                    _context.Construcciones.Update(contruccionesSectorInicio);
+                    contruccionesDistritoInicio = data.ConstruccionesDistritoInicio;
+                    _context.ConstruccionesDistrito.Update(contruccionesDistritoInicio);
                     _context.SaveChanges();
                 }
 
-                Construcciones contruccionesSectorConclusion = _context.Construcciones.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoFaseConstruccion == 2).AsNoTracking().FirstOrDefault();
-                if (contruccionesSectorConclusion == null)
+                ConstruccionesDistrito contruccionesDistritoConclusion = _context.ConstruccionesDistrito.Where(w => w.idInforme == data.IdInforme).Where(w => w.idTipoFaseConstruccion == 2).AsNoTracking().FirstOrDefault();
+                if (contruccionesDistritoConclusion == null)
                 {
-                    var addContruccionesSectorConclusion = new Construcciones
+                    var addContruccionesDistritoconclusion = new ConstruccionesDistrito
                     {
-                        IdInforme = data.IdInforme,
-                        IdTipoFaseConstruccion = 2,
-                        ColocacionPrimeraPiedra = data.ConstruccionesConclusion.ColocacionPrimeraPiedra,
-                        Templo = data.ConstruccionesConclusion.Templo,
-                        CasaDeOracion = data.ConstruccionesConclusion.CasaDeOracion,
-                        CasaPastoral = data.ConstruccionesConclusion.CasaPastoral,
-                        Anexos = data.ConstruccionesConclusion.Anexos,
-                        Remodelacion = data.ConstruccionesConclusion.Remodelacion,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
+                        idInforme = data.IdInforme,
+                        idTipoFaseConstruccion = 2,
+                        colocacionPrimeraPiedra = data.ConstruccionesDistritoConclusion.colocacionPrimeraPiedra,
+                        templo = data.ConstruccionesDistritoConclusion.templo,
+                        casaDeOracion = data.ConstruccionesDistritoConclusion.casaDeOracion,
+                        anexos = data.ConstruccionesDistritoConclusion.anexos,
+                        remodelacion = data.ConstruccionesDistritoConclusion.remodelacion,
+                        usu_Id_Usuario = data.Usu_Id_Usuario,
+                        fechaRegistro = DateTime.Now
                     };
-                    _context.Construcciones.Add(addContruccionesSectorConclusion);
+                    _context.ConstruccionesDistrito.Add(addContruccionesDistritoconclusion);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    contruccionesSectorConclusion = data.ConstruccionesConclusion;
-                    _context.Construcciones.Update(contruccionesSectorConclusion);
+                    contruccionesDistritoConclusion = data.ConstruccionesDistritoConclusion;
+                    _context.ConstruccionesDistrito.Update(contruccionesDistritoConclusion);
                     _context.SaveChanges();
                 }
 
-                Ordenaciones ordenaciones = _context.Ordenaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if (ordenaciones == null)
+                ConcentracionesDistrito concentracionesDistrito = _context.ConcentracionesDistrito.Where(w => w.idInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (concentracionesDistrito == null)
                 {
-                    var addOrdenaciones = new Ordenaciones
+                    var addConcentracionesDistrito = new ConcentracionesDistrito
                     {
-                        IdInforme = data.IdInforme,
-                        Ancianos = data.Ordenaciones.Ancianos,
-                        Diaconos = data.Ordenaciones.Diaconos,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
+                        idInforme = data.IdInforme,
+                        idSector = data.ConcentracionesDistrito.idSector != null ? data.ConcentracionesDistrito.idSector : 0,
+                        iglesia = data.ConcentracionesDistrito.iglesia,
+                        sectorVaronil = data.ConcentracionesDistrito.sectorVaronil,
+                        sociedadFemenil = data.ConcentracionesDistrito.sociedadFemenil,
+                        sociedadJuvenil = data.ConcentracionesDistrito.sociedadJuvenil,
+                        sectorInfantil = data.ConcentracionesDistrito.sectorInfantil,
+                        usu_Id_Usuario = data.Usu_Id_Usuario,
+                        fechaRegistro = DateTime.Now
                     };
-                    _context.Ordenaciones.Add(addOrdenaciones);
+                    _context.ConcentracionesDistrito.Add(addConcentracionesDistrito);
                     _context.SaveChanges();
                 }
                 else
                 {
-                    ordenaciones = data.Ordenaciones;
-                    _context.Ordenaciones.Update(ordenaciones);
-                    _context.SaveChanges();
-                }
-
-                Dedicaciones dedicaciones = _context.Dedicaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if (dedicaciones == null)
-                {
-                    var addDedicaciones = new Dedicaciones
-                    {
-                        IdInforme = data.IdInforme,
-                        Templos = data.Dedicaciones.Templos,
-                        CasasDeOracion = data.Dedicaciones.CasasDeOracion,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
-                    };
-                    _context.Dedicaciones.Add(addDedicaciones);
-                    _context.SaveChanges();
-                }
-                else
-                {
-                    dedicaciones = data.Dedicaciones;
-                    _context.Dedicaciones.Update(dedicaciones);
-                    _context.SaveChanges();
-                }
-
-                LlamamientoDePersonal llamamientoDePersonal = _context.LlamamientoDePersonal.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
-                if (llamamientoDePersonal == null)
-                {
-                    var addLlamamientoDePersonal = new LlamamientoDePersonal
-                    {
-                        IdInforme = data.IdInforme,
-                        DiaconosAprueba = data.LlamamientoDePersonal.DiaconosAprueba,
-                        Auxiliares = data.LlamamientoDePersonal.Auxiliares,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
-                    };
-                    _context.LlamamientoDePersonal.Add(addLlamamientoDePersonal);
-                    _context.SaveChanges();
-                }
-                else
-                {
-                    llamamientoDePersonal = data.LlamamientoDePersonal;
-                    _context.LlamamientoDePersonal.Update(llamamientoDePersonal);
+                    concentracionesDistrito = data.ConcentracionesDistrito;
+                    _context.ConcentracionesDistrito.Update(concentracionesDistrito);
                     _context.SaveChanges();
                 }
 
 
-                RegularizacionPrediosTemplos regularizacionPatNac = _context.RegularizacionPrediosTemplos.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoPatrimonio == 1).AsNoTracking().FirstOrDefault();
-                if (regularizacionPatNac == null)
-                {
-                    var addRegularizacionPatNac = new RegularizacionPrediosTemplos
-                    {
-                        IdInforme = data.IdInforme,
-                        IdTipoPatrimonio = 1,
-                        Templos = data.RegularizacionPatNac.Templos,
-                        CasasPastorales = data.RegularizacionPatNac.CasasPastorales,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
-                    };
-                    _context.RegularizacionPrediosTemplos.Add(addRegularizacionPatNac);
-                    _context.SaveChanges();
-                }
-                else
-                {
-                    regularizacionPatNac = data.RegularizacionPatNac;
-                    _context.RegularizacionPrediosTemplos.Update(regularizacionPatNac);
-                    _context.SaveChanges();
-                }
-
-                RegularizacionPrediosTemplos regularizacionPatIg = _context.RegularizacionPrediosTemplos.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoPatrimonio == 2).AsNoTracking().FirstOrDefault();
-                if (regularizacionPatIg == null)
-                {
-                    var addRegularizacionPatIg = new RegularizacionPrediosTemplos
-                    {
-                        IdInforme = data.IdInforme,
-                        IdTipoPatrimonio = 2,
-                        Templos = data.RegularizacionPatIg.Templos,
-                        CasasPastorales = data.RegularizacionPatIg.CasasPastorales,
-                        Usu_Id_Usuario = data.Usu_Id_Usuario,
-                        FechaRegistro = DateTime.Now
-                    };
-                    _context.RegularizacionPrediosTemplos.Add(addRegularizacionPatIg);
-                    _context.SaveChanges();
-                }
-                else
-                {
-                    regularizacionPatIg = data.RegularizacionPatIg;
-                    _context.RegularizacionPrediosTemplos.Update(regularizacionPatIg);
-                    _context.SaveChanges();
-                }
 
                 MovimientoEconomico movimientoEconomico = _context.MovimientoEconomico.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
                 if (movimientoEconomico == null)
