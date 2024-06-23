@@ -956,6 +956,7 @@ namespace IECE_WebApi.Helpers
                 AdquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo),
                 ConstruccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(cdi => cdi.idInforme == idInformeObispo && cdi.idTipoFaseConstruccion == 1),
                 ConstruccionesDistritoFinal = context.ConstruccionesDistrito.FirstOrDefault(cdf => cdf.idInforme == idInformeObispo && cdf.idTipoFaseConstruccion == 2)
+                //Agregar Sesiones de Distrito, Reuniones de Distrito, Dedicaciones Distrito y Regularizaciones Distrito.
             };
 
             // CONSULTA ACTIVIDAD DEL OBISPO DE LA SECCION MovimientoAdministrativoMaterial
