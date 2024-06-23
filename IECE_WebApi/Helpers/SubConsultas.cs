@@ -98,8 +98,8 @@ namespace IECE_WebApi.Helpers
             public AdquisicionesSector AdquisicionesSector { get; set; }
             //public SesionesReunionesSector Sesiones { get; set; }
             //public SesionesReunionesSector Reuniones { get; set; }
-            public SesionesReunionesDistrito2 Sesiones { get; set; }
-            public SesionesReunionesDistrito2 Reuniones { get; set; }
+            public SesionesReunionesDistrito Sesiones { get; set; }
+            public SesionesReunionesDistrito Reuniones { get; set; }
             public Construcciones ConstruccionesInicio { get; set; }
             public Construcciones ConstruccionesConclusion { get; set; }
             public Ordenaciones Ordenaciones { get; set; }
@@ -890,6 +890,7 @@ namespace IECE_WebApi.Helpers
 
         public objInformeObispo SubInformeObispo(int idDistrito, int year, int mes)
         {
+            // SE CONSULTA LISTADO DE INFORMES DE LOS SECTORES DEL DISTRITO
             List<InformePastorViewModel> informesSectores = new List<InformePastorViewModel>();
 
             var informes = (from i in context.Informe
@@ -901,46 +902,52 @@ namespace IECE_WebApi.Helpers
                                 i.IdSector
                             }).ToList();
 
+            // CONSULTA DE INFORME DEL OBISPO POR idInforme Y idTipoUsuario = OBISPO
             int idInformeObispo = context.Informe.FirstOrDefault(i=>i.Anio == year && i.Mes == mes && i.IdDistrito == idDistrito && i.IdTipoUsuario == 2).IdInforme;
 
-            var sectores = context.Sector.Where(s => s.dis_Id_Distrito == idDistrito).ToList();
-            List<Mision_Sector> misiones = new List<Mision_Sector>();
+            // CONSULTA SECTORES Y MISIONES DE DISTRITO ACTIVOS
+            var sectores = context.Sector.Where(s => s.dis_Id_Distrito == idDistrito && s.sec_Activo == true).ToList();
+
+            // PREPARA OBJETOS DE LA ACTIVDAD DEL OBISPO EN EL DISTRITO
             List<actividadEnSectorPorObispo> actividadEnSectorPorObispo = new List<actividadEnSectorPorObispo>();
             List<actividadEnMisionPorObispo> actividadEnMisionPorObispo = new List<actividadEnMisionPorObispo>();
 
+            // INICIA EL POBLADO DEL OBJETO DE LA ACTIVADAD DEL OBISPO
             foreach (var s in sectores)
             {
-                VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-                CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-                ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-                ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
-
-                actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
+                if (s.sec_Tipo_Sector == "SECTOR")
                 {
-                    sector = s,
-                    VisitasObispo = visitasObispo,
-                    CultosDistrito = cultosDistrito,
-                    ConcentracionesDistrito = concentracionesDistrito,
-                    ConferenciasDistrito = conferenciasDistrito
-                });
+                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
+                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
+                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
+                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+
+                    actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
+                    {
+                        sector = s,
+                        VisitasObispo = visitasObispo,
+                        CultosDistrito = cultosDistrito,
+                        ConcentracionesDistrito = concentracionesDistrito,
+                        ConferenciasDistrito = conferenciasDistrito
+                    });
+                }
+                else
+                {
+                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
+                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
+                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
+                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+
+                    actividadEnMisionPorObispo.Add(new actividadEnMisionPorObispo
+                    {
+                        mision = s,
+                        VisitasObispo = visitasObispo,
+                        CultosDistrito = cultosDistrito,
+                        ConcentracionesDistrito = concentracionesDistrito,
+                        ConferenciasDistrito = conferenciasDistrito
+                    });
+                }
             }
-
-            //foreach (var m in sectores.Where(sec => sec.sec_Tipo_Sector == "MISIÓN"))
-            //{
-            //    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-            //    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-            //    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-            //    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
-
-            //    actividadEnMisionPorObispo.Add(new actividadEnMisionPorObispo
-            //    {
-            //        mision = m,
-            //        VisitasObispo = visitasObispo,
-            //        CultosDistrito = cultosDistrito,
-            //        ConcentracionesDistrito = concentracionesDistrito,
-            //        ConferenciasDistrito = conferenciasDistrito
-            //    });
-            //}
 
             objActividadDelObispo actividadObispo = new objActividadDelObispo
             {
@@ -951,9 +958,16 @@ namespace IECE_WebApi.Helpers
                 ConstruccionesDistritoFinal = context.ConstruccionesDistrito.FirstOrDefault(cdf => cdf.idInforme == idInformeObispo && cdf.idTipoFaseConstruccion == 2)
             };
 
-            var sesiones = context.SesionesReunionesDistrito2.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 1);
-            var reuniones = context.SesionesReunionesDistrito2.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 2);
+            // CONSULTA ACTIVIDAD DEL OBISPO DE LA SECCION MovimientoAdministrativoMaterial
+            var sesiones = context.SesionesReunionesDistrito.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 1);
+            var reuniones = context.SesionesReunionesDistrito.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 2);
+            var adquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo);
+            var construccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idTipoFaseConstruccion == 1);
+            var construccionesDistritoFin = context.ConstruccionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idTipoFaseConstruccion == 2);
+            var movEconomicoDistrito = context.MovimientoEconomico.FirstOrDefault(me => me.IdInforme == idInformeObispo);
 
+            // INSTANCIA DE OBJETOS DE movimientosEstadisticos y movimientosAdministrativoMaterial
+            // PARA SUMARIZAR TODOS LOS SECTORES
             movimientosEstadisticosReporteBySector resultadoMovtos = new movimientosEstadisticosReporteBySector
             {
                 personasBautizadas = 0,
@@ -1047,7 +1061,7 @@ namespace IECE_WebApi.Helpers
                     Usu_Id_Usuario = 0,
                     FechaRegistro = DateTime.Now
                 },
-                Sesiones = new SesionesReunionesDistrito2
+                Sesiones = new SesionesReunionesDistrito
                 {
                     IdSesionReunionDistrito = 0,
                     IdInforme = 0,
@@ -1061,7 +1075,7 @@ namespace IECE_WebApi.Helpers
                     usu_Id_Usuario = 0,
                     FechaRegistro = DateTime.Now
                 },
-                Reuniones = new SesionesReunionesDistrito2
+                Reuniones = new SesionesReunionesDistrito
                 {
                     IdSesionReunionDistrito = 0,
                     IdInforme = 0,
@@ -1165,7 +1179,9 @@ namespace IECE_WebApi.Helpers
                 }
             };
 
-            smae.Sesiones = new SesionesReunionesDistrito2
+            // CONTINUA POBLADO DE ACTIVIDADES DEL OBISPO EN LA SECCION DE MOVIMIENTO ESTADISTIVO
+            // Y MATERIAL EN TABLAS CORRESPONDIENTES SEGUN EL idInforme
+            smae.Sesiones = new SesionesReunionesDistrito
             {
                 EnElDistrito = sesiones?.EnElDistrito,
                 ConElPersonalDocente = sesiones?.ConElPersonalDocente,
@@ -1174,7 +1190,7 @@ namespace IECE_WebApi.Helpers
                 ConDepartamentosInfantiles = sesiones?.ConDepartamentosInfantiles,
                 ConCorosYGruposDeCanto = sesiones?.ConCorosYGruposDeCanto
             };
-            smae.Reuniones = new SesionesReunionesDistrito2
+            smae.Reuniones = new SesionesReunionesDistrito
             {
                 EnElDistrito = reuniones?.EnElDistrito,
                 ConElPersonalDocente = reuniones?.ConElPersonalDocente,
@@ -1183,12 +1199,47 @@ namespace IECE_WebApi.Helpers
                 ConDepartamentosInfantiles = reuniones?.ConDepartamentosInfantiles,
                 ConCorosYGruposDeCanto = reuniones?.ConCorosYGruposDeCanto
             };
+            smae.AdquisicionesSector = new AdquisicionesSector
+            {
+                Predios = smae.AdquisicionesSector?.Predios + adquisicionesDistrito?.Predios,
+                Casas = smae.AdquisicionesSector?.Casas + adquisicionesDistrito?.Casas,
+                Edificios = smae.AdquisicionesSector?.Edificios + adquisicionesDistrito?.Edificios,
+                Templos = smae.AdquisicionesSector?.Templos + adquisicionesDistrito?.Templos,
+                Vehiculos = smae.AdquisicionesSector?.Vehiculos + adquisicionesDistrito?.Vehiculos
+            };
+            smae.ConstruccionesInicio = new Construcciones
+            {
+                Templo = smae.ConstruccionesInicio?.Templo + construccionesDistritoInicio?.templo,
+                CasaDeOracion = smae.ConstruccionesInicio?.CasaDeOracion + construccionesDistritoInicio?.casaDeOracion,
+                CasaPastoral = smae.ConstruccionesInicio?.CasaPastoral + construccionesDistritoInicio?.casaPastoral,
+                Anexos = smae.ConstruccionesInicio?.Anexos + construccionesDistritoInicio?.anexos,
+                Remodelacion = smae.ConstruccionesInicio?.Remodelacion + construccionesDistritoInicio?.remodelacion
+            };
+            smae.ConstruccionesConclusion = new Construcciones
+            {
+                Templo = smae.ConstruccionesConclusion?.Templo + construccionesDistritoFin?.templo,
+                CasaDeOracion = smae.ConstruccionesConclusion?.CasaDeOracion + construccionesDistritoFin?.casaDeOracion,
+                CasaPastoral = smae.ConstruccionesConclusion?.CasaPastoral + construccionesDistritoFin?.casaPastoral,
+                Anexos = smae.ConstruccionesConclusion?.Anexos + construccionesDistritoFin?.anexos,
+                Remodelacion = smae.ConstruccionesConclusion?.Remodelacion + construccionesDistritoFin?.remodelacion
+            };
+            smae.MovimientoEconomico = new MovimientoEconomico
+            {
+                ExistenciaAnterior = smae.MovimientoEconomico?.ExistenciaAnterior + movEconomicoDistrito?.ExistenciaAnterior,
+                EntradaMes = smae.MovimientoEconomico?.EntradaMes + movEconomicoDistrito?.EntradaMes,
+                SumaTotal = smae.MovimientoEconomico?.SumaTotal + movEconomicoDistrito?.SumaTotal,
+                GastosAdmon = smae.MovimientoEconomico?.GastosAdmon + movEconomicoDistrito?.GastosAdmon,
+                TransferenciasAentidadSuperior = smae.MovimientoEconomico?.TransferenciasAentidadSuperior + movEconomicoDistrito?.TransferenciasAentidadSuperior,
+                ExistenciaEnCaja = smae.MovimientoEconomico?.ExistenciaEnCaja + movEconomicoDistrito?.ExistenciaEnCaja
+            };
 
+            // INICIA CICLO PARA SUMARIZAR LA ACTIVADA DE CADA SECTOR
             foreach (var i in informes)
             {
                 InformePastorViewModel tempInforme = SubInformePastoral(i.IdInforme);
                 informesSectores.Add(SubInformePastoral(i.IdInforme));
 
+                // SUMARIZA SECCION DE MovimientoAdministrativoMaterial DE CADA SECTOR
                 smae.Organizaciones = new Organizaciones
                 {
                     SociedadFemenil = smae.Organizaciones?.SociedadFemenil + tempInforme.Organizaciones?.SociedadFemenil,
@@ -1207,24 +1258,6 @@ namespace IECE_WebApi.Helpers
                     Templos = smae.AdquisicionesSector?.Templos + tempInforme.AdquisicionesSector?.Templos,
                     Vehiculos = smae.AdquisicionesSector?.Vehiculos + tempInforme.AdquisicionesSector?.Vehiculos
                 };
-                //smae.Sesiones = new SesionesReunionesSector
-                //{
-                //    EnElDistrito = smae.Sesiones.EnElDistrito + tempInforme.Sesiones.EnElDistrito,
-                //    ConElPersonalDocente = smae.Sesiones.ConElPersonalDocente + tempInforme.Sesiones.ConElPersonalDocente,
-                //    ConSociedadesFemeniles = smae.Sesiones.ConSociedadesFemeniles + tempInforme.Sesiones.ConSociedadesFemeniles,
-                //    ConSociedadesJuveniles = smae.Sesiones.ConSociedadesJuveniles + tempInforme.Sesiones.ConSociedadesJuveniles,
-                //    ConDepartamentosInfantiles = smae.Sesiones.ConDepartamentosInfantiles + tempInforme.Sesiones.ConDepartamentosInfantiles,
-                //    ConCorosYGruposDeCanto = smae.Sesiones.ConCorosYGruposDeCanto + tempInforme.Sesiones.ConCorosYGruposDeCanto
-                //};
-                //smae.Reuniones = new SesionesReunionesSector
-                //{
-                //    EnElDistrito = smae.Sesiones.EnElDistrito + tempInforme.Sesiones.EnElDistrito,
-                //    ConElPersonalDocente = smae.Sesiones.ConElPersonalDocente + tempInforme.Sesiones.ConElPersonalDocente,
-                //    ConSociedadesFemeniles = smae.Sesiones.ConSociedadesFemeniles + tempInforme.Sesiones.ConSociedadesFemeniles,
-                //    ConSociedadesJuveniles = smae.Sesiones.ConSociedadesJuveniles + tempInforme.Sesiones.ConSociedadesJuveniles,
-                //    ConDepartamentosInfantiles = smae.Sesiones.ConDepartamentosInfantiles + tempInforme.Sesiones.ConDepartamentosInfantiles,
-                //    ConCorosYGruposDeCanto = smae.Sesiones.ConCorosYGruposDeCanto + tempInforme.Sesiones.ConCorosYGruposDeCanto
-                //};
                 smae.ConstruccionesInicio = new Construcciones
                 {
                     Templo = smae.ConstruccionesInicio?.Templo + tempInforme.ConstruccionesInicio?.Templo,
@@ -1266,15 +1299,6 @@ namespace IECE_WebApi.Helpers
                     Templos = smae.RegularizacionPatIg?.Templos + tempInforme.RegularizacionPatIg?.Templos,
                     CasasPastorales = smae.RegularizacionPatIg?.CasasPastorales | +tempInforme.RegularizacionPatIg?.CasasPastorales
                 };
-                smae.MovimientoEconomico = new MovimientoEconomico
-                {
-                    ExistenciaAnterior = smae.MovimientoEconomico?.ExistenciaAnterior + tempInforme.MovimientoEconomico?.ExistenciaAnterior,
-                    EntradaMes = smae.MovimientoEconomico?.EntradaMes + tempInforme.MovimientoEconomico?.EntradaMes,
-                    SumaTotal = smae.MovimientoEconomico?.SumaTotal + tempInforme.MovimientoEconomico?.SumaTotal,
-                    GastosAdmon = smae.MovimientoEconomico?.GastosAdmon + tempInforme.MovimientoEconomico?.GastosAdmon,
-                    TransferenciasAentidadSuperior = smae.MovimientoEconomico?.TransferenciasAentidadSuperior + tempInforme.MovimientoEconomico?.TransferenciasAentidadSuperior,
-                    ExistenciaEnCaja = smae.MovimientoEconomico?.ExistenciaEnCaja + tempInforme.MovimientoEconomico?.ExistenciaEnCaja
-                };
 
                 FiltroHistTransEstDelMes filtroHistTransEstDelMes = new FiltroHistTransEstDelMes
                 {
@@ -1283,6 +1307,7 @@ namespace IECE_WebApi.Helpers
                     mes = mes
                 };
 
+                // SUMARIZA SECCION DE MovimientoEstadistico DE CADA SECTOR
                 movimientosEstadisticosReporteBySector tempMovtos = SubMovimientosEstadisticosReporteBySector(filtroHistTransEstDelMes);
                 resultadoMovtos.personasBautizadas = resultadoMovtos.personasBautizadas + tempMovtos.personasBautizadas;
                 resultadoMovtos.personasNoBautizadas = resultadoMovtos.personasNoBautizadas + tempMovtos.personasNoBautizadas;
@@ -1348,6 +1373,7 @@ namespace IECE_WebApi.Helpers
                 };
             }
 
+            // POBLANDO OBJETO FINAL PARA DESPLIEGE DE INFORMACION
             objInformeObispo objInformeObispo = new objInformeObispo
             {
                 actividadObispo = actividadObispo,

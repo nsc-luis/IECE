@@ -882,6 +882,23 @@ namespace IECE_WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("[action]/{idDistrito}/{year}/{mes}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult Prueba(int idDistrito, int year, int mes)
+        {
+            try
+            {
+                SubConsultas sub = new SubConsultas(context);
+                var resultado = sub.SubInformeObispo(idDistrito, year, mes);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("[action]")]
         [EnableCors("AllowOrigin")]
         public IActionResult PruebaExcel()
