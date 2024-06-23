@@ -965,7 +965,6 @@ namespace IECE_WebApi.Helpers
             var adquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo);
             var construccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idTipoFaseConstruccion == 1);
             var construccionesDistritoFin = context.ConstruccionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idTipoFaseConstruccion == 2);
-            var movEconomicoDistrito = context.MovimientoEconomico.FirstOrDefault(me => me.IdInforme == idInformeObispo);
 
             // INSTANCIA DE OBJETOS DE movimientosEstadisticos y movimientosAdministrativoMaterial
             // PARA SUMARIZAR TODOS LOS SECTORES
@@ -1224,15 +1223,6 @@ namespace IECE_WebApi.Helpers
                 Anexos = smae.ConstruccionesConclusion?.Anexos + construccionesDistritoFin?.anexos,
                 Remodelacion = smae.ConstruccionesConclusion?.Remodelacion + construccionesDistritoFin?.remodelacion
             };
-            smae.MovimientoEconomico = new MovimientoEconomico
-            {
-                ExistenciaAnterior = smae.MovimientoEconomico?.ExistenciaAnterior + movEconomicoDistrito?.ExistenciaAnterior,
-                EntradaMes = smae.MovimientoEconomico?.EntradaMes + movEconomicoDistrito?.EntradaMes,
-                SumaTotal = smae.MovimientoEconomico?.SumaTotal + movEconomicoDistrito?.SumaTotal,
-                GastosAdmon = smae.MovimientoEconomico?.GastosAdmon + movEconomicoDistrito?.GastosAdmon,
-                TransferenciasAentidadSuperior = smae.MovimientoEconomico?.TransferenciasAentidadSuperior + movEconomicoDistrito?.TransferenciasAentidadSuperior,
-                ExistenciaEnCaja = smae.MovimientoEconomico?.ExistenciaEnCaja + movEconomicoDistrito?.ExistenciaEnCaja
-            };
 
             // INICIA CICLO PARA SUMARIZAR LA ACTIVADA DE CADA SECTOR
             foreach (var i in informes)
@@ -1373,6 +1363,18 @@ namespace IECE_WebApi.Helpers
                     joven_hombre = resultadoMovtos.noBautizadosByMesSector.joven_hombre + tempMovtos.noBautizadosByMesSector.joven_hombre
                 };
             }
+
+            // POBLANDO SECCION DE MOVIMIENTO ECONOMICO DEL DISTRITO
+            var movEconomicoDistrito = context.MovimientoEconomico.FirstOrDefault(me => me.IdInforme == idInformeObispo);
+            smae.MovimientoEconomico = new MovimientoEconomico
+            {
+                ExistenciaAnterior = smae.MovimientoEconomico?.ExistenciaAnterior + movEconomicoDistrito?.ExistenciaAnterior,
+                EntradaMes = smae.MovimientoEconomico?.EntradaMes + movEconomicoDistrito?.EntradaMes,
+                SumaTotal = smae.MovimientoEconomico?.SumaTotal + movEconomicoDistrito?.SumaTotal,
+                GastosAdmon = smae.MovimientoEconomico?.GastosAdmon + movEconomicoDistrito?.GastosAdmon,
+                TransferenciasAentidadSuperior = smae.MovimientoEconomico?.TransferenciasAentidadSuperior + movEconomicoDistrito?.TransferenciasAentidadSuperior,
+                ExistenciaEnCaja = smae.MovimientoEconomico?.ExistenciaEnCaja + movEconomicoDistrito?.ExistenciaEnCaja
+            };
 
             // POBLANDO OBJETO FINAL PARA DESPLIEGE DE INFORMACION
             objInformeObispo objInformeObispo = new objInformeObispo
