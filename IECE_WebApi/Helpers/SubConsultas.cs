@@ -910,37 +910,38 @@ namespace IECE_WebApi.Helpers
 
             foreach (var s in sectores)
             {
-                VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-                CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-                ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-                ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+                    if (s.sec_Tipo_Sector == "SECTOR") { 
+                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
+                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
+                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
+                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
 
-                actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
+                    actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
+                    {
+                        sector = s,
+                        VisitasObispo = visitasObispo,
+                        CultosDistrito = cultosDistrito,
+                        ConcentracionesDistrito = concentracionesDistrito,
+                        ConferenciasDistrito = conferenciasDistrito
+                    });
+                }
+                else
                 {
-                    sector = s,
-                    VisitasObispo = visitasObispo,
-                    CultosDistrito = cultosDistrito,
-                    ConcentracionesDistrito = concentracionesDistrito,
-                    ConferenciasDistrito = conferenciasDistrito
-                });
+                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
+                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
+                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
+                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+
+                    actividadEnMisionPorObispo.Add(new actividadEnMisionPorObispo
+                        {
+                            mision = s,
+                            VisitasObispo = visitasObispo,
+                            CultosDistrito = cultosDistrito,
+                            ConcentracionesDistrito = concentracionesDistrito,
+                            ConferenciasDistrito = conferenciasDistrito
+                        });
+                    }
             }
-
-            //foreach (var m in sectores.Where(sec => sec.sec_Tipo_Sector == "MISIÓN"))
-            //{
-            //    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-            //    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-            //    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-            //    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
-
-            //    actividadEnMisionPorObispo.Add(new actividadEnMisionPorObispo
-            //    {
-            //        mision = m,
-            //        VisitasObispo = visitasObispo,
-            //        CultosDistrito = cultosDistrito,
-            //        ConcentracionesDistrito = concentracionesDistrito,
-            //        ConferenciasDistrito = conferenciasDistrito
-            //    });
-            //}
 
             objActividadDelObispo actividadObispo = new objActividadDelObispo
             {
@@ -949,6 +950,7 @@ namespace IECE_WebApi.Helpers
                 AdquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo),
                 ConstruccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(cdi => cdi.idInforme == idInformeObispo && cdi.idTipoFaseConstruccion == 1),
                 ConstruccionesDistritoFinal = context.ConstruccionesDistrito.FirstOrDefault(cdf => cdf.idInforme == idInformeObispo && cdf.idTipoFaseConstruccion == 2)
+                //Agregar Sesiones de Distrito, Reuniones de Distrito, Dedicaciones Distrito y Regularizaciones Distrito.
             };
 
             var sesiones = context.SesionesReunionesDistrito2.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 1);
