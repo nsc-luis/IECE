@@ -634,6 +634,7 @@ namespace IECE_WebApi.Controllers
                             AgregarTextoAlMarcador(bookmarks, $"S{j}", (sector.sec_Alias).ToString(), false, false, "Aptos", "10");
                             AgregarTextoAlMarcador(bookmarks, $"PP{j}", (informes[i].VisitasPastor.PorPastor).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"PA{j}", (informes[i].VisitasPastor.PorAncianosAux + informes[i].VisitasPastor.PorDiaconos + informes[i].VisitasPastor.PorAuxiliares).ToString(), false, false, "Aptos", "13");
+                            AgregarTextoAlMarcador(bookmarks, $"O{j}", (informes[i].CultosSector.Ordinarios).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"E{j}", (informes[i].CultosSector.Especiales).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"A{j}", (informes[i].CultosSector.DeAvivamiento).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"ANIV{j}", (informes[i].CultosSector.DeAniversario).ToString(), false, false, "Aptos", "13");
@@ -646,7 +647,7 @@ namespace IECE_WebApi.Controllers
                             AgregarTextoAlMarcador(bookmarks, $"I{j}", (informes[i].EstudiosSector.Iglesia + informes[i].ConferenciasSector.Iglesia).ToString(), false, false, "Aptos", "13");
 
                             AgregarTextoAlMarcador(bookmarks, $"NM{j}", (informes[i].CultosMisionSector.Count).ToString(), false, false, "Aptos", "13");
-                            int cm = 0;
+                            int cm = 0; 
                             foreach (var m in informes[i].CultosMisionSector)
                             {
                                 cm = cm + m.Cultos;
@@ -659,7 +660,7 @@ namespace IECE_WebApi.Controllers
                             AgregarTextoAlMarcador(bookmarks, $"CH{j}", (informes[i].TrabajoEvangelismo.CultosDeHogar).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"C{j}", (informes[i].TrabajoEvangelismo.Campanias).ToString(), false, false, "Aptos", "13");
                             AgregarTextoAlMarcador(bookmarks, $"AM{j}", (informes[i].TrabajoEvangelismo.AperturaDeMisiones).ToString(), false, false, "Aptos", "13");
-                            //AgregarTextoAlMarcador(bookmarks, $"I{j}", (informes[i].TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
+                            AgregarTextoAlMarcador(bookmarks, $"VP{j}", (informes[i].TrabajoEvangelismo.VisitantesPermanentes).ToString(), false, false, "Aptos", "15");
                             AgregarTextoAlMarcador(bookmarks, $"B{j}", (informes[i].TrabajoEvangelismo.Bautismos).ToString(), false, false, "Aptos", "13");
                         }
 
