@@ -57,7 +57,8 @@ namespace IECE_WebApi.Controllers
                     {11, "Noviembre"},
                     {12, "Diciembre"}
                 };
-                return Ok(_context.Informe
+
+                var listaInformes = _context.Informe
                     .Where(w => w.IdTipoUsuario == sm.IdTipoUsuario)
                     .Where(w => w.IdDistrito == sm.IdDistrito)
                     .Where(w => w.IdSector == sm.IdSector || sm.IdSector == null)
@@ -66,7 +67,13 @@ namespace IECE_WebApi.Controllers
                         IdInforme = s.IdInforme,
                         Anio = s.Anio,
                         Mes = meses[s.Mes],
-                    }).ToList());
+                    })
+                    .OrderBy(s => s.Anio) // Ordenar por Anio ascendente
+                    .ThenBy(s => Array.IndexOf(meses.Values.ToArray(), s.Mes)) // Ordenar por Mes según el índice en el array de meses
+                    .ToList();
+
+
+                return Ok(listaInformes);
             }
             catch (Exception ex)
             {
