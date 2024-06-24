@@ -35,8 +35,8 @@ namespace IECE_WebApi.Models
         public AdquisicionesDistrito AdquisicionesDistrito { get; set; } = new AdquisicionesDistrito();
         public SesionesReunionesSector Sesiones { get; set; } = new SesionesReunionesSector();
         public SesionesReunionesSector Reuniones { get; set; } = new SesionesReunionesSector();
-        public SesionesReunionesDistrito2 SesionesDistrito { get; set; } = new SesionesReunionesDistrito2();
-        public SesionesReunionesDistrito2 ReunionesDistrito { get; set; } = new SesionesReunionesDistrito2();
+        public SesionesReunionesDistrito SesionesDistrito { get; set; } = new SesionesReunionesDistrito();
+        public SesionesReunionesDistrito ReunionesDistrito { get; set; } = new SesionesReunionesDistrito();
         public Construcciones ConstruccionesInicio { get; set; } = new Construcciones();
         public Construcciones ConstruccionesConclusion { get; set; } = new Construcciones();
         public ConstruccionesDistrito ConstruccionesDistritoInicio { get; set; } = new ConstruccionesDistrito();

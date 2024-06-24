@@ -1174,14 +1174,14 @@ namespace IECE_WebApi.Controllers
                     _context.SaveChanges();
                 }
 
-                SesionesReunionesDistrito2 reunionesDistrito = _context.SesionesReunionesDistrito2.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 1).AsNoTracking().FirstOrDefault();
+                SesionesReunionesDistrito reunionesDistrito = _context.SesionesReunionesDistrito.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 1).AsNoTracking().FirstOrDefault();
                 if (reunionesDistrito == null)
                 {
-                    var addReunionesDistrito = new SesionesReunionesDistrito2
+                    var addReunionesDistrito = new SesionesReunionesDistrito
                     {
                         IdInforme = data.IdInforme,
                         IdTipoSesionReunion = 1,
-                        EnElDistrito = data.ReunionesDistrito.EnElDistrito,
+                        EnElDistrito = data.ReunionesDistrito.EnElDistrito == null ? 0 : data.ReunionesDistrito.EnElDistrito,
                         ConElPersonalDocente = data.ReunionesDistrito.ConElPersonalDocente,
                         ConSociedadesFemeniles = data.ReunionesDistrito.ConSociedadesFemeniles,
                         ConSociedadesJuveniles = data.ReunionesDistrito.ConSociedadesJuveniles,
@@ -1190,24 +1190,24 @@ namespace IECE_WebApi.Controllers
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
-                    _context.SesionesReunionesDistrito2.Add(addReunionesDistrito);
+                    _context.SesionesReunionesDistrito.Add(addReunionesDistrito);
                     _context.SaveChanges();
                 }
                 else
                 {
                     reunionesDistrito = data.ReunionesDistrito;
-                    _context.SesionesReunionesDistrito2.Update(reunionesDistrito);
+                    _context.SesionesReunionesDistrito.Update(reunionesDistrito);
                     _context.SaveChanges();
                 }
 
-                SesionesReunionesDistrito2 sesionesDistrito = _context.SesionesReunionesDistrito2.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 2).AsNoTracking().FirstOrDefault();
+                SesionesReunionesDistrito sesionesDistrito = _context.SesionesReunionesDistrito.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoSesionReunion == 2).AsNoTracking().FirstOrDefault();
                 if (sesionesDistrito == null)
                 {
-                    var addSesionesDistrito = new SesionesReunionesDistrito2
+                    var addSesionesDistrito = new SesionesReunionesDistrito
                     {
                         IdInforme = data.IdInforme,
                         IdTipoSesionReunion = 2,
-                        EnElDistrito = data.SesionesDistrito.EnElDistrito,
+                        EnElDistrito = data.SesionesDistrito.EnElDistrito == null ? 0 : data.ReunionesDistrito.EnElDistrito,
                         ConElPersonalDocente = data.SesionesDistrito.ConElPersonalDocente,
                         ConSociedadesFemeniles = data.SesionesDistrito.ConSociedadesFemeniles,
                         ConSociedadesJuveniles = data.SesionesDistrito.ConSociedadesJuveniles,
@@ -1216,13 +1216,13 @@ namespace IECE_WebApi.Controllers
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
-                    _context.SesionesReunionesDistrito2.Add(addSesionesDistrito);
+                    _context.SesionesReunionesDistrito.Add(addSesionesDistrito);
                     _context.SaveChanges();
                 }
                 else
                 {
                     sesionesDistrito = data.SesionesDistrito;
-                    _context.SesionesReunionesDistrito2.Update(sesionesDistrito);
+                    _context.SesionesReunionesDistrito.Update(sesionesDistrito);
                     _context.SaveChanges();
                 }
 
