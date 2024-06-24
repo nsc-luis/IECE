@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System;
 using System.Collections.Generic;
+using IECE_WebApi.Helpers;
 
 namespace IECE_WebApi.Models
 {
@@ -49,13 +50,14 @@ namespace IECE_WebApi.Models
         public List<OtrasActividades> OtrasActividades { get; set; } = new List<OtrasActividades>();
         public List<OtrasActividades> ActividadesEliminadas { get; set; } = new List<OtrasActividades>();
         public List<ActividadesObispo> ActividadesObispo { get; set; } = new List<ActividadesObispo>();
+        //public SubConsultas.objInformeObispo ActividadesObispoPutModel { get; set; }
         public ConcentracionesDistrito ConcentracionesDistrito { get; set; } = new ConcentracionesDistrito();
 
     }
 
     public class ActividadesObispo
     {
-        public Sector Sector { get; set; }
+        public Sector Sector { get; set; } = new Sector();
         public VisitasObispo VisitasObispo { get; set; }
         public CultosDistrito CultosDistrito { get; set; }
         public ConferenciasDistrito ConferenciasDistrito { get; set; }
