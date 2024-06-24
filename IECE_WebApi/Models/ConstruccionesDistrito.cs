@@ -12,6 +12,7 @@ namespace IECE_WebApi.Models
         public int? colocacionPrimeraPiedra { get; set; }
         public int? templo { get; set; }
         public int? casaDeOracion { get; set; }
+        public int? casaPastoral { get; set; }
         public int? anexos { get; set; }
         public int? remodelacion { get; set; }
         public int usu_Id_Usuario { get; set; }
