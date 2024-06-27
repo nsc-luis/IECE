@@ -141,8 +141,8 @@ namespace IECE_WebApi.Helpers
         public movimientosEstadisticosReporteBySector SubMovimientosEstadisticosReporteBySector(FiltroHistTransEstDelMes fhte)
         {
             // preparacion del mes del cual se solicita el reporte
-            var mesSiguienteDelResporte = new DateTime(fhte.year, fhte.mes + 1, 1);
-            DateTime mesActualDelReporte = mesSiguienteDelResporte.AddDays(-1);
+            var mesSiguienteDelReporte = new DateTime(fhte.year, fhte.mes, 1).AddMonths(1);
+            DateTime mesActualUltimoDia = mesSiguienteDelReporte.AddDays(-1);
 
          //------------------------SECCIÓN PARA CALCULAR MEMBRESÍA BAUTIZADA Y NO BAUTIZADA AL INICIO DEL MES EN CONSULTA --------------------
 
@@ -166,7 +166,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Altas Del Mes en consulta
             var altasDelMes = altasBaseBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1) 
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
             var bajasBaseBautizados = (from hte in context.Historial_Transacciones_Estadisticas
@@ -186,7 +186,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Bajas Del Mes en consulta
             var bajasDelMes = bajasBaseBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // Todas las personas del sector vivas y activas al día de hoy
             var personas = (from p in context.Persona
@@ -199,7 +199,7 @@ namespace IECE_WebApi.Helpers
             var pb = personas.Where(
                 p => p.per_Bautizado == true
                 && p.per_En_Comunion == true).ToList();
-            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+            // && p.per_Fecha_Bautismo < mesActualUltimoDia).ToList();
 
             // Personas bautizadas al principio del mes
             int personasBautizadasInicioDelMes = pb.Count() - altas.Count() + bajas.Count();
@@ -227,7 +227,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Altas Del Mes en consulta
             var altasNBDelMes = altasBaseNoBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
             var bajasBaseNoBautizados = (from hte in context.Historial_Transacciones_Estadisticas
@@ -247,7 +247,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Bajas Del Mes en consulta
             var bajasNBDelMes = bajasBaseNoBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // FILTRA PERSONAS NO BAUTIZAS AL FIN DEL MES DE CONSULTA
             var pnb = personas.Where(
@@ -291,9 +291,9 @@ namespace IECE_WebApi.Helpers
                              }).ToList();
 
             // altasPosteriores Al Mes de Consulta
-            var x9 = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
+            var x9 = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= mesSiguienteDelReporte).ToList();
             // bajasPosteriores Al Mes de Consulta
-            var x10 = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
+            var x10 = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= mesSiguienteDelReporte).ToList();
 
             //Variables para contabilizar Personas NB que pasaron a Bautizados y que en la consulta están ahora como Bautizados.
             int nbjhQuePasaronABautizados = 0;
@@ -338,7 +338,7 @@ namespace IECE_WebApi.Helpers
             // FILTRA PERSONAS BAUTIZADAS Y EN COMUNION AL FINAL DEL MES EN CONSULTA
             var newpb = personas.Where(
                 p => p.per_Bautizado == true).ToList();
-            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+            // && p.per_Fecha_Bautismo < mesActualUltimoDia).ToList();
 
             int personasBautizadas = newpb.Count;
 
@@ -366,7 +366,7 @@ namespace IECE_WebApi.Helpers
             var newpnb = personas.Where(
                 p => p.per_Bautizado == false
                 && p.per_En_Comunion == false
-                && p.per_Fecha_Nacimiento <= mesActualDelReporte).ToList();
+                && p.per_Fecha_Nacimiento <= mesActualUltimoDia).ToList();
 
             int personasNoBautizadas = newpnb.Count;
 
@@ -395,7 +395,7 @@ namespace IECE_WebApi.Helpers
             // historial transacciones estadisticas del sector en el mes de consulta
             var hteDelMesConsultado = (from hte in context.Historial_Transacciones_Estadisticas
                                        where (hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                                       && hte.hte_Fecha_Transaccion <= mesActualDelReporte)
+                                       && hte.hte_Fecha_Transaccion <= mesActualUltimoDia)
                                        && hte.sec_Sector_Id == fhte.sec_Id_Sector
                                        select hte).ToList();
 

@@ -23,6 +23,7 @@ using static IECE_WebApi.Helpers.SubConsultas;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using IECE_WebApi.Models;
 using System.Collections.Immutable;
+using System.Globalization;
 
 namespace IECE_WebApi.Controllers
 {
@@ -333,6 +334,9 @@ namespace IECE_WebApi.Controllers
                     mes = informeVM.Mes
                 };
 
+                // Obtener el nombre del mes en mayúsculas
+                string nombreMes = informeVM.FechaReunion.ToString("MMMM", new CultureInfo("es-ES")).ToUpper();
+
                 var movtos = sub.SubMovimientosEstadisticosReporteBySector(ftem);
                 DateTime fechaInicial = new DateTime(ftem.year, ftem.mes, 1);
                 DateTime fechaFinal = fechaInicial.AddMonths(1);
@@ -345,10 +349,12 @@ namespace IECE_WebApi.Controllers
                 };
 
                 var detalle = sub.SubHistorialPorFechaSector(fsd);
+                // Filtrar la lista para excluir los objetos con el código 11201.
+                var detalleFiltrado = detalle.Where(obj => obj.ct_Codigo_Transaccion != 11201 && obj.ct_Codigo_Transaccion != 12201 && obj.ct_Codigo_Transaccion != 31203).ToList();
                 string desglose = "";
-                foreach (HistorialPorFechaSector d in detalle)
+                foreach (HistorialPorFechaSector d in detalleFiltrado)
                 {
-                    desglose = desglose + $"{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} | ";
+                    desglose = desglose + $"{d.ct_Tipo}-{d.ct_Subtipo}: {d.per_Nombre} {d.per_Apellido_Paterno} {d.per_Apellido_Materno} | ";
                 }
 
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(archivoTemporal, true))
@@ -368,7 +374,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "PorAncianosAux", (informeVM.VisitasPastor.PorAncianosAux).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "PorDiaconos", (informeVM.VisitasPastor.PorDiaconos).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "PorAuxiliares", (informeVM.VisitasPastor.PorAuxiliares).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "Ordinarios", (informeVM.CultosSector.Ordinarios).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "Ordinarios", (informeVM.CultosSector.Ordinarios).ToString(), false, false, "Aptos", "15"); 
                     AgregarTextoAlMarcador(bookmarks, "Especiales", (informeVM.CultosSector.Especiales).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "DeAvivamiento", (informeVM.CultosSector.DeAvivamiento).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "DeAniversario", (informeVM.CultosSector.DeAniversario).ToString(), false, false, "Aptos", "15");
@@ -508,10 +514,13 @@ namespace IECE_WebApi.Controllers
                     //FINAL
                     AgregarTextoAlMarcador(bookmarks, "detalle", (desglose), false, true, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "pastorDeLaIglesia", (ministro.pem_Nombre), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "lugarDeReunion", (sector.sec_Alias), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "diaActual", (DateTime.Now.Day.ToString()), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "mesActual", (MonthsOfYear.months[DateTime.Now.Month].ToString().ToUpper()), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "añoActual", (DateTime.Now.Year.ToString()), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "lugarDeReunion", string.IsNullOrEmpty(informeVM.LugarReunion) ? "LUGAR DE REUNIÓN PENDIENTE" : informeVM.LugarReunion.ToUpper(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "diaActual", (informeVM.FechaReunion.Day.ToString()), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "mesActual", nombreMes.ToUpper(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "añoActual", (informeVM.FechaReunion.Year.ToString()), false, false, "Aptos", "15");
+                    //AgregarTextoAlMarcador(bookmarks, "diaActual", (DateTime.Now.Day.ToString()), false, false, "Aptos", "15");
+                    //AgregarTextoAlMarcador(bookmarks, "mesActual", (MonthsOfYear.months[DateTime.Now.Month].ToString().ToUpper()), false, false, "Aptos", "15");
+                    //AgregarTextoAlMarcador(bookmarks, "añoActual", (DateTime.Now.Year.ToString()), false, false, "Aptos", "15");
                     main.Save();
                 }
 
@@ -650,7 +659,7 @@ namespace IECE_WebApi.Controllers
                             int cm = 0; 
                             foreach (var m in informes[i].CultosMisionSector)
                             {
-                                cm = cm + m.Cultos;
+                                cm = cm + (m.Cultos ?? 0);
                             }
                             AgregarTextoAlMarcador(bookmarks, $"CM{j}", (cm).ToString(), false, false, "Aptos", "13");
 
