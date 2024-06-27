@@ -917,10 +917,10 @@ namespace IECE_WebApi.Helpers
             {
                 if (s.sec_Tipo_Sector == "SECTOR")
                 {
-                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo && vo.idSector == s.sec_Id_Sector);
+                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo && cd.idSector == s.sec_Id_Sector);
+                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idSector == s.sec_Id_Sector);
+                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo && cfd.idSector == s.sec_Id_Sector);
 
                     actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
                     {
