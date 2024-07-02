@@ -34,6 +34,22 @@ namespace IECE_WebApi.Controllers
 
         public object JwTRegistredClaimName { get; private set; }
 
+        public class objInfoSesion
+        {
+            public string Id { get; set; }
+            public string Email { get; set; }
+            public int mu_pem_Id_Pastor { get; set; }
+            public string mu_permiso { get; set; }
+            public int pem_Id_Ministro { get; set; }
+            public string pem_Nombre { get; set; }
+            public string pem_Grado_Ministerial { get; set; }
+            public string pem_Foto_Ministro { get; set; }
+            public string pem_email_Personal { get; set; }
+            public string pem_Cel1 { get; set; }
+            public string pem_Cel2 { get; set; }
+            public bool dg { get; set; } // Boleano que define si es miembro del directivo
+        }
+
         public UsuarioController(
             UserManager<Usuario> userManager,
             SignInManager<Usuario> signInManager,
@@ -62,41 +78,85 @@ namespace IECE_WebApi.Controllers
         }
 
         // METODO QUE CONSTRUYE EL TOKEN
-        private IActionResult BuildToken(UserInfo usuario)
+        private IActionResult BuildToken(UserInfo usuario, bool dg) // dg = Boleano que define si es miembro del directivo
         {
-            var infoSesion = (from u in context.Usuario
-                              join mu in context.Ministro_Usuario
-                              on u.Id equals mu.mu_aspNetUsers_Id
-                              join pem in context.Personal_Ministerial
-                              on mu.mu_pem_Id_Pastor equals pem.pem_Id_Ministro
-                              join s in context.Sector
-                              on pem.pem_Id_Ministro equals s.pem_Id_Pastor
-                              join d in context.Distrito
-                              on s.dis_Id_Distrito equals d.dis_Id_Distrito
-                              where u.Email == usuario.Email
-                              select new
-                              {
-                                  Id = u.Id,
-                                  Email = u.Email,
-                                  //PasswordHash = u.PasswordHash,
-                                  mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
-                                  mu_permiso = mu.mu_permiso,
-                                  pem.pem_Id_Ministro,
-                                  pem_Nombre = pem.pem_Nombre,
-                                  pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
-                                  pem_Foto_Ministro = pem.pem_Foto_Ministro,
-                                  pem_email_Personal = pem.pem_email_Personal,
-                                  pem_Cel1 = pem.pem_Cel1,
-                                  pem_Cel2 = pem.pem_Cel2,
-                                  //dis_Id_Distrito = d.dis_Id_Distrito,
-                                  //dis_Tipo_Distrito = d.dis_Tipo_Distrito,
-                                  //dis_Numero = d.dis_Numero,
-                                  //dis_Alias = d.dis_Alias,
-                                  //sec_Id_Sector = s.sec_Id_Sector,
-                                  //sec_Tipo_Sector = s.sec_Tipo_Sector,
-                                  //sec_Numero = s.sec_Numero,
-                                  //sec_Alias = s.sec_Alias
-                              }).ToList();
+            List<objInfoSesion> info = new List<objInfoSesion>();
+            if (dg)
+            {
+                var infoSesion = (from u in context.Usuario
+                                  join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
+                                  join pem in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pem.pem_Id_Ministro
+                                  where u.Email == usuario.Email
+                                  select new
+                                  {
+                                      Id = u.Id,
+                                      Email = u.Email,
+                                      mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
+                                      mu_permiso = mu.mu_permiso,
+                                      pem.pem_Id_Ministro,
+                                      pem_Nombre = pem.pem_Nombre,
+                                      pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
+                                      pem_Foto_Ministro = pem.pem_Foto_Ministro,
+                                      pem_email_Personal = pem.pem_email_Personal,
+                                      pem_Cel1 = pem.pem_Cel1,
+                                      pem_Cel2 = pem.pem_Cel2
+                                  }).ToList();
+
+                info.Add(new objInfoSesion
+                {
+                    Id = infoSesion[0].Id,
+                    Email = infoSesion[0].Email,
+                    mu_pem_Id_Pastor = infoSesion[0].mu_pem_Id_Pastor,
+                    mu_permiso = infoSesion[0].mu_permiso,
+                    pem_Id_Ministro = infoSesion[0].pem_Id_Ministro,
+                    pem_Nombre = infoSesion[0].pem_Nombre,
+                    pem_Grado_Ministerial = infoSesion[0].pem_Grado_Ministerial,
+                    pem_Foto_Ministro = infoSesion[0].pem_Foto_Ministro,
+                    pem_email_Personal = infoSesion[0].pem_email_Personal,
+                    pem_Cel1 = infoSesion[0].pem_Cel1,
+                    pem_Cel2 = infoSesion[0].pem_Cel2,
+                    dg = dg // Boleano que define si es miembro del directivo
+                });
+            }
+            else
+            {
+                var infoSesion = (from u in context.Usuario
+                                  join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
+                                  join pem in context.Personal_Ministerial on mu.mu_pem_Id_Pastor equals pem.pem_Id_Ministro
+                                  join s in context.Sector on pem.pem_Id_Ministro equals s.pem_Id_Pastor
+                                  join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                                  where u.Email == usuario.Email
+                                  select new
+                                  {
+                                      Id = u.Id,
+                                      Email = u.Email,
+                                      mu_pem_Id_Pastor = mu.mu_pem_Id_Pastor,
+                                      mu_permiso = mu.mu_permiso,
+                                      pem.pem_Id_Ministro,
+                                      pem_Nombre = pem.pem_Nombre,
+                                      pem_Grado_Ministerial = pem.pem_Grado_Ministerial,
+                                      pem_Foto_Ministro = pem.pem_Foto_Ministro,
+                                      pem_email_Personal = pem.pem_email_Personal,
+                                      pem_Cel1 = pem.pem_Cel1,
+                                      pem_Cel2 = pem.pem_Cel2
+                                  }).ToList();
+
+                info.Add(new objInfoSesion
+                {
+                    Id = infoSesion[0].Id,
+                    Email = infoSesion[0].Email,
+                    mu_pem_Id_Pastor = infoSesion[0].mu_pem_Id_Pastor,
+                    mu_permiso = infoSesion[0].mu_permiso,
+                    pem_Id_Ministro = infoSesion[0].pem_Id_Ministro,
+                    pem_Nombre = infoSesion[0].pem_Nombre,
+                    pem_Grado_Ministerial = infoSesion[0].pem_Grado_Ministerial,
+                    pem_Foto_Ministro = infoSesion[0].pem_Foto_Ministro,
+                    pem_email_Personal = infoSesion[0].pem_email_Personal,
+                    pem_Cel1 = infoSesion[0].pem_Cel1,
+                    pem_Cel2 = infoSesion[0].pem_Cel2,
+                    dg = dg // Boleano que define si es miembro del directivo
+                });
+            }
 
             var claims = new[]
             {
@@ -121,7 +181,7 @@ namespace IECE_WebApi.Controllers
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = expiration,
                 message = "Credenciales correctas! Cargando aplicacion...",
-                infoSesion = infoSesion
+                infoSesion = info
             });
         }
 
@@ -151,13 +211,13 @@ namespace IECE_WebApi.Controllers
                 {
                     // BuildToken(usuario);
                     var query = (from pem in context.Personal_Ministerial
-                                  where (pem.pem_emailIECE == user.Email || pem.pem_email_Personal == user.Email)
-                                  && pem.pem_Activo == true
-                                  select new
-                                  {
-                                      pem.pem_Id_Ministro,
-                                      pem.pem_Nombre
-                                  }).ToList();
+                                 where (pem.pem_emailIECE == user.Email || pem.pem_email_Personal == user.Email)
+                                 && pem.pem_Activo == true
+                                 select new
+                                 {
+                                     pem.pem_Id_Ministro,
+                                     pem.pem_Nombre
+                                 }).ToList();
 
                     Ministro_Usuario mu = new Ministro_Usuario();
                     mu.mu_aspNetUsers_Id = user.Id;
@@ -199,10 +259,17 @@ namespace IECE_WebApi.Controllers
         {
             if (ModelState.IsValid)
             {
+                bool esDelDirectivo = false; // Boleano que define si es miembro del directivo
                 var result = await _signInManager.PasswordSignInAsync(usuario.Email, usuario.Password, isPersistent: false, lockoutOnFailure: false);
-                
+
                 if (result.Succeeded)//Si Credenciales están correctas, procede a verificar que esté Activo, Que sea Pastor de Sector u Obispo.
                 {
+                    //VERIFICA SI ES MIEMBRO DEL DIRECTIVO
+                    var miembroDirectivo = (from u in context.Usuario
+                                            join mu in context.Ministro_Usuario on u.Id equals mu.mu_aspNetUsers_Id
+                                            join dg in context.Directivo_General on mu.mu_pem_Id_Pastor equals dg.pem_Id_Integrante
+                                            where u.Email == usuario.Email
+                                            select dg).ToList();
 
                     //Verifica si coincide el email, se está Activo y si es Pastor o Encargado de un Sector
                     var ministroActivo = (from u in context.Usuario
@@ -220,9 +287,15 @@ namespace IECE_WebApi.Controllers
                                            where u.Email == usuario.Email && pm.pem_Activo == true
                                            select pm.pem_Activo).ToList();
 
-                    if (ministroActivo.Count > 0 || ministroActivo2.Count > 0)
+                    if (miembroDirectivo.Count > 0)
                     {
-                        return BuildToken(usuario);
+                        esDelDirectivo = true;
+                        return BuildToken(usuario, esDelDirectivo);
+                    }
+                    else if (ministroActivo.Count > 0 || ministroActivo2.Count > 0)
+                    {
+                        esDelDirectivo = false;
+                        return BuildToken(usuario, esDelDirectivo);
                     }
                     else
                     {
@@ -232,7 +305,7 @@ namespace IECE_WebApi.Controllers
                             status = "error",
                             message = "Error: El Usuario no tiene permisos de acceso."
                         });
-                    }                    
+                    }
                 }
                 else
                 {
@@ -283,7 +356,7 @@ namespace IECE_WebApi.Controllers
                     });
                 }
                 else // Si no se encuentra aún registrado en la Tabla Usuario.
-                { 
+                {
                     //Debe coincidir el email ya sea con el email IECE.mx o uno Personal
                     //El Elemento del Personal Ministerial debe estar Activo
                     //Debe Estar como Encargado o Pastor de un Sector
@@ -314,7 +387,7 @@ namespace IECE_WebApi.Controllers
                         return Ok(new
                         {
                             status = "success",
-                            datos = query1.Count>0 ? query1 : query2
+                            datos = query1.Count > 0 ? query1 : query2
                         }); ;
                     }
                     else
@@ -401,23 +474,6 @@ namespace IECE_WebApi.Controllers
             //    });
             //}
         }
-
-        // GET: api/Usuario/5
-        //[HttpGet("{id}")]
-        //[EnableCors("AllowOrigin")]
-        //public IActionResult Get(int id)
-        //{
-        //    Usuario usuario = new Usuario();
-        //    try
-        //    {
-        //        usuario = context.Usuario.FirstOrDefault(usu => usu.usu_Id_Usuario == id);
-        //        return Ok(usuario);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
 
         // POST: api/Usuario
         [HttpPost]
