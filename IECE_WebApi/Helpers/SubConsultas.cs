@@ -133,16 +133,26 @@ namespace IECE_WebApi.Helpers
             public List<actividadEnMisionPorObispo> misiones { get; set; }
             //public SesionesReunionesDistrito SesionesDistrito { get; set; }
             //public SesionesReunionesDistrito ReunionesDistrito { get; set; }
-            public AdquisicionesDistrito AdquisicionesDistrito { get; set; }
-            public ConstruccionesDistrito ConstruccionesDistritoInicio { get; set; }
-            public ConstruccionesDistrito ConstruccionesDistritoFinal { get; set; }
+            public AdquisicionesDistrito adquisicionesDistrito { get; set; }
+            public ConstruccionesDistrito construccionesDistritoInicio { get; set; }
+            public ConstruccionesDistrito construccionesDistritoFinal { get; set; }
+
+            public SesionesReunionesDistrito sesionesObispo { get; set; }
+            public SesionesReunionesDistrito reunionesObispo { get; set; }
+            public Dedicaciones dedicacionesDistrito { get; set; }
+            public RegularizacionPrediosTemplos regularizacionesPrediosTemplosNacionDistrito { get; set; }
+            public RegularizacionPrediosTemplos regularizacionesPrediosTemplosIglesiaDistrito { get; set; }
+
+            public List<OtrasActividades> otrasActividadesObispo { get; set; }
+            public List<AcuerdosDeDistrito> acuerdosDeDistrito { get; set; }
+
         }
 
         public movimientosEstadisticosReporteBySector SubMovimientosEstadisticosReporteBySector(FiltroHistTransEstDelMes fhte)
         {
             // preparacion del mes del cual se solicita el reporte
-            var mesSiguienteDelResporte = new DateTime(fhte.year, fhte.mes + 1, 1);
-            DateTime mesActualDelReporte = mesSiguienteDelResporte.AddDays(-1);
+            var mesSiguienteDelReporte = new DateTime(fhte.year, fhte.mes, 1).AddMonths(1);
+            DateTime mesActualUltimoDia = mesSiguienteDelReporte.AddDays(-1);
 
          //------------------------SECCIÓN PARA CALCULAR MEMBRESÍA BAUTIZADA Y NO BAUTIZADA AL INICIO DEL MES EN CONSULTA --------------------
 
@@ -166,7 +176,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Altas Del Mes en consulta
             var altasDelMes = altasBaseBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1) 
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
             var bajasBaseBautizados = (from hte in context.Historial_Transacciones_Estadisticas
@@ -186,7 +196,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Bajas Del Mes en consulta
             var bajasDelMes = bajasBaseBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // Todas las personas del sector vivas y activas al día de hoy
             var personas = (from p in context.Persona
@@ -199,7 +209,7 @@ namespace IECE_WebApi.Helpers
             var pb = personas.Where(
                 p => p.per_Bautizado == true
                 && p.per_En_Comunion == true).ToList();
-            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+            // && p.per_Fecha_Bautismo < mesActualUltimoDia).ToList();
 
             // Personas bautizadas al principio del mes
             int personasBautizadasInicioDelMes = pb.Count() - altas.Count() + bajas.Count();
@@ -227,7 +237,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Altas Del Mes en consulta
             var altasNBDelMes = altasBaseNoBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // Transacciones de Todas las Bajas de Bautizados del Sector que ha habido en el tiempo
             var bajasBaseNoBautizados = (from hte in context.Historial_Transacciones_Estadisticas
@@ -247,7 +257,7 @@ namespace IECE_WebApi.Helpers
             // Filtro para saber sólo las Bajas Del Mes en consulta
             var bajasNBDelMes = bajasBaseNoBautizados.Where(
                 hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                && hte.hte_Fecha_Transaccion <= new DateTime(fhte.year, fhte.mes + 1, 1).AddDays(-1)).ToList();
+                && hte.hte_Fecha_Transaccion <= mesActualUltimoDia).ToList();
 
             // FILTRA PERSONAS NO BAUTIZAS AL FIN DEL MES DE CONSULTA
             var pnb = personas.Where(
@@ -291,9 +301,9 @@ namespace IECE_WebApi.Helpers
                              }).ToList();
 
             // altasPosteriores Al Mes de Consulta
-            var x9 = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
+            var x9 = altasBase.Where(hte => hte.hte_Fecha_Transaccion >= mesSiguienteDelReporte).ToList();
             // bajasPosteriores Al Mes de Consulta
-            var x10 = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes + 1, 1)).ToList();
+            var x10 = bajasBase.Where(hte => hte.hte_Fecha_Transaccion >= mesSiguienteDelReporte).ToList();
 
             //Variables para contabilizar Personas NB que pasaron a Bautizados y que en la consulta están ahora como Bautizados.
             int nbjhQuePasaronABautizados = 0;
@@ -338,7 +348,7 @@ namespace IECE_WebApi.Helpers
             // FILTRA PERSONAS BAUTIZADAS Y EN COMUNION AL FINAL DEL MES EN CONSULTA
             var newpb = personas.Where(
                 p => p.per_Bautizado == true).ToList();
-            // && p.per_Fecha_Bautismo < mesActualDelReporte).ToList();
+            // && p.per_Fecha_Bautismo < mesActualUltimoDia).ToList();
 
             int personasBautizadas = newpb.Count;
 
@@ -366,7 +376,7 @@ namespace IECE_WebApi.Helpers
             var newpnb = personas.Where(
                 p => p.per_Bautizado == false
                 && p.per_En_Comunion == false
-                && p.per_Fecha_Nacimiento <= mesActualDelReporte).ToList();
+                && p.per_Fecha_Nacimiento <= mesActualUltimoDia).ToList();
 
             int personasNoBautizadas = newpnb.Count;
 
@@ -395,7 +405,7 @@ namespace IECE_WebApi.Helpers
             // historial transacciones estadisticas del sector en el mes de consulta
             var hteDelMesConsultado = (from hte in context.Historial_Transacciones_Estadisticas
                                        where (hte.hte_Fecha_Transaccion >= new DateTime(fhte.year, fhte.mes, 1)
-                                       && hte.hte_Fecha_Transaccion <= mesActualDelReporte)
+                                       && hte.hte_Fecha_Transaccion <= mesActualUltimoDia)
                                        && hte.sec_Sector_Id == fhte.sec_Id_Sector
                                        select hte).ToList();
 
@@ -704,6 +714,11 @@ namespace IECE_WebApi.Helpers
             informeVM.Mes = informe.Mes;
             informeVM.NombreMes = MonthsOfYear.months[informe.Mes];
             informeVM.Anio = informe.Anio;
+            informeVM.MisionesSector = (from m in context.Mision_Sector
+                                                       where m.sec_Id_Sector == informe.IdSector && m.ms_Activo == true
+                                                       orderby m.ms_Numero
+                                                       select m).ToList();
+            
 
             VisitasPastor visitasPastor = context.VisitasPastor
                 .Where(w => w.IdInforme == id)
@@ -890,7 +905,7 @@ namespace IECE_WebApi.Helpers
 
         public objInformeObispo SubInformeObispo(int idDistrito, int year, int mes)
         {
-            // SE CONSULTA LISTADO DE INFORMES DE LOS SECTORES DEL DISTRITO
+            // SE CONSULTA LISTADO DE INFORMES DE LOS SECTORES DEL DISTRITO CORRESPONDIENTES AL MISMO MES Y AÑO
             List<InformePastorViewModel> informesSectores = new List<InformePastorViewModel>();
 
             var informes = (from i in context.Informe
@@ -908,6 +923,7 @@ namespace IECE_WebApi.Helpers
             // CONSULTA SECTORES Y MISIONES DE DISTRITO ACTIVOS
             var sectores = context.Sector.Where(s => s.dis_Id_Distrito == idDistrito && s.sec_Activo == true).ToList();
 
+
             // PREPARA OBJETOS DE LA ACTIVDAD DEL OBISPO EN EL DISTRITO
             List<actividadEnSectorPorObispo> actividadEnSectorPorObispo = new List<actividadEnSectorPorObispo>();
             List<actividadEnMisionPorObispo> actividadEnMisionPorObispo = new List<actividadEnMisionPorObispo>();
@@ -917,10 +933,10 @@ namespace IECE_WebApi.Helpers
             {
                 if (s.sec_Tipo_Sector == "SECTOR")
                 {
-                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
+                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo && vo.idSector == s.sec_Id_Sector);
+                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo && cd.idSector == s.sec_Id_Sector);
+                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idSector == s.sec_Id_Sector);
+                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo && cfd.idSector == s.sec_Id_Sector);
 
                     actividadEnSectorPorObispo.Add(new actividadEnSectorPorObispo
                     {
@@ -932,7 +948,7 @@ namespace IECE_WebApi.Helpers
                     });
                 }
                 else
-                {
+                {//PARA MISIÓN DE DISTRITO
                     VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
                     CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
                     ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
@@ -953,21 +969,26 @@ namespace IECE_WebApi.Helpers
             {
                 sectores = actividadEnSectorPorObispo,
                 misiones = actividadEnMisionPorObispo,
-                AdquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo),
-                ConstruccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(cdi => cdi.idInforme == idInformeObispo && cdi.idTipoFaseConstruccion == 1),
-                ConstruccionesDistritoFinal = context.ConstruccionesDistrito.FirstOrDefault(cdf => cdf.idInforme == idInformeObispo && cdf.idTipoFaseConstruccion == 2)
-                //Agregar Sesiones de Distrito, Reuniones de Distrito, Dedicaciones Distrito y Regularizaciones Distrito.
+                adquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo),
+                construccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(cdi => cdi.idInforme == idInformeObispo && cdi.idTipoFaseConstruccion == 1),
+                construccionesDistritoFinal = context.ConstruccionesDistrito.FirstOrDefault(cdf => cdf.idInforme == idInformeObispo && cdf.idTipoFaseConstruccion == 2),
+                sesionesObispo= context.SesionesReunionesDistrito.FirstOrDefault(ssd2 => ssd2.IdInforme == idInformeObispo && ssd2.IdTipoSesionReunion == 1),
+                reunionesObispo = context.SesionesReunionesDistrito.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 2),
+                dedicacionesDistrito = context.Dedicaciones.FirstOrDefault(dd => dd.IdInforme == idInformeObispo),
+                regularizacionesPrediosTemplosNacionDistrito = context.RegularizacionPrediosTemplos.FirstOrDefault(rn => rn.IdInforme == idInformeObispo && rn.IdTipoPatrimonio == 1),
+                regularizacionesPrediosTemplosIglesiaDistrito = context.RegularizacionPrediosTemplos.FirstOrDefault(rn => rn.IdInforme == idInformeObispo && rn.IdTipoPatrimonio == 2),
+                otrasActividadesObispo = context.OtrasActividades.Where(oao => oao.IdInforme == idInformeObispo).ToList(),
+                acuerdosDeDistrito = context.AcuerdosDeDistrito.Where(ad => ad.IdInforme == idInformeObispo).ToList()
             };
 
             // CONSULTA ACTIVIDAD DEL OBISPO DE LA SECCION MovimientoAdministrativoMaterial
-            var sesiones = context.SesionesReunionesDistrito.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 1);
-            var reuniones = context.SesionesReunionesDistrito.FirstOrDefault(srd2 => srd2.IdInforme == idInformeObispo && srd2.IdTipoSesionReunion == 2);
-            var adquisicionesDistrito = context.AdquisicionesDistrito.FirstOrDefault(ad => ad.IdInforme == idInformeObispo);
-            var construccionesDistritoInicio = context.ConstruccionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idTipoFaseConstruccion == 1);
-            var construccionesDistritoFin = context.ConstruccionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idTipoFaseConstruccion == 2);
 
-            // INSTANCIA DE OBJETOS DE movimientosEstadisticos y movimientosAdministrativoMaterial
-            // PARA SUMARIZAR TODOS LOS SECTORES
+            //Falta Dedicaciones
+            //Falta Regularizacion de Predios y Templos
+
+
+            // INICIALIZA DE OBJETOS DE movimientosEstadisticos y movimientosAdministrativoMaterial
+            // PARA SUMARIZAR LO OCURRIDO EN TODOS LOS SECTORES
             movimientosEstadisticosReporteBySector resultadoMovtos = new movimientosEstadisticosReporteBySector
             {
                 personasBautizadas = 0,
@@ -1179,56 +1200,12 @@ namespace IECE_WebApi.Helpers
                 }
             };
 
-            // CONTINUA POBLADO DE ACTIVIDADES DEL OBISPO EN LA SECCION DE MOVIMIENTO ESTADISTIVO
-            // Y MATERIAL EN TABLAS CORRESPONDIENTES SEGUN EL idInforme
-            smae.Sesiones = new SesionesReunionesDistrito
-            {
-                EnElDistrito = sesiones?.EnElDistrito,
-                ConElPersonalDocente = sesiones?.ConElPersonalDocente,
-                ConSociedadesFemeniles = sesiones?.ConSociedadesFemeniles,
-                ConSociedadesJuveniles = sesiones?.ConSociedadesJuveniles,
-                ConDepartamentosInfantiles = sesiones?.ConDepartamentosInfantiles,
-                ConCorosYGruposDeCanto = sesiones?.ConCorosYGruposDeCanto
-            };
-            smae.Reuniones = new SesionesReunionesDistrito
-            {
-                EnElDistrito = reuniones?.EnElDistrito,
-                ConElPersonalDocente = reuniones?.ConElPersonalDocente,
-                ConSociedadesFemeniles = reuniones?.ConSociedadesFemeniles,
-                ConSociedadesJuveniles = reuniones?.ConSociedadesJuveniles,
-                ConDepartamentosInfantiles = reuniones?.ConDepartamentosInfantiles,
-                ConCorosYGruposDeCanto = reuniones?.ConCorosYGruposDeCanto
-            };
-            smae.AdquisicionesSector = new AdquisicionesSector
-            {
-                Predios = smae.AdquisicionesSector?.Predios + adquisicionesDistrito?.Predios,
-                Casas = smae.AdquisicionesSector?.Casas + adquisicionesDistrito?.Casas,
-                Edificios = smae.AdquisicionesSector?.Edificios + adquisicionesDistrito?.Edificios,
-                Templos = smae.AdquisicionesSector?.Templos + adquisicionesDistrito?.Templos,
-                Vehiculos = smae.AdquisicionesSector?.Vehiculos + adquisicionesDistrito?.Vehiculos
-            };
-            smae.ConstruccionesInicio = new Construcciones
-            {
-                Templo = smae.ConstruccionesInicio?.Templo + construccionesDistritoInicio?.templo,
-                CasaDeOracion = smae.ConstruccionesInicio?.CasaDeOracion + construccionesDistritoInicio?.casaDeOracion,
-                CasaPastoral = smae.ConstruccionesInicio?.CasaPastoral + construccionesDistritoInicio?.casaPastoral,
-                Anexos = smae.ConstruccionesInicio?.Anexos + construccionesDistritoInicio?.anexos,
-                Remodelacion = smae.ConstruccionesInicio?.Remodelacion + construccionesDistritoInicio?.remodelacion
-            };
-            smae.ConstruccionesConclusion = new Construcciones
-            {
-                Templo = smae.ConstruccionesConclusion?.Templo + construccionesDistritoFin?.templo,
-                CasaDeOracion = smae.ConstruccionesConclusion?.CasaDeOracion + construccionesDistritoFin?.casaDeOracion,
-                CasaPastoral = smae.ConstruccionesConclusion?.CasaPastoral + construccionesDistritoFin?.casaPastoral,
-                Anexos = smae.ConstruccionesConclusion?.Anexos + construccionesDistritoFin?.anexos,
-                Remodelacion = smae.ConstruccionesConclusion?.Remodelacion + construccionesDistritoFin?.remodelacion
-            };
-
-            // INICIA CICLO PARA SUMARIZAR LA ACTIVADA DE CADA SECTOR
+            // INICIA CICLO PARA SUMARIZAR LA ACTIVADAD DE CADA SECTOR
             foreach (var i in informes)
             {
                 InformePastorViewModel tempInforme = SubInformePastoral(i.IdInforme);
                 informesSectores.Add(SubInformePastoral(i.IdInforme));
+              
 
                 // SUMARIZA SECCION DE MovimientoAdministrativoMaterial DE CADA SECTOR
                 smae.Organizaciones = new Organizaciones
@@ -1283,12 +1260,12 @@ namespace IECE_WebApi.Helpers
                 smae.RegularizacionPatNac = new RegularizacionPrediosTemplos
                 {
                     Templos = smae.RegularizacionPatNac?.Templos + tempInforme.RegularizacionPatNac?.Templos,
-                    CasasPastorales = smae.RegularizacionPatNac?.CasasPastorales | +tempInforme.RegularizacionPatNac?.CasasPastorales
+                    CasasPastorales = smae.RegularizacionPatNac?.CasasPastorales + tempInforme.RegularizacionPatNac?.CasasPastorales
                 };
                 smae.RegularizacionPatIg = new RegularizacionPrediosTemplos
                 {
                     Templos = smae.RegularizacionPatIg?.Templos + tempInforme.RegularizacionPatIg?.Templos,
-                    CasasPastorales = smae.RegularizacionPatIg?.CasasPastorales | +tempInforme.RegularizacionPatIg?.CasasPastorales
+                    CasasPastorales = smae.RegularizacionPatIg?.CasasPastorales + tempInforme.RegularizacionPatIg?.CasasPastorales
                 };
 
                 FiltroHistTransEstDelMes filtroHistTransEstDelMes = new FiltroHistTransEstDelMes
@@ -1300,6 +1277,7 @@ namespace IECE_WebApi.Helpers
 
                 // SUMARIZA SECCION DE MovimientoEstadistico DE CADA SECTOR
                 movimientosEstadisticosReporteBySector tempMovtos = SubMovimientosEstadisticosReporteBySector(filtroHistTransEstDelMes);
+
                 resultadoMovtos.personasBautizadas = resultadoMovtos.personasBautizadas + tempMovtos.personasBautizadas;
                 resultadoMovtos.personasNoBautizadas = resultadoMovtos.personasNoBautizadas + tempMovtos.personasNoBautizadas;
                 resultadoMovtos.personasBautizadasAlFinalDelMes = resultadoMovtos.personasBautizadasAlFinalDelMes + tempMovtos.personasBautizadasAlFinalDelMes;
