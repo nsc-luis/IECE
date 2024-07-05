@@ -376,12 +376,29 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                var meses = new Dictionary<int, string>
+                {
+                    {0, "Desconocido"},
+                    {1, "Enero"},
+                    {2, "Febrero"},
+                    {3, "Marzo"},
+                    {4, "Abril"},
+                    {5, "Mayo"},
+                    {6, "Junio"},
+                    {7, "Julio"},
+                    {8, "Agosto"},
+                    {9, "Septiembre"},
+                    {10, "Octubre"},
+                    {11, "Noviembre"},
+                    {12, "Diciembre"}
+                };
                 var informe = _context.Informe.Where(w => w.IdInforme == id).FirstOrDefault();
                 if (informe != null)
                 {
                     SubConsultas sub = new SubConsultas(_context);
                     objInformeObispo informeObispo = sub.SubInformeObispo(informe.IdDistrito, informe.Anio, informe.Mes);
                     informeObispo.informe = informe;
+                    informeObispo.NombreMes = meses[informe.Mes];
 
                     return Ok(informeObispo);
                 }

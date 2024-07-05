@@ -20,7 +20,7 @@ namespace IECE_WebApi.Models
         public int Mes { get; set; }
         public string NombreMes { get; set; }
         public int Anio { get; set; }
-
+        public Sector Sector { get; set; }
         public VisitasPastor VisitasPastor { get; set; } = new VisitasPastor();
         public VisitasObispo VisitasObispo { get; set; } = new VisitasObispo();
         public CultosSector CultosSector { get; set; } = new CultosSector();
