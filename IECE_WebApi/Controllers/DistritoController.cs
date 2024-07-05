@@ -30,15 +30,19 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
+                //var query = (from dis in context.Distrito
+                //             select new
+                //             {
+                //                 dis_Id_Distrito = dis.dis_Id_Distrito,
+                //                 dis_Numero = dis.dis_Numero,
+                //                 dis_Area = dis.dis_Area,
+                //                 dis_Alias = dis.dis_Alias,
+                //                 dis_Tipo_Distrito = dis.dis_Tipo_Distrito
+                //             }).ToList();
                 var query = (from dis in context.Distrito
-                             select new
-                             {
-                                 dis_Id_Distrito = dis.dis_Id_Distrito,
-                                 dis_Numero = dis.dis_Numero,
-                                 dis_Area = dis.dis_Area,
-                                 dis_Alias = dis.dis_Alias,
-                                 dis_Tipo_Distrito = dis.dis_Tipo_Distrito
-                             }).ToList();
+                             where dis.dis_Activo == true
+                             orderby dis.dis_Tipo_Distrito ascending, dis.dis_Numero ascending
+                             select dis).ToList();
                 return Ok(
                     new
                     {
