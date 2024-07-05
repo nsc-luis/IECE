@@ -90,6 +90,7 @@ namespace IECE_WebApi.Helpers
             public List<InformePastorViewModel> InformesSectores { get; set; }
             public SumaMovtosAdministrativoEconomico MovtosAdministrativoEconomico { get; set; }
             public movimientosEstadisticosReporteBySector MovtosEstadisticos { get; set; }
+            public string NombreMes { get; set; }
         }
 
         public class SumaMovtosAdministrativoEconomico
@@ -714,6 +715,7 @@ namespace IECE_WebApi.Helpers
             informeVM.Mes = informe.Mes;
             informeVM.NombreMes = MonthsOfYear.months[informe.Mes];
             informeVM.Anio = informe.Anio;
+            informeVM.Sector = context.Sector.Where(s => s.sec_Id_Sector == informe.IdSector).FirstOrDefault();
             informeVM.MisionesSector = (from m in context.Mision_Sector
                                                        where m.sec_Id_Sector == informe.IdSector && m.ms_Activo == true
                                                        orderby m.ms_Numero
