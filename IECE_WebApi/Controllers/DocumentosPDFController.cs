@@ -431,7 +431,7 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "legalizaciones", (movtos.legalizaciones).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "presentaciones", (movtos.presentaciones).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "restitución", (movtos.altasBautizados.RESTITUCIÓN).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "hogares", (movtos.hogares).ToString(), false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "hogares", (movtos.hogaresAlFinalDelMes).ToString(), false, false, "Aptos", "15");
 
                     AgregarTextoAlMarcador(bookmarks, "hb", (movtos.bautizadosByMesSector.adulto_hombre).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "jhb", (movtos.bautizadosByMesSector.joven_hombre).ToString(), false, false, "Aptos", "15");
@@ -503,14 +503,24 @@ namespace IECE_WebApi.Controllers
                     AgregarTextoAlMarcador(bookmarks, "RegPatIgTemplos", (informeVM.RegularizacionPatIg.Templos).ToString(), false, false, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "RegPatIgCasasPastorales", (informeVM.RegularizacionPatIg.CasasPastorales).ToString(), false, false, "Aptos", "15");
                     //MOVIMIENTO ECONOMICO
-                    AgregarTextoAlMarcador(bookmarks, "ExistenciaAnterior", (informeVM.MovimientoEconomico.ExistenciaAnterior).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "EntradaMes", (informeVM.MovimientoEconomico.EntradaMes).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "SumaTotal", (informeVM.MovimientoEconomico.SumaTotal).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "GastosAdmon", (informeVM.MovimientoEconomico.GastosAdmon).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "TransferenciasAentidadSuperior", (informeVM.MovimientoEconomico.TransferenciasAentidadSuperior).ToString(), false, false, "Aptos", "15");
-                    AgregarTextoAlMarcador(bookmarks, "ExistenciaEnCaja", (informeVM.MovimientoEconomico.ExistenciaEnCaja).ToString(), false, false, "Aptos", "15");
+                    var cultureInfo = new CultureInfo("es-MX");
+                    string existenciaAnteriorFormatted = informeVM.MovimientoEconomico.ExistenciaAnterior?.ToString("N", cultureInfo);
+                    string entradaMesFormatted = informeVM.MovimientoEconomico.EntradaMes?.ToString("N", cultureInfo);
+                    string sumaTotalFormatted = informeVM.MovimientoEconomico.SumaTotal?.ToString("N", cultureInfo);
+                    string gastosAdmonFormatted = informeVM.MovimientoEconomico.GastosAdmon?.ToString("N", cultureInfo);
+                    string transferenciasFormatted = informeVM.MovimientoEconomico.TransferenciasAentidadSuperior?.ToString("N", cultureInfo);
+                    string existenciaCajaFormatted = informeVM.MovimientoEconomico.ExistenciaEnCaja?.ToString("N", cultureInfo);
+                    AgregarTextoAlMarcador(bookmarks, "ExistenciaAnterior", existenciaAnteriorFormatted, false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "EntradaMes", entradaMesFormatted, false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "SumaTotal", sumaTotalFormatted, false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "GastosAdmon", gastosAdmonFormatted, false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "TransferenciasAentidadSuperior", transferenciasFormatted, false, false, "Aptos", "15");
+                    AgregarTextoAlMarcador(bookmarks, "ExistenciaEnCaja", existenciaCajaFormatted, false, false, "Aptos", "15");
                     //OTRAS ACTIVIDADES
-                    AgregarListaTextosAlMarcador(bookmarks, "OtrasActividades", informeVM.OtrasActividades.Select(s => (s.Descripcion).ToString()).ToList(), false, false, "Aptos", "15");
+                    var descripcionesNumeradas = informeVM.OtrasActividades
+                                                 .Select((s, index) => $"{index + 1}.- {s.Descripcion}")
+                                                 .ToList();
+                    AgregarListaTextosAlMarcador(bookmarks, "OtrasActividades", descripcionesNumeradas, false, false, "Aptos", "15");
                     //FINAL
                     AgregarTextoAlMarcador(bookmarks, "detalle", (desglose), false, true, "Aptos", "15");
                     AgregarTextoAlMarcador(bookmarks, "pastorDeLaIglesia", (ministro.pem_Nombre), false, false, "Aptos", "15");
