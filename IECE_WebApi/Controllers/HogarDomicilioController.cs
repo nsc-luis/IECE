@@ -53,68 +53,69 @@ namespace IECE_WebApi.Controllers
             try
             {
                 var domicilios = (from hd in context.HogarDomicilio
-                                join dis in context.Distrito on hd.dis_Id_Distrito equals dis.dis_Id_Distrito
+                                  join dis in context.Distrito on hd.dis_Id_Distrito equals dis.dis_Id_Distrito
                                   join sec in context.Sector on hd.sec_Id_Sector equals sec.sec_Id_Sector
                                   join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
                                   join est in context.Estado on hd.est_Id_Estado equals est.est_Id_Estado
                                   join sub in (from d in context.HogarDomicilio
                                                join hp in context.Hogar_Persona on d.hd_Id_Hogar equals hp.hd_Id_Hogar
-                                               join p in context.Persona on hp.per_Id_Persona equals p.per_Id_Persona                                            
-                                            where hp.hp_Jerarquia == 1 && d.hd_Activo == true
-                                             select new
-                                {
-                                                 hp.hp_Id_Hogar_Persona,
-                                                 hp.hp_Jerarquia,
-                                                 hp.hd_Id_Hogar,
-                                                 p.per_Id_Persona,
-                                                 p.per_Activo,
-                                                 p.per_Nombre,
-                                                 p.per_Apellido_Paterno,
-                                                 p.per_Apellido_Materno,
-                                                 p.per_Apellido_Casada,
-                                                 apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
-                                                 p.per_Fecha_Nacimiento,
-                                                 p.per_Bautizado,
-                                                 p.per_Telefono_Movil
-                                 }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
-                                 where hd.dis_Id_Distrito == dis_Id_Distrito
-                    select new
-                    {
-                        hd.hd_Id_Hogar,
-                        hd.hd_Calle,
-                        hd.hd_Numero_Exterior,
-                        hd.hd_Numero_Interior,
-                        hd.hd_Tipo_Subdivision,
-                        hd.hd_Subdivision,
-                        hd.hd_Localidad,
-                        hd.hd_Municipio_Ciudad,
-                        est.est_Id_Estado,
-                        est.est_Nombre,
-                        pais.pais_Id_Pais,
-                        pais.pais_Nombre_Corto,
-                        hd.hd_Telefono,
-                        hd.hd_CP,
-                        hd.hd_Activo,
-                        dis.dis_Id_Distrito,
-                        dis.dis_Numero,
-                        dis.dis_Alias,
-                        sec.sec_Id_Sector,
-                        sec.sec_Alias,
-                        sec.sec_Numero,
-                        sub.hp_Id_Hogar_Persona,
-                        sub.hp_Jerarquia,
-                        sub.per_Id_Persona,
-                        sub.per_Nombre,
-                        sub.per_Apellido_Paterno,
-                        sub.per_Apellido_Materno,
-                        sub.per_Apellido_Casada,
-                        apellidoPrincipal = (sub.per_Apellido_Casada == "" || sub.per_Apellido_Casada == null) ? sub.per_Apellido_Paterno : (sub.per_Apellido_Casada + "* " + sub.per_Apellido_Paterno),
-                        sub.per_Fecha_Nacimiento,
-                        sub.per_Bautizado,
-                        sub.per_Telefono_Movil
-                    }).ToList();
+                                               join p in context.Persona on hp.per_Id_Persona equals p.per_Id_Persona
+                                               where hp.hp_Jerarquia == 1 && d.hd_Activo == true
+                                               select new
+                                               {
+                                                   hp.hp_Id_Hogar_Persona,
+                                                   hp.hp_Jerarquia,
+                                                   hp.hd_Id_Hogar,
+                                                   p.per_Id_Persona,
+                                                   p.per_Activo,
+                                                   p.per_Nombre,
+                                                   p.per_Apellido_Paterno,
+                                                   p.per_Apellido_Materno,
+                                                   p.per_Apellido_Casada,
+                                                   apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                                                   p.per_Fecha_Nacimiento,
+                                                   p.per_Bautizado,
+                                                   p.per_Telefono_Movil
+                                               }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
+                                  where hd.dis_Id_Distrito == dis_Id_Distrito
+                                  select new
+                                  {
+                                      hd.hd_Id_Hogar,
+                                      hd.hd_Calle,
+                                      hd.hd_Numero_Exterior,
+                                      hd.hd_Numero_Interior,
+                                      hd.hd_Tipo_Subdivision,
+                                      hd.hd_Subdivision,
+                                      hd.hd_Localidad,
+                                      hd.hd_Municipio_Ciudad,
+                                      est.est_Id_Estado,
+                                      est.est_Nombre,
+                                      pais.pais_Id_Pais,
+                                      pais.pais_Nombre_Corto,
+                                      hd.hd_Telefono,
+                                      hd.hd_CP,
+                                      hd.hd_Activo,
+                                      dis.dis_Id_Distrito,
+                                      dis.dis_Numero,
+                                      dis.dis_Alias,
+                                      sec.sec_Id_Sector,
+                                      sec.sec_Alias,
+                                      sec.sec_Numero,
+                                      sub.hp_Id_Hogar_Persona,
+                                      sub.hp_Jerarquia,
+                                      sub.per_Id_Persona,
+                                      sub.per_Nombre,
+                                      sub.per_Apellido_Paterno,
+                                      sub.per_Apellido_Materno,
+                                      sub.per_Apellido_Casada,
+                                      apellidoPrincipal = (sub.per_Apellido_Casada == "" || sub.per_Apellido_Casada == null) ? sub.per_Apellido_Paterno : (sub.per_Apellido_Casada + "* " + sub.per_Apellido_Paterno),
+                                      sub.per_Fecha_Nacimiento,
+                                      sub.per_Bautizado,
+                                      sub.per_Telefono_Movil
+                                  }).ToList();
                 return Ok(
-                    new {
+                    new
+                    {
                         status = "success",
                         domicilios = domicilios
                     });
@@ -145,24 +146,25 @@ namespace IECE_WebApi.Controllers
                                   join pais in context.Pais on hd.pais_Id_Pais equals pais.pais_Id_Pais
                                   join est in context.Estado on hd.est_Id_Estado equals est.est_Id_Estado
                                   join sub in (from hp in context.Hogar_Persona
-                                        join p in context.Persona on hp.per_Id_Persona equals p.per_Id_Persona
-                                        join d in context.HogarDomicilio on hp.hd_Id_Hogar equals d.hd_Id_Hogar
-                                        where hp.hp_Jerarquia == 1 && d.hd_Activo == true
-                                        select new {
-                                            hp.hp_Id_Hogar_Persona,
-                                            hp.hp_Jerarquia,
-                                            hp.hd_Id_Hogar, 
-	                                        p.per_Id_Persona,
-                                            p.per_Activo,
-                                            p.per_Nombre,
-                                            p.per_Apellido_Paterno,
-                                            p.per_Apellido_Materno,
-                                            p.per_Apellido_Casada,
-                                            apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
-                                            p.per_Fecha_Nacimiento,
-                                            p.per_Bautizado,
-                                            p.per_Telefono_Movil
-                                        }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
+                                               join p in context.Persona on hp.per_Id_Persona equals p.per_Id_Persona
+                                               join d in context.HogarDomicilio on hp.hd_Id_Hogar equals d.hd_Id_Hogar
+                                               where hp.hp_Jerarquia == 1 && d.hd_Activo == true
+                                               select new
+                                               {
+                                                   hp.hp_Id_Hogar_Persona,
+                                                   hp.hp_Jerarquia,
+                                                   hp.hd_Id_Hogar,
+                                                   p.per_Id_Persona,
+                                                   p.per_Activo,
+                                                   p.per_Nombre,
+                                                   p.per_Apellido_Paterno,
+                                                   p.per_Apellido_Materno,
+                                                   p.per_Apellido_Casada,
+                                                   apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                                                   p.per_Fecha_Nacimiento,
+                                                   p.per_Bautizado,
+                                                   p.per_Telefono_Movil
+                                               }) on hd.hd_Id_Hogar equals sub.hd_Id_Hogar
                                   where hd.sec_Id_Sector == sec_Id_Sector
                                   select new
                                   {
@@ -227,7 +229,7 @@ namespace IECE_WebApi.Controllers
                 var hogares = new Hogares(context);
                 var hogardomicilio = hogares.Address(id);
                 var direccion = hogares.getDireccion(id);
-                
+
                 return Ok(new
                 {
                     status = "success",
@@ -364,9 +366,10 @@ namespace IECE_WebApi.Controllers
         // PUT: api/HogarDomicilio/EditaDomicilio/5
         [HttpPut("{id}/{nvoEstado?}")]
         [EnableCors("AllowOrigin")]
-        public ActionResult Put([FromBody] HogarDomicilio hogardomicilio, int id, string nvoEstado="")
+        public ActionResult Put([FromBody] HogarDomicilio hogardomicilio, int id, string nvoEstado = "")
         {
-            try {
+            try
+            {
                 // CONSULTA EL TITULAR DEL HOGAR
                 Hogar_Persona hp = context.Hogar_Persona.FirstOrDefault(
                 h => h.hd_Id_Hogar == hogardomicilio.hd_Id_Hogar
@@ -419,7 +422,8 @@ namespace IECE_WebApi.Controllers
                         domicilio = hogardomicilio
                     });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return Ok(
                     new
                     {

@@ -3161,5 +3161,71 @@ namespace IECE_WebApi.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost]
+        [Route("[action]")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult ResumenMembresiaReinoCristiano()
+        {
+            try
+            {
+                foreach (FiltroCategorias categoria in listaCategorias)
+                {
+                    categoria.valor = (from p in context.Persona
+                                       where p.per_Activo == true &&
+                                       (p.per_Categoria == categoria.categoria && p.per_Bautizado == categoria.bautizado)
+                                       select new { p.per_Id_Persona }).Count();
+                }
+
+                int totalBautizados = 0;
+                int totalNoBautizados = 0;
+                for (int i = 0; i < 8; i++)
+                {
+                    if (i < 4) { totalBautizados += listaCategorias[i].valor; }
+                    else { totalNoBautizados += listaCategorias[i].valor; }
+                }
+                int totalDeMiembros = totalBautizados + totalNoBautizados;
+
+                ResumenDeMembresia resumen = new ResumenDeMembresia();
+                resumen.totalDeMiembros = totalDeMiembros;
+                resumen.hb = listaCategorias[0].valor;
+                resumen.mb = listaCategorias[1].valor;
+                resumen.jhb = listaCategorias[2].valor;
+                resumen.jmb = listaCategorias[3].valor;
+                resumen.totalBautizados = totalBautizados;
+                resumen.jhnb = listaCategorias[4].valor;
+                resumen.jmnb = listaCategorias[5].valor;
+                resumen.ninos = listaCategorias[6].valor;
+                resumen.ninas = listaCategorias[7].valor;
+                resumen.totalNoBautizados = totalNoBautizados;
+
+                var hogares = (from hp in context.Hogar_Persona where hp.hp_Jerarquia == 1 select hp).ToList();
+                var presidente = (from dg in context.Directivo_General
+                                  join pem in context.Personal_Ministerial on dg.pem_Id_Integrante equals pem.pem_Id_Ministro
+                                  where dg.dg_Cargo == "PRESIDENTE GENERAL"
+                                  select pem).ToList();
+                var secretario = (from dg in context.Directivo_General
+                                  join pem in context.Personal_Ministerial on dg.pem_Id_Integrante equals pem.pem_Id_Ministro
+                                  where dg.dg_Cargo == "SECRETARIO GENERAL"
+                                  select pem).ToList();
+
+                return Ok(new
+                {
+                    status = "success",
+                    resumen = resumen,
+                    hogares = hogares.Count(),
+                    presidente = presidente[0].pem_Nombre,
+                    secretario = secretario[0].pem_Nombre
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    mensaje = ex.Message
+                });
+            }
+        }
     }
 }
