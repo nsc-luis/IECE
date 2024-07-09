@@ -3227,5 +3227,157 @@ namespace IECE_WebApi.Controllers
                 });
             }
         }
+
+        // POST: api/Persona/GetBySector/sec_Id_Sector
+        [HttpPost]
+        [Route("[action]/{cadena}")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult BuscaPersonaByNombre(string cadena)
+        {
+            var hogares = new Hogares(context);
+
+            //Provee una lista de las personas Activas o Inactivas que pertenecen a un Sector
+            List<PersonaDomicilioMiembros> query = new List<PersonaDomicilioMiembros>();
+            var query1 = (from p in context.Persona
+                          join s in context.Sector on p.sec_Id_Sector equals s.sec_Id_Sector
+                          join d in context.Distrito on s.dis_Id_Distrito equals d.dis_Id_Distrito
+                          where p.per_Nombre_Completo.Contains($"{cadena}")
+                          orderby p.per_Apellido_Paterno ascending, d.dis_Numero ascending
+                          select new
+                          {
+                              p.per_Id_Persona,
+                              p.per_Activo,
+                              p.per_En_Comunion,
+                              p.per_Vivo,
+                              p.per_Visibilidad_Abierta,
+                              p.sec_Id_Sector,
+                              p.per_Categoria,
+                              p.per_Nombre,
+                              p.per_Apellido_Paterno,
+                              p.per_Apellido_Materno,
+                              p.per_Nombre_Completo,
+                              p.per_Fecha_Nacimiento,
+                              edad = (fechayhora - p.per_Fecha_Nacimiento).Days / 365,
+                              p.per_RFC_Sin_Homo,
+                              p.per_Nombre_Padre,
+                              p.per_Nombre_Madre,
+                              p.per_Nombre_Abuelo_Paterno,
+                              p.per_Nombre_Abuela_Paterna,
+                              p.per_Nombre_Abuelo_Materno,
+                              p.per_Nombre_Abuela_Materna,
+                              p.pro_Id_Profesion_Oficio1,
+                              p.pro_Id_Profesion_Oficio2,
+                              p.per_Apellido_Casada,
+                              apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                              p.per_Telefono_Movil,
+                              p.per_Email_Personal,
+                              p.idFoto,
+                              p.per_Bautizado,
+                              p.per_Lugar_Bautismo,
+                              p.per_Fecha_Bautismo,
+                              p.per_Ministro_Que_Bautizo,
+                              p.per_Fecha_Recibio_Espiritu_Santo,
+                              p.per_Bajo_Imposicion_De_Manos,
+                              p.per_Cargos_Desempenados,
+                              p.per_Cambios_De_Domicilio,
+                              p.per_Estado_Civil,
+                              p.per_Nombre_Conyuge,
+                              p.per_Fecha_Boda_Civil,
+                              p.per_Num_Acta_Boda_Civil,
+                              p.per_Libro_Acta_Boda_Civil,
+                              p.per_Oficialia_Boda_Civil,
+                              p.per_Registro_Civil,
+                              p.per_Fecha_Boda_Eclesiastica,
+                              p.per_Lugar_Boda_Eclesiastica,
+                              p.per_Cantidad_Hijos,
+                              p.per_Nombre_Hijos,
+                              p.per_Nacionalidad,
+                              p.per_Lugar_De_Nacimiento,
+                              d.dis_Alias,
+                              d.dis_Numero,
+                              d.dis_Tipo_Distrito,
+                              s.sec_Alias,
+                              s.sec_Numero,
+                              ProfesionOficio1 = (from p2 in context.Persona
+                                                  join pro in context.Profesion_Oficio
+                                                  on p2.pro_Id_Profesion_Oficio1 equals pro.pro_Id_Profesion_Oficio
+                                                  where p2.per_Id_Persona == p.per_Id_Persona
+                                                  select new { pro.pro_Sub_Categoria, pro.pro_Categoria }).ToList(),
+                              ProfesionOficio2 = (from p2 in context.Persona
+                                                  join pro in context.Profesion_Oficio
+                                                  on p2.pro_Id_Profesion_Oficio2 equals pro.pro_Id_Profesion_Oficio
+                                                  where p2.per_Id_Persona == p.per_Id_Persona
+                                                  select new { pro.pro_Sub_Categoria, pro.pro_Categoria }).ToList()
+                          }).ToList();
+            foreach (var persona in query1)
+            {
+                var query2 = context.Hogar_Persona.FirstOrDefault(hp => hp.per_Id_Persona == persona.per_Id_Persona);
+                var query3 = (from hp in context.Hogar_Persona
+                              join hd in context.HogarDomicilio
+                              on hp.hd_Id_Hogar equals hd.hd_Id_Hogar
+                              join e in context.Estado
+                              on hd.est_Id_Estado equals e.est_Id_Estado
+                              join pais in context.Pais
+                              on hd.pais_Id_Pais equals pais.pais_Id_Pais
+                              join p in context.Persona
+                              on hp.per_Id_Persona equals p.per_Id_Persona
+                              where hp.hd_Id_Hogar == query2.hd_Id_Hogar
+                              && hp.hp_Jerarquia == 1
+                              select new
+                              {
+                                  hp.hd_Id_Hogar,
+                                  p.per_Id_Persona,
+                                  p.per_Nombre,
+                                  p.per_Apellido_Paterno,
+                                  p.per_Apellido_Materno,
+                                  p.per_Apellido_Casada,
+                                  apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                                  hd.hd_Calle,
+                                  hd.hd_Numero_Exterior,
+                                  hd.hd_Numero_Interior,
+                                  hd.hd_Tipo_Subdivision,
+                                  hd.hd_Subdivision,
+                                  hd.hd_Localidad,
+                                  hd.hd_Municipio_Ciudad,
+                                  e.est_Nombre,
+                                  pais.pais_Nombre_Corto,
+                                  hd.hd_Telefono,
+                                  hd.hd_Activo,
+                                  hd.hd_CP,
+                                  direccion = hogares.getDireccion(hd.hd_Calle, hd.hd_Numero_Exterior, hd.hd_Numero_Interior, hd.hd_Tipo_Subdivision, hd.hd_Subdivision, hd.hd_Localidad, hd.hd_Municipio_Ciudad, e.est_Nombre, pais.pais_Nombre_Corto, hd.hd_CP)
+                              }).ToList();
+                var query4 = (from hp in context.Hogar_Persona
+                              join p in context.Persona
+                              on hp.per_Id_Persona equals p.per_Id_Persona
+                              where hp.hd_Id_Hogar == query2.hd_Id_Hogar
+                              && p.per_Vivo // && p.per_Activo
+                              orderby (hp.hp_Jerarquia)
+                              select new
+                              {
+                                  hp_Id_Hogar_Persona = hp.hp_Id_Hogar_Persona,
+                                  hd_Id_Hogar = hp.hd_Id_Hogar,
+                                  hp_Jerarquia = hp.hp_Jerarquia,
+                                  per_Id_Persona = p.per_Id_Persona,
+                                  per_Nombre = p.per_Nombre,
+                                  per_Apellido_Paterno = p.per_Apellido_Paterno,
+                                  per_Apellido_Materno = p.per_Apellido_Materno,
+                                  per_Apellido_Casada = p.per_Apellido_Casada,
+                                  apellidoPrincipal = (p.per_Apellido_Casada == "" || p.per_Apellido_Casada == null) ? p.per_Apellido_Paterno : (p.per_Apellido_Casada + "* " + p.per_Apellido_Paterno),
+                                  p.per_Bautizado,
+                                  p.per_Fecha_Nacimiento,
+                                  p.per_Telefono_Movil,
+                                  p.per_Activo
+                              }).ToList();
+                query.Add(new PersonaDomicilioMiembros
+                {
+                    persona = persona,
+                    hogar = query2,
+                    domicilio = query3,
+                    miembros = query4
+                });
+
+            }
+            return Ok(query);
+        }
     }
 }
