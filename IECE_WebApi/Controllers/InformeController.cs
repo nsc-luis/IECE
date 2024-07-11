@@ -441,46 +441,48 @@ namespace IECE_WebApi.Controllers
                     });
 
                 }
+                else {
 
-                Informe informe = new Informe
-                {
-                    IdTipoUsuario = data.IdTipoUsuario,
-                    Mes = data.Mes,
-                    Anio = data.Anio,
-                    IdDistrito = data.IdDistrito,
-                    IdSector = data.IdSector,
-                    LugarReunion = data.LugarReunion,
-                    FechaReunion = data.FechaReunion,
-                    Status = 1,
-                    Usu_Id_Usuario = data.Usu_Id_Usuario,
-                    FechaRegistro = DateTime.Now
-                };
-                _context.Informe.Add(informe);
-                _context.SaveChanges();
+                    Informe informe = new Informe
+                    {
+                        IdTipoUsuario = data.IdTipoUsuario,
+                        Mes = data.Mes,
+                        Anio = data.Anio,
+                        IdDistrito = data.IdDistrito,
+                        IdSector = data.IdSector,
+                        LugarReunion = data.LugarReunion,
+                        FechaReunion = data.FechaReunion,
+                        Status = 1,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Informe.Add(informe);
+                    _context.SaveChanges();
 
-                var nuevoInforme = new InformePastorViewModel();
-                nuevoInforme.IdInforme = informe.IdInforme;
-                nuevoInforme.FechaReunion = informe.FechaReunion;
-                nuevoInforme.LugarReunion = informe.LugarReunion;
+                    var nuevoInforme = new InformePastorViewModel();
+                    nuevoInforme.IdInforme = informe.IdInforme;
+                    nuevoInforme.FechaReunion = informe.FechaReunion;
+                    nuevoInforme.LugarReunion = informe.LugarReunion;
 
-                var sectores = _context.Sector.Where(w => w.dis_Id_Distrito == informe.IdDistrito).ToList();
-                foreach (var sector in sectores)
-                {
-                    var nuevaActividad = new ActividadesObispo();
-                    nuevaActividad.Sector.sec_Id_Sector = sector.sec_Id_Sector;
-                    nuevoInforme.ActividadesObispo.Add(nuevaActividad);
+                    var sectores = _context.Sector.Where(w => w.dis_Id_Distrito == informe.IdDistrito).ToList();
+                    foreach (var sector in sectores)
+                    {
+                        var nuevaActividad = new ActividadesObispo();
+                        nuevaActividad.Sector.sec_Id_Sector = sector.sec_Id_Sector;
+                        nuevoInforme.ActividadesObispo.Add(nuevaActividad);
+                    }
+
+                    if (informe.IdTipoUsuario == 1)
+                    {
+                        RespuestaActualizarInforme respuestaActualizar = ActualizarInformePastor(nuevoInforme);
+                    }
+                    else
+                    {
+                        RespuestaActualizarInforme respuestaActualizar = ActualizarInformeObispo(nuevoInforme);
+                    }
+
+                    return Ok(informe);
                 }
-
-                if (informe.IdTipoUsuario == 1)
-                {
-                    RespuestaActualizarInforme respuestaActualizar = ActualizarInformePastor(nuevoInforme);
-                }
-                else
-                {
-                    RespuestaActualizarInforme respuestaActualizar = ActualizarInformeObispo(nuevoInforme);
-                }
-
-                return Ok(informe);
             }
             catch (Exception ex)
             {
