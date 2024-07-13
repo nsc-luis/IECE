@@ -1175,11 +1175,11 @@ namespace IECE_WebApi.Controllers
                     var addAdquisicionesDistrito = new AdquisicionesDistrito
                     {
                         IdInforme = data.IdInforme,
-                        Predios = data.AdquisicionesDistrito.Predios,
-                        Casas = data.AdquisicionesDistrito.Casas,
-                        Edificios = data.AdquisicionesDistrito.Edificios,
-                        Templos = data.AdquisicionesDistrito.Templos,
-                        Vehiculos = data.AdquisicionesDistrito.Vehiculos,
+                        Predios = data.AdquisicionesDistrito.Predios == null ? data.AdquisicionesDistrito.Predios : 0,
+                        Casas = data.AdquisicionesDistrito.Casas == null ? data.AdquisicionesDistrito.Casas : 0,
+                        Edificios = data.AdquisicionesDistrito.Edificios == null ? data.AdquisicionesDistrito.Edificios : 0,
+                        Templos = data.AdquisicionesDistrito.Templos == null ? data.AdquisicionesDistrito.Templos : 0,
+                        Vehiculos = data.AdquisicionesDistrito.Vehiculos == null ? data.AdquisicionesDistrito.Vehiculos : 0,
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1295,6 +1295,71 @@ namespace IECE_WebApi.Controllers
                     _context.SaveChanges();
                 }
 
+                Dedicaciones dedicacionesDistrito = _context.Dedicaciones.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
+                if (dedicacionesDistrito == null)
+                {
+                    var addDedicaciones = new Dedicaciones
+                    {
+                        IdInforme = data.IdInforme,
+                        Templos = data.Dedicaciones.Templos,
+                        CasasDeOracion = data.Dedicaciones.CasasDeOracion,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.Dedicaciones.Add(addDedicaciones);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    dedicacionesDistrito = data.Dedicaciones;
+                    _context.Dedicaciones.Update(dedicacionesDistrito);
+                    _context.SaveChanges();
+                }
+
+                RegularizacionPrediosTemplos regularizacionesPatNac = _context.RegularizacionPrediosTemplos.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoPatrimonio == 1).AsNoTracking().FirstOrDefault();
+                if (regularizacionesPatNac == null)
+                {
+                    var addRegularizacionesPatNac = new RegularizacionPrediosTemplos
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoPatrimonio = 1,
+                        Templos = data.RegularizacionPatNac.Templos,
+                        CasasPastorales = data.RegularizacionPatNac.CasasPastorales,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.RegularizacionPrediosTemplos.Add(addRegularizacionesPatNac);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    regularizacionesPatNac = data.RegularizacionPatNac;
+                    _context.RegularizacionPrediosTemplos.Update(regularizacionesPatNac);
+                    _context.SaveChanges();
+                }
+
+                RegularizacionPrediosTemplos regularizacionesPatIg = _context.RegularizacionPrediosTemplos.Where(w => w.IdInforme == data.IdInforme).Where(w => w.IdTipoPatrimonio == 2).AsNoTracking().FirstOrDefault();
+                if (regularizacionesPatIg == null)
+                {
+                    var addRegularizacionesPatIg = new RegularizacionPrediosTemplos
+                    {
+                        IdInforme = data.IdInforme,
+                        IdTipoPatrimonio = 2,
+                        Templos = data.RegularizacionPatIg.Templos,
+                        CasasPastorales = data.RegularizacionPatIg.CasasPastorales,
+                        Usu_Id_Usuario = data.Usu_Id_Usuario,
+                        FechaRegistro = DateTime.Now
+                    };
+                    _context.RegularizacionPrediosTemplos.Add(addRegularizacionesPatIg);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    regularizacionesPatIg = data.RegularizacionPatIg;
+                    _context.RegularizacionPrediosTemplos.Update(regularizacionesPatIg);
+                    _context.SaveChanges();
+                }
+
 
 
                 MovimientoEconomico movimientoEconomico = _context.MovimientoEconomico.Where(w => w.IdInforme == data.IdInforme).AsNoTracking().FirstOrDefault();
@@ -1322,6 +1387,40 @@ namespace IECE_WebApi.Controllers
                     _context.SaveChanges();
                 }
 
+                foreach (var acuerdo in data.AcuerdosDeDistrito)
+                {
+                    AcuerdosDeDistrito acuerdoDeDistrito = _context.AcuerdosDeDistrito.Where(w => w.IdAcuerdoDeDistrito == acuerdo.IdAcuerdoDeDistrito).AsNoTracking().FirstOrDefault();
+                    if (acuerdoDeDistrito == null)
+                    {
+                        var addAcuerdoDeDistrito = new AcuerdosDeDistrito
+                        {
+                            IdInforme = data.IdInforme,
+                            Descripcion = acuerdo.Descripcion,
+                            NumDeOrdenDeAcuerdo = acuerdo.NumDeOrdenDeAcuerdo,
+                            Usu_Id_Usuario = data.Usu_Id_Usuario,
+                            FechaRegistro = DateTime.Now
+                        };
+                        _context.AcuerdosDeDistrito.Add(addAcuerdoDeDistrito);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        acuerdoDeDistrito.Descripcion = acuerdo.Descripcion;
+                        acuerdoDeDistrito.NumDeOrdenDeAcuerdo = acuerdo.NumDeOrdenDeAcuerdo;
+                        _context.AcuerdosDeDistrito.Update(acuerdo);
+                        _context.SaveChanges();
+                    }
+                }
+
+                foreach (var acuerdo in data.AcuerdosEliminados)
+                {
+                    if (acuerdo.IdAcuerdoDeDistrito != 0)
+                    {
+                        _context.AcuerdosDeDistrito.Remove(acuerdo);
+                        _context.SaveChanges();
+                    }
+                }
+
                 foreach (var actividad in data.OtrasActividades)
                 {
                     OtrasActividades otraActividad = _context.OtrasActividades.Where(w => w.IdOtraActividad == actividad.IdOtraActividad).AsNoTracking().FirstOrDefault();
@@ -1346,8 +1445,6 @@ namespace IECE_WebApi.Controllers
                         _context.SaveChanges();
                     }
                 }
-
-
 
                 foreach (var actividad in data.ActividadesEliminadas)
                 {

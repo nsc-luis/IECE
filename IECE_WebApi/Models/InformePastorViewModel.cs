@@ -51,7 +51,8 @@ namespace IECE_WebApi.Models
         public List<OtrasActividades> OtrasActividades { get; set; } = new List<OtrasActividades>();
         public List<OtrasActividades> ActividadesEliminadas { get; set; } = new List<OtrasActividades>();
         public List<ActividadesObispo> ActividadesObispo { get; set; } = new List<ActividadesObispo>();
-        //public SubConsultas.objInformeObispo ActividadesObispoPutModel { get; set; }
+        public List<AcuerdosDeDistrito> AcuerdosDeDistrito { get; set; } = new List<AcuerdosDeDistrito>();
+        public List<AcuerdosDeDistrito> AcuerdosEliminados { get; set; } = new List<AcuerdosDeDistrito>();
         public ConcentracionesDistrito ConcentracionesDistrito { get; set; } = new ConcentracionesDistrito();
 
     }

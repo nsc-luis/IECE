@@ -1364,6 +1364,8 @@ namespace IECE_WebApi.Helpers
             var movEconomicoDistrito = context.MovimientoEconomico.FirstOrDefault(me => me.IdInforme == idInformeObispo);
             smae.MovimientoEconomico = new MovimientoEconomico
             {
+                IdMovimientoEconomico = movEconomicoDistrito.IdMovimientoEconomico,
+                IdInforme = movEconomicoDistrito.IdInforme,
                 ExistenciaAnterior = smae.MovimientoEconomico?.ExistenciaAnterior + movEconomicoDistrito?.ExistenciaAnterior,
                 EntradaMes = smae.MovimientoEconomico?.EntradaMes + movEconomicoDistrito?.EntradaMes,
                 SumaTotal = smae.MovimientoEconomico?.SumaTotal + movEconomicoDistrito?.SumaTotal,
