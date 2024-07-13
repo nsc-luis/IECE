@@ -948,6 +948,26 @@ namespace IECE_WebApi.Helpers
                         ConcentracionesDistrito = concentracionesDistrito,
                         ConferenciasDistrito = conferenciasDistrito
                     });
+
+
+                    //Se extraen los Informes que existan de cada Sector, solo Sectores, no Misiones de Dto.
+                    var informeEncontrado = informes.FirstOrDefault(i => i.IdSector == s.sec_Id_Sector);
+
+                    if (informeEncontrado != null)
+                    {
+                        int idInformeDeseado = informeEncontrado.IdInforme;
+                        informesSectores.Add(SubInformePastoral(idInformeDeseado));
+                    }
+                    else
+                    {
+                        InformePastorViewModel sectorSinInforme = new InformePastorViewModel
+                        {
+                            IdSector = s.sec_Id_Sector,
+                            Sector = s
+                        };
+                        informesSectores.Add(sectorSinInforme);
+                    }
+
                 }
                 else
                 {//PARA MISIÓN DE DISTRITO
@@ -984,10 +1004,6 @@ namespace IECE_WebApi.Helpers
             };
 
             // CONSULTA ACTIVIDAD DEL OBISPO DE LA SECCION MovimientoAdministrativoMaterial
-
-            //Falta Dedicaciones
-            //Falta Regularizacion de Predios y Templos
-
 
             // INICIALIZA DE OBJETOS DE movimientosEstadisticos y movimientosAdministrativoMaterial
             // PARA SUMARIZAR LO OCURRIDO EN TODOS LOS SECTORES
@@ -1206,7 +1222,7 @@ namespace IECE_WebApi.Helpers
             foreach (var i in informes)
             {
                 InformePastorViewModel tempInforme = SubInformePastoral(i.IdInforme);
-                informesSectores.Add(SubInformePastoral(i.IdInforme));
+                //informesSectores.Add(SubInformePastoral(i.IdInforme));
               
 
                 // SUMARIZA SECCION DE MovimientoAdministrativoMaterial DE CADA SECTOR
