@@ -933,8 +933,7 @@ namespace IECE_WebApi.Helpers
             // INICIA EL POBLADO DEL OBJETO DE LA ACTIVADAD DEL OBISPO
             foreach (var s in sectores)
             {
-                if (s.sec_Tipo_Sector == "SECTOR")
-                {
+               
                     VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo && vo.idSector == s.sec_Id_Sector);
                     CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo && cd.idSector == s.sec_Id_Sector);
                     ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo && c.idSector == s.sec_Id_Sector);
@@ -949,8 +948,9 @@ namespace IECE_WebApi.Helpers
                         ConferenciasDistrito = conferenciasDistrito
                     });
 
-
-                    //Se extraen los Informes que existan de cada Sector, solo Sectores, no Misiones de Dto.
+                //Se extraen los Informes que existan de cada Sector, solo Sectores, no Misiones de Dto.
+                if (s.sec_Tipo_Sector == "SECTOR")
+                {                    
                     var informeEncontrado = informes.FirstOrDefault(i => i.IdSector == s.sec_Id_Sector);
 
                     if (informeEncontrado != null)
@@ -968,22 +968,6 @@ namespace IECE_WebApi.Helpers
                         informesSectores.Add(sectorSinInforme);
                     }
 
-                }
-                else
-                {//PARA MISIÓN DE DISTRITO
-                    VisitasObispo visitasObispo = context.VisitasObispo.FirstOrDefault(vo => vo.IdInforme == idInformeObispo);
-                    CultosDistrito cultosDistrito = context.CultosDistrito.FirstOrDefault(cd => cd.IdInforme == idInformeObispo);
-                    ConcentracionesDistrito concentracionesDistrito = context.ConcentracionesDistrito.FirstOrDefault(c => c.idInforme == idInformeObispo);
-                    ConferenciasDistrito conferenciasDistrito = context.ConferenciasDistrito.FirstOrDefault(cfd => cfd.idInforme == idInformeObispo);
-
-                    actividadEnMisionPorObispo.Add(new actividadEnMisionPorObispo
-                    {
-                        mision = s,
-                        VisitasObispo = visitasObispo,
-                        CultosDistrito = cultosDistrito,
-                        ConcentracionesDistrito = concentracionesDistrito,
-                        ConferenciasDistrito = conferenciasDistrito
-                    });
                 }
             }
 
