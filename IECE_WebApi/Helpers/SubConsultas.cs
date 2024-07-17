@@ -1207,67 +1207,77 @@ namespace IECE_WebApi.Helpers
             {
                 InformePastorViewModel tempInforme = SubInformePastoral(i.IdInforme);
                 //informesSectores.Add(SubInformePastoral(i.IdInforme));
-              
+
 
                 // SUMARIZA SECCION DE MovimientoAdministrativoMaterial DE CADA SECTOR
                 smae.Organizaciones = new Organizaciones
                 {
-                    SociedadFemenil = smae.Organizaciones?.SociedadFemenil + tempInforme.Organizaciones?.SociedadFemenil,
-                    SociedadJuvenil = smae.Organizaciones?.SociedadJuvenil + tempInforme.Organizaciones?.SociedadJuvenil,
-                    DepartamentoFemenil = smae.Organizaciones?.DepartamentoFemenil + tempInforme.Organizaciones?.DepartamentoFemenil,
-                    DepartamentoJuvenil = smae.Organizaciones?.DepartamentoJuvenil + tempInforme.Organizaciones?.DepartamentoJuvenil,
-                    DepartamentoInfantil = smae.Organizaciones?.DepartamentoInfantil + tempInforme.Organizaciones?.DepartamentoInfantil,
-                    Coros = smae.Organizaciones?.Coros + tempInforme.Organizaciones?.Coros,
-                    GruposDeCanto = smae.Organizaciones?.GruposDeCanto + tempInforme.Organizaciones?.GruposDeCanto
+                    SociedadFemenil = (smae.Organizaciones?.SociedadFemenil ?? 0) + (tempInforme.Organizaciones?.SociedadFemenil ?? 0),
+                    SociedadJuvenil = (smae.Organizaciones?.SociedadJuvenil ?? 0) + (tempInforme.Organizaciones?.SociedadJuvenil ?? 0),
+                    DepartamentoFemenil = (smae.Organizaciones?.DepartamentoFemenil ?? 0) + (tempInforme.Organizaciones?.DepartamentoFemenil ?? 0),
+                    DepartamentoJuvenil = (smae.Organizaciones?.DepartamentoJuvenil ?? 0) + (tempInforme.Organizaciones?.DepartamentoJuvenil ?? 0),
+                    DepartamentoInfantil = (smae.Organizaciones?.DepartamentoInfantil ?? 0) + (tempInforme.Organizaciones?.DepartamentoInfantil ?? 0),
+                    Coros = (smae.Organizaciones?.Coros ?? 0) + (tempInforme.Organizaciones?.Coros ?? 0),
+                    GruposDeCanto = (smae.Organizaciones?.GruposDeCanto ?? 0) + (tempInforme.Organizaciones?.GruposDeCanto ?? 0)
                 };
+
                 smae.AdquisicionesSector = new AdquisicionesSector
                 {
-                    Predios = smae.AdquisicionesSector?.Predios + tempInforme.AdquisicionesSector?.Predios,
-                    Casas = smae.AdquisicionesSector?.Casas + tempInforme.AdquisicionesSector?.Casas,
-                    Edificios = smae.AdquisicionesSector?.Edificios + tempInforme.AdquisicionesSector?.Edificios,
-                    Templos = smae.AdquisicionesSector?.Templos + tempInforme.AdquisicionesSector?.Templos,
-                    Vehiculos = smae.AdquisicionesSector?.Vehiculos + tempInforme.AdquisicionesSector?.Vehiculos
+                    Predios = (smae.AdquisicionesSector?.Predios ?? 0) + (tempInforme.AdquisicionesSector?.Predios ?? 0),
+                    Casas = (smae.AdquisicionesSector?.Casas ?? 0) + (tempInforme.AdquisicionesSector?.Casas ?? 0),
+                    Edificios = (smae.AdquisicionesSector?.Edificios ?? 0) + (tempInforme.AdquisicionesSector?.Edificios ?? 0),
+                    Templos = (smae.AdquisicionesSector?.Templos ?? 0) + (tempInforme.AdquisicionesSector?.Templos ?? 0),
+                    Vehiculos = (smae.AdquisicionesSector?.Vehiculos ?? 0) + (tempInforme.AdquisicionesSector?.Vehiculos ?? 0)
                 };
+
                 smae.ConstruccionesInicio = new Construcciones
                 {
-                    Templo = smae.ConstruccionesInicio?.Templo + tempInforme.ConstruccionesInicio?.Templo,
-                    CasaDeOracion = smae.ConstruccionesInicio?.CasaDeOracion + tempInforme.ConstruccionesInicio?.CasaDeOracion,
-                    CasaPastoral = smae.ConstruccionesInicio?.CasaPastoral + tempInforme.ConstruccionesInicio?.CasaPastoral,
-                    Anexos = smae.ConstruccionesInicio?.Anexos + tempInforme.ConstruccionesInicio?.Anexos,
-                    Remodelacion = smae.ConstruccionesInicio?.Remodelacion + tempInforme.ConstruccionesInicio?.Remodelacion
+                    ColocacionPrimeraPiedra = (smae.ConstruccionesInicio?.ColocacionPrimeraPiedra?? 0) + (tempInforme.ConstruccionesInicio?.ColocacionPrimeraPiedra ?? 0),
+                    Templo = (smae.ConstruccionesInicio?.Templo ?? 0) + (tempInforme.ConstruccionesInicio?.Templo ?? 0),
+                    CasaDeOracion = (smae.ConstruccionesInicio?.CasaDeOracion ?? 0) + (tempInforme.ConstruccionesInicio?.CasaDeOracion ?? 0),
+                    CasaPastoral = (smae.ConstruccionesInicio?.CasaPastoral ?? 0) + (tempInforme.ConstruccionesInicio?.CasaPastoral ?? 0),
+                    Anexos = (smae.ConstruccionesInicio?.Anexos ?? 0) + (tempInforme.ConstruccionesInicio?.Anexos ?? 0),
+                    Remodelacion = (smae.ConstruccionesInicio?.Remodelacion ?? 0) + (tempInforme.ConstruccionesInicio?.Remodelacion ?? 0)
                 };
+
                 smae.ConstruccionesConclusion = new Construcciones
                 {
-                    Templo = smae.ConstruccionesConclusion?.Templo + tempInforme.ConstruccionesConclusion?.Templo,
-                    CasaDeOracion = smae.ConstruccionesConclusion?.CasaDeOracion + tempInforme.ConstruccionesConclusion?.CasaDeOracion,
-                    CasaPastoral = smae.ConstruccionesConclusion?.CasaPastoral + tempInforme.ConstruccionesConclusion?.CasaPastoral,
-                    Anexos = smae.ConstruccionesConclusion?.Anexos + tempInforme.ConstruccionesConclusion?.Anexos,
-                    Remodelacion = smae.ConstruccionesConclusion?.Remodelacion + tempInforme.ConstruccionesConclusion?.Remodelacion
+                    ColocacionPrimeraPiedra = (smae.ConstruccionesConclusion?.ColocacionPrimeraPiedra ?? 0) + (tempInforme.ConstruccionesConclusion?.ColocacionPrimeraPiedra ?? 0),
+                    Templo = (smae.ConstruccionesConclusion?.Templo ?? 0) + (tempInforme.ConstruccionesConclusion?.Templo ?? 0),
+                    CasaDeOracion = (smae.ConstruccionesConclusion?.CasaDeOracion ?? 0) + (tempInforme.ConstruccionesConclusion?.CasaDeOracion ?? 0),
+                    CasaPastoral = (smae.ConstruccionesConclusion?.CasaPastoral ?? 0) + (tempInforme.ConstruccionesConclusion?.CasaPastoral ?? 0),
+                    Anexos = (smae.ConstruccionesConclusion?.Anexos ?? 0) + (tempInforme.ConstruccionesConclusion?.Anexos ?? 0),
+                    Remodelacion = (smae.ConstruccionesConclusion?.Remodelacion ?? 0) + (tempInforme.ConstruccionesConclusion?.Remodelacion ?? 0)
                 };
+
                 smae.Ordenaciones = new Ordenaciones
                 {
-                    Ancianos = smae.Ordenaciones?.Ancianos + tempInforme.Ordenaciones?.Ancianos,
-                    Diaconos = smae.Ordenaciones?.Diaconos + tempInforme.Ordenaciones?.Diaconos
+                    Ancianos = (smae.Ordenaciones?.Ancianos ?? 0) + (tempInforme.Ordenaciones?.Ancianos ?? 0),
+                    Diaconos = (smae.Ordenaciones?.Diaconos ?? 0) + (tempInforme.Ordenaciones?.Diaconos ?? 0)
                 };
+
                 smae.Dedicaciones = new Dedicaciones
                 {
-                    Templos = smae.Dedicaciones?.Templos + tempInforme.Dedicaciones?.Templos,
-                    CasasDeOracion = smae.Dedicaciones?.CasasDeOracion + tempInforme.Dedicaciones?.CasasDeOracion
+                    Templos = (smae.Dedicaciones?.Templos ?? 0) + (tempInforme.Dedicaciones?.Templos ?? 0),
+                    CasasDeOracion = (smae.Dedicaciones?.CasasDeOracion ?? 0) + (tempInforme.Dedicaciones?.CasasDeOracion ?? 0)
                 };
+
                 smae.LlamamientoDePersonal = new LlamamientoDePersonal
                 {
-                    DiaconosAprueba = smae.LlamamientoDePersonal?.DiaconosAprueba + tempInforme.LlamamientoDePersonal?.DiaconosAprueba,
-                    Auxiliares = smae.LlamamientoDePersonal?.Auxiliares + tempInforme.LlamamientoDePersonal?.Auxiliares
+                    DiaconosAprueba = (smae.LlamamientoDePersonal?.DiaconosAprueba ?? 0) + (tempInforme.LlamamientoDePersonal?.DiaconosAprueba ?? 0),
+                    Auxiliares = (smae.LlamamientoDePersonal?.Auxiliares ?? 0) + (tempInforme.LlamamientoDePersonal?.Auxiliares ?? 0)
                 };
+
                 smae.RegularizacionPatNac = new RegularizacionPrediosTemplos
                 {
-                    Templos = smae.RegularizacionPatNac?.Templos + tempInforme.RegularizacionPatNac?.Templos,
-                    CasasPastorales = smae.RegularizacionPatNac?.CasasPastorales + tempInforme.RegularizacionPatNac?.CasasPastorales
+                    Templos = (smae.RegularizacionPatNac?.Templos ?? 0) + (tempInforme.RegularizacionPatNac?.Templos ?? 0),
+                    CasasPastorales = (smae.RegularizacionPatNac?.CasasPastorales ?? 0) + (tempInforme.RegularizacionPatNac?.CasasPastorales ?? 0)
                 };
+
                 smae.RegularizacionPatIg = new RegularizacionPrediosTemplos
                 {
-                    Templos = smae.RegularizacionPatIg?.Templos + tempInforme.RegularizacionPatIg?.Templos,
-                    CasasPastorales = smae.RegularizacionPatIg?.CasasPastorales + tempInforme.RegularizacionPatIg?.CasasPastorales
+                    Templos = (smae.RegularizacionPatIg?.Templos ?? 0) + (tempInforme.RegularizacionPatIg?.Templos ?? 0),
+                    CasasPastorales = (smae.RegularizacionPatIg?.CasasPastorales ?? 0) + (tempInforme.RegularizacionPatIg?.CasasPastorales ?? 0)
                 };
 
                 FiltroHistTransEstDelMes filtroHistTransEstDelMes = new FiltroHistTransEstDelMes
