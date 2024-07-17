@@ -311,7 +311,7 @@ namespace IECE_WebApi.Controllers
                 var ministro = context.Personal_Ministerial.FirstOrDefault(pm => pm.pem_Id_Ministro == sector.pem_Id_Pastor);
                 var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
 
-                var TemplateTempPath = "D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi";
+                var TemplateTempPath = $"{Environment.CurrentDirectory}\\IECEMembresia\\IECE_WebApi";
                 // {Environment.CurrentDirectory}
                 // C:\\Users\\JMR-20\\Documents\\GitHub\\IECE\\IECE_WebApi
                 // C:\\Users\\victo\\source\\repos\\IECE\\IECE_WebApi
@@ -576,7 +576,7 @@ namespace IECE_WebApi.Controllers
                                         }).ToList();
 
                     var fechayhora = DateTime.UtcNow.ToString("yyyy-MM-ddThh-mm-ss");
-                    var TemplateTempPath = "D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi";
+                    var TemplateTempPath = $"{Environment.CurrentDirectory}\\IECEMembresia\\IECE_WebApi";
                     // {Environment.CurrentDirectory}
                     // D:\\Users\\Lenovo\\Desktop\\IECEMembresia\\IECE_WebApi
 

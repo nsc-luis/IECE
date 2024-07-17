@@ -1073,8 +1073,8 @@ namespace IECE_WebApi.Controllers
                         {
                             IdInforme = data.IdInforme,
                             idSector = actividad.Sector.sec_Id_Sector,
-                            aHogares = data.VisitasObispo.aHogares,
-                            aSectores = data.VisitasObispo.aSectores,
+                            aHogares = data.VisitasObispo.aHogares != null ? data.VisitasObispo.aHogares : 0,
+                            aSectores = data.VisitasObispo.aSectores != null ? data.VisitasObispo.aSectores : 0,
                             Usu_Id_Usuario = data.Usu_Id_Usuario,
                             FechaRegistro = DateTime.Now,
                         };
@@ -1096,10 +1096,10 @@ namespace IECE_WebApi.Controllers
                         {
                             IdInforme = data.IdInforme,
                             idSector = actividad.Sector.sec_Id_Sector,
-                            Ordinarios = data.CultosDistrito.Ordinarios,
-                            Especiales = data.CultosDistrito.Especiales,
-                            DeAvivamiento = data.CultosDistrito.DeAvivamiento,
-                            Evangelismo = data.CultosDistrito.Evangelismo,
+                            Ordinarios = data.CultosDistrito.Ordinarios != null ? data.CultosDistrito.Ordinarios : 0,
+                            Especiales = data.CultosDistrito.Especiales != null ? data.CultosDistrito.Especiales : 0,
+                            DeAvivamiento = data.CultosDistrito.DeAvivamiento != null ? data.CultosDistrito.DeAvivamiento : 0,
+                            Evangelismo = data.CultosDistrito.Evangelismo != null ? data.CultosDistrito.Evangelismo : 0,
                             Usu_Id_Usuario = data.Usu_Id_Usuario,
                             FechaRegistro = DateTime.Now
                         };
@@ -1123,11 +1123,11 @@ namespace IECE_WebApi.Controllers
                         {
                             idInforme = data.IdInforme,
                             idSector = actividad.Sector.sec_Id_Sector,
-                            iglesia = data.ConferenciasDistrito.iglesia,
-                            sectorVaronil = data.ConferenciasDistrito.sectorVaronil,
-                            sociedadFemenil = data.ConferenciasDistrito.sociedadFemenil,
-                            sociedadJuvenil = data.ConferenciasDistrito.sociedadJuvenil,
-                            sectorInfantil = data.ConferenciasDistrito.sectorInfantil,
+                            iglesia = data.ConferenciasDistrito.iglesia != null ? data.ConferenciasDistrito.iglesia : 0,
+                            sectorVaronil = data.ConferenciasDistrito.sectorVaronil != null ? data.ConferenciasDistrito.sectorVaronil : 0,
+                            sociedadFemenil = data.ConferenciasDistrito.sociedadFemenil != null ? data.ConferenciasDistrito.sociedadFemenil : 0,
+                            sociedadJuvenil = data.ConferenciasDistrito.sociedadJuvenil != null ? data.ConferenciasDistrito.sociedadJuvenil : 0,
+                            sectorInfantil = data.ConferenciasDistrito.sectorInfantil != null ? data.ConferenciasDistrito.sectorInfantil : 0,
                             usu_Id_Usuario = data.Usu_Id_Usuario,
                             fechaRegistro = DateTime.Now
                         };
@@ -1147,11 +1147,11 @@ namespace IECE_WebApi.Controllers
                         {
                             idInforme = data.IdInforme,
                             idSector = actividad.Sector.sec_Id_Sector,
-                            iglesia = data.ConcentracionesDistrito.iglesia,
-                            sectorVaronil = data.ConcentracionesDistrito.sectorVaronil,
-                            sociedadFemenil = data.ConcentracionesDistrito.sociedadFemenil,
-                            sociedadJuvenil = data.ConcentracionesDistrito.sociedadJuvenil,
-                            sectorInfantil = data.ConcentracionesDistrito.sectorInfantil,
+                            iglesia = data.ConcentracionesDistrito.iglesia != null ? data.ConcentracionesDistrito.iglesia : 0,
+                            sectorVaronil = data.ConcentracionesDistrito.sectorVaronil != null ? data.ConcentracionesDistrito.sectorVaronil : 0,
+                            sociedadFemenil = data.ConcentracionesDistrito.sociedadFemenil != null ? data.ConcentracionesDistrito.sociedadFemenil : 0,
+                            sociedadJuvenil = data.ConcentracionesDistrito.sociedadJuvenil != null ? data.ConcentracionesDistrito.sociedadJuvenil : 0,
+                            sectorInfantil = data.ConcentracionesDistrito.sectorInfantil != null ? data.ConcentracionesDistrito.sectorInfantil : 0,
                             usu_Id_Usuario = data.Usu_Id_Usuario,
                             fechaRegistro = DateTime.Now
                         };
@@ -1175,11 +1175,11 @@ namespace IECE_WebApi.Controllers
                     var addAdquisicionesDistrito = new AdquisicionesDistrito
                     {
                         IdInforme = data.IdInforme,
-                        Predios = data.AdquisicionesDistrito.Predios == null ? data.AdquisicionesDistrito.Predios : 0,
-                        Casas = data.AdquisicionesDistrito.Casas == null ? data.AdquisicionesDistrito.Casas : 0,
-                        Edificios = data.AdquisicionesDistrito.Edificios == null ? data.AdquisicionesDistrito.Edificios : 0,
-                        Templos = data.AdquisicionesDistrito.Templos == null ? data.AdquisicionesDistrito.Templos : 0,
-                        Vehiculos = data.AdquisicionesDistrito.Vehiculos == null ? data.AdquisicionesDistrito.Vehiculos : 0,
+                        Predios = data.AdquisicionesDistrito.Predios != null ? data.AdquisicionesDistrito.Predios : 0,
+                        Casas = data.AdquisicionesDistrito.Casas != null ? data.AdquisicionesDistrito.Casas : 0,
+                        Edificios = data.AdquisicionesDistrito.Edificios != null ? data.AdquisicionesDistrito.Edificios : 0,
+                        Templos = data.AdquisicionesDistrito.Templos != null ? data.AdquisicionesDistrito.Templos : 0,
+                        Vehiculos = data.AdquisicionesDistrito.Vehiculos != null ? data.AdquisicionesDistrito.Vehiculos : 0,
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1201,11 +1201,11 @@ namespace IECE_WebApi.Controllers
                         IdInforme = data.IdInforme,
                         IdTipoSesionReunion = 1,
                         EnElDistrito = data.ReunionesDistrito.EnElDistrito == null ? 0 : data.ReunionesDistrito.EnElDistrito,
-                        ConElPersonalDocente = data.ReunionesDistrito.ConElPersonalDocente,
-                        ConSociedadesFemeniles = data.ReunionesDistrito.ConSociedadesFemeniles,
-                        ConSociedadesJuveniles = data.ReunionesDistrito.ConSociedadesJuveniles,
-                        ConDepartamentosInfantiles = data.ReunionesDistrito.ConDepartamentosInfantiles,
-                        ConCorosYGruposDeCanto = data.ReunionesDistrito.ConCorosYGruposDeCanto,
+                        ConElPersonalDocente = data.ReunionesDistrito.ConElPersonalDocente == null ? 0 : data.ReunionesDistrito.ConElPersonalDocente,
+                        ConSociedadesFemeniles = data.ReunionesDistrito.ConSociedadesFemeniles == null ? 0 : data.ReunionesDistrito.ConSociedadesFemeniles,
+                        ConSociedadesJuveniles = data.ReunionesDistrito.ConSociedadesJuveniles == null ? 0 : data.ReunionesDistrito.ConSociedadesJuveniles,
+                        ConDepartamentosInfantiles = data.ReunionesDistrito.ConDepartamentosInfantiles == null ? 0 : data.ReunionesDistrito.ConDepartamentosInfantiles,
+                        ConCorosYGruposDeCanto = data.ReunionesDistrito.ConCorosYGruposDeCanto == null ? 0 : data.ReunionesDistrito.ConCorosYGruposDeCanto,
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1226,12 +1226,12 @@ namespace IECE_WebApi.Controllers
                     {
                         IdInforme = data.IdInforme,
                         IdTipoSesionReunion = 2,
-                        EnElDistrito = data.SesionesDistrito.EnElDistrito == null ? 0 : data.ReunionesDistrito.EnElDistrito,
-                        ConElPersonalDocente = data.SesionesDistrito.ConElPersonalDocente,
-                        ConSociedadesFemeniles = data.SesionesDistrito.ConSociedadesFemeniles,
-                        ConSociedadesJuveniles = data.SesionesDistrito.ConSociedadesJuveniles,
-                        ConDepartamentosInfantiles = data.SesionesDistrito.ConDepartamentosInfantiles,
-                        ConCorosYGruposDeCanto = data.SesionesDistrito.ConCorosYGruposDeCanto,
+                        EnElDistrito = data.SesionesDistrito.EnElDistrito == null ? 0 : data.SesionesDistrito.EnElDistrito,
+                        ConElPersonalDocente = data.SesionesDistrito.ConElPersonalDocente != null ? data.SesionesDistrito.ConElPersonalDocente : 0,
+                        ConSociedadesFemeniles = data.SesionesDistrito.ConSociedadesFemeniles != null ? data.SesionesDistrito.ConSociedadesFemeniles : 0,
+                        ConSociedadesJuveniles = data.SesionesDistrito.ConSociedadesJuveniles != null ? data.SesionesDistrito.ConSociedadesJuveniles : 0,
+                        ConDepartamentosInfantiles = data.SesionesDistrito.ConDepartamentosInfantiles != null ? data.SesionesDistrito.ConDepartamentosInfantiles : 0,
+                        ConCorosYGruposDeCanto = data.SesionesDistrito.ConCorosYGruposDeCanto != null ? data.SesionesDistrito.ConCorosYGruposDeCanto : 0,
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1252,11 +1252,12 @@ namespace IECE_WebApi.Controllers
                     {
                         idInforme = data.IdInforme,
                         idTipoFaseConstruccion = 1,
-                        colocacionPrimeraPiedra = data.ConstruccionesDistritoInicio.colocacionPrimeraPiedra,
-                        templo = data.ConstruccionesDistritoInicio.templo,
-                        casaDeOracion = data.ConstruccionesDistritoInicio.casaDeOracion,
-                        anexos = data.ConstruccionesDistritoInicio.anexos,
-                        remodelacion = data.ConstruccionesDistritoInicio.remodelacion,
+                        colocacionPrimeraPiedra = data.ConstruccionesDistritoInicio.colocacionPrimeraPiedra == null ? 0 : data.ConstruccionesDistritoInicio.colocacionPrimeraPiedra,
+                        templo = data.ConstruccionesDistritoInicio.templo == null ? 0 : data.ConstruccionesDistritoInicio.templo,
+                        casaDeOracion = data.ConstruccionesDistritoInicio.casaDeOracion == null ? 0 : data.ConstruccionesDistritoInicio.casaDeOracion,
+                        casaPastoral = data.ConstruccionesDistritoInicio.casaPastoral == null ? 0 : data.ConstruccionesDistritoInicio.casaPastoral,
+                        anexos = data.ConstruccionesDistritoInicio.anexos == null ? 0 : data.ConstruccionesDistritoInicio.anexos,
+                        remodelacion = data.ConstruccionesDistritoInicio.remodelacion == null ? 0 : data.ConstruccionesDistritoInicio.remodelacion,
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         fechaRegistro = DateTime.Now
                     };
@@ -1277,11 +1278,12 @@ namespace IECE_WebApi.Controllers
                     {
                         idInforme = data.IdInforme,
                         idTipoFaseConstruccion = 2,
-                        colocacionPrimeraPiedra = data.ConstruccionesDistritoConclusion.colocacionPrimeraPiedra,
-                        templo = data.ConstruccionesDistritoConclusion.templo,
-                        casaDeOracion = data.ConstruccionesDistritoConclusion.casaDeOracion,
-                        anexos = data.ConstruccionesDistritoConclusion.anexos,
-                        remodelacion = data.ConstruccionesDistritoConclusion.remodelacion,
+                        colocacionPrimeraPiedra = data.ConstruccionesDistritoConclusion.colocacionPrimeraPiedra == null ? 0 : data.ConstruccionesDistritoConclusion.colocacionPrimeraPiedra,
+                        templo = data.ConstruccionesDistritoConclusion.templo == null ? 0 : data.ConstruccionesDistritoConclusion.templo,
+                        casaDeOracion = data.ConstruccionesDistritoConclusion.casaDeOracion == null ? 0 : data.ConstruccionesDistritoConclusion.casaDeOracion,
+                        casaPastoral = data.ConstruccionesDistritoConclusion.casaPastoral == null ? 0 : data.ConstruccionesDistritoConclusion.casaPastoral,
+                        anexos = data.ConstruccionesDistritoConclusion.anexos == null ? 0 : data.ConstruccionesDistritoConclusion.anexos,
+                        remodelacion = data.ConstruccionesDistritoConclusion.remodelacion == null ? 0 : data.ConstruccionesDistritoConclusion.remodelacion,
                         usu_Id_Usuario = data.Usu_Id_Usuario,
                         fechaRegistro = DateTime.Now
                     };
@@ -1301,8 +1303,8 @@ namespace IECE_WebApi.Controllers
                     var addDedicaciones = new Dedicaciones
                     {
                         IdInforme = data.IdInforme,
-                        Templos = data.Dedicaciones.Templos,
-                        CasasDeOracion = data.Dedicaciones.CasasDeOracion,
+                        Templos = data.Dedicaciones.Templos == null ? 0 : data.Dedicaciones.Templos,
+                        CasasDeOracion = data.Dedicaciones.CasasDeOracion == null ? 0 : data.Dedicaciones.CasasDeOracion,
                         Usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1323,8 +1325,8 @@ namespace IECE_WebApi.Controllers
                     {
                         IdInforme = data.IdInforme,
                         IdTipoPatrimonio = 1,
-                        Templos = data.RegularizacionPatNac.Templos,
-                        CasasPastorales = data.RegularizacionPatNac.CasasPastorales,
+                        Templos = data.RegularizacionPatNac.Templos == null ? 0 : data.RegularizacionPatNac.Templos,
+                        CasasPastorales = data.RegularizacionPatNac.CasasPastorales == null ? 0 : data.RegularizacionPatNac.CasasPastorales,
                         Usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1345,8 +1347,8 @@ namespace IECE_WebApi.Controllers
                     {
                         IdInforme = data.IdInforme,
                         IdTipoPatrimonio = 2,
-                        Templos = data.RegularizacionPatIg.Templos,
-                        CasasPastorales = data.RegularizacionPatIg.CasasPastorales,
+                        Templos = data.RegularizacionPatIg.Templos == null ? 0 : data.RegularizacionPatIg.Templos,
+                        CasasPastorales = data.RegularizacionPatIg.CasasPastorales == null ? 0 : data.RegularizacionPatIg.CasasPastorales,
                         Usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
@@ -1368,12 +1370,12 @@ namespace IECE_WebApi.Controllers
                     var addMovimientoEconomico = new MovimientoEconomico
                     {
                         IdInforme = data.IdInforme,
-                        ExistenciaAnterior = data.MovimientoEconomico.ExistenciaAnterior,
-                        EntradaMes = data.MovimientoEconomico.EntradaMes,
-                        SumaTotal = data.MovimientoEconomico.SumaTotal,
-                        GastosAdmon = data.MovimientoEconomico.GastosAdmon,
-                        TransferenciasAentidadSuperior = data.MovimientoEconomico.TransferenciasAentidadSuperior,
-                        ExistenciaEnCaja = data.MovimientoEconomico.ExistenciaEnCaja,
+                        ExistenciaAnterior = data.MovimientoEconomico.ExistenciaAnterior == null ? 0 : data.MovimientoEconomico.ExistenciaAnterior,
+                        EntradaMes = data.MovimientoEconomico.EntradaMes == null ? 0 : data.MovimientoEconomico.EntradaMes,
+                        SumaTotal = data.MovimientoEconomico.SumaTotal == null ? 0 : data.MovimientoEconomico.SumaTotal,
+                        GastosAdmon = data.MovimientoEconomico.GastosAdmon == null ? 0 : data.MovimientoEconomico.GastosAdmon,
+                        TransferenciasAentidadSuperior = data.MovimientoEconomico.TransferenciasAentidadSuperior == null ? 0 : data.MovimientoEconomico.TransferenciasAentidadSuperior,
+                        ExistenciaEnCaja = data.MovimientoEconomico.ExistenciaEnCaja == null ? 0 : data.MovimientoEconomico.ExistenciaEnCaja,
                         Usu_Id_Usuario = data.Usu_Id_Usuario,
                         FechaRegistro = DateTime.Now
                     };
