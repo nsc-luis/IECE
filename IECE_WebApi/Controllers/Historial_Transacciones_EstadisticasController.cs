@@ -771,29 +771,10 @@ namespace IECE_WebApi.Controllers
         {
             try
             {
-                var query = (from hte in context.Historial_Transacciones_Estadisticas
-                             join cte in context.Codigo_Transacciones_Estadisticas
-                             on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
-                             join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
-                             where hte.dis_Distrito_Id == fsd.idSectorDistrito
-                             && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
-                             select new
-                             {
-                                 hte.ct_Codigo_Transaccion,
-                                 cte.ct_Grupo,
-                                 cte.ct_Tipo,
-                                 cte.ct_Subtipo,
-                                 per.per_Nombre,
-                                 per.per_Apellido_Paterno,
-                                 per.per_Apellido_Materno,
-                                 per.per_Apellido_Casada,
-                                 apellidoPrincipal = (per.per_Apellido_Casada == "" || per.per_Apellido_Casada == null) ? per.per_Apellido_Paterno : (per.per_Apellido_Casada + "* " + per.per_Apellido_Paterno),
-                                 hte.hte_Comentario,
-                                 hte.sec_Sector_Alias,
-                                 hte.dis_Distrito_Alias,
-                                 hte.hte_Fecha_Transaccion
-                             }).ToList();
+                
 
+                    SubConsultas subConsultas = new SubConsultas(context);
+                List<HistorialPorFechaSector> query = subConsultas.SubHistorialPorFechaDistrito(fsd);
 
                 return Ok(new
                 {

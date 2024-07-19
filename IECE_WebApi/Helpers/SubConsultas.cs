@@ -690,6 +690,61 @@ namespace IECE_WebApi.Helpers
             return resultado;
         }
 
+
+        public List<HistorialPorFechaSector> SubHistorialPorFechaDistrito(Historial_Transacciones_EstadisticasController.FechasSectorDistrito fsd)
+        {
+            List<HistorialPorFechaSector> resultado = new List<HistorialPorFechaSector>();
+            var query = (from hte in context.Historial_Transacciones_Estadisticas
+                         join cte in context.Codigo_Transacciones_Estadisticas
+                         on hte.ct_Codigo_Transaccion equals cte.ct_Codigo
+                         join per in context.Persona on hte.per_Persona_Id equals per.per_Id_Persona
+                         where hte.dis_Distrito_Id == fsd.idSectorDistrito
+                         && (hte.hte_Fecha_Transaccion >= fsd.fechaInicial && hte.hte_Fecha_Transaccion <= fsd.fechaFinal)
+                         select new
+                         {
+                             hte.ct_Codigo_Transaccion,
+                             cte.ct_Grupo,
+                             cte.ct_Tipo,
+                             cte.ct_Subtipo,
+                             per.per_Nombre,
+                             per.per_Apellido_Paterno,
+                             per.per_Apellido_Materno,
+                             per.per_Apellido_Casada,
+                             per.per_Bautizado,
+                             per.per_Categoria,
+                             apellidoPrincipal = (per.per_Apellido_Casada == "" || per.per_Apellido_Casada == null) ? per.per_Apellido_Paterno : (per.per_Apellido_Casada + "* " + per.per_Apellido_Paterno),
+                             hte.hte_Comentario,
+                             hte.sec_Sector_Alias,
+                             hte.dis_Distrito_Alias,
+                             hte.hte_Fecha_Transaccion,
+                             hte.hte_Id_Transaccion
+                         }).ToList();
+            foreach (var q in query)
+            {
+                resultado.Add(new HistorialPorFechaSector
+                {
+                    hte_Id_Transaccion = q.hte_Id_Transaccion,
+                    ct_Codigo_Transaccion = q.ct_Codigo_Transaccion,
+                    ct_Grupo = q.ct_Grupo,
+                    ct_Tipo = q.ct_Tipo,
+                    ct_Subtipo = q.ct_Subtipo,
+                    per_Nombre = q.per_Nombre,
+                    per_Apellido_Paterno = q.per_Apellido_Paterno,
+                    per_Apellido_Materno = q.per_Apellido_Materno,
+                    per_Apellido_Casada = q.per_Apellido_Casada,
+                    apellidoPrincipal = (q.per_Apellido_Casada == "" || q.per_Apellido_Casada == null) ? q.per_Apellido_Paterno : (q.per_Apellido_Casada + "* " + q.per_Apellido_Paterno),
+                    per_Bautizado = q.per_Bautizado,
+                    per_Categoria = q.per_Categoria,
+                    hte_Comentario = q.hte_Comentario,
+                    hte_Fecha_Transaccion = q.hte_Fecha_Transaccion,
+                    dis_Distrito_Alias = q.dis_Distrito_Alias,
+                    sec_Sector_Alia = q.sec_Sector_Alias
+                });
+            }
+            return resultado;
+        }
+
+
         public InformePastorViewModel SubInformePastoral(int id)
         {
             //Obtiene el informe correspondiente al Id especificado
@@ -893,14 +948,7 @@ namespace IECE_WebApi.Helpers
                 informeVM.MovimientoEconomico = movimientoEconomico;
             }
 
-            List<OtrasActividades> otrasActividades = context.OtrasActividades
-                .Where(w => w.IdInforme == id)
-                .ToList();
-
-            if (otrasActividades != null)
-            {
-                informeVM.OtrasActividades = otrasActividades;
-            }
+ 
 
             return informeVM;
         }
