@@ -272,7 +272,7 @@ namespace IECE_WebApi.Controllers
                 message.Subject = objeto.asunto;
                 message.IsBodyHtml = FORMATO;
                 message.Body = objeto.mensaje;
-                 smtp.Send(message);
+                smtp.Send(message);
                 return Ok(
                     new
                     {
